@@ -1,0 +1,14 @@
+{
+  "parent": "lightupmyenvironment:custom/jar",
+  "textures": {
+    "all": "lightupmyenvironment:blocks/potion_liquid",
+    
+    "0": "lightupmyenvironment:blocks/jar_side",
+    "1": "lightupmyenvironment:blocks/jar_top",
+    "2": "lightupmyenvironment:blocks/jar_cork",
+	"3": "lightupmyenvironment:blocks/jar_bottom",
+    "particle": "lightupmyenvironment:blocks/jar_side",
+    "l1":"lightupmyenvironment:blocks/potion_liquid",
+    "l2":"lightupmyenvironment:blocks/milk_liquid"
+  }
+}

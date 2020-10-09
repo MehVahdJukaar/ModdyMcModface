@@ -1,0 +1,10 @@
+{
+  "parent": "lightupmyenvironment:custom/pedestal",
+  "textures": {
+    "0": "lightupmyenvironment:blocks/pedestal_top",
+    "1": "lightupmyenvironment:blocks/pedestal_side",
+    "2": "lightupmyenvironment:blocks/pedestal_bottom",
+    "particle": "lightupmyenvironment:blocks/pedestal_side"
+
+  }
+}

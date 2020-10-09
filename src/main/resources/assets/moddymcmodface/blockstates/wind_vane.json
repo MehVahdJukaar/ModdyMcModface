@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "inverted=false": {
+      "model": "lightupmyenvironment:block/wind_vane_down"
+    },
+    "inverted=true": {
+      "model": "lightupmyenvironment:block/wind_vane_up"
+    }
+  }
+}

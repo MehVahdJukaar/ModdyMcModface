@@ -1,0 +1,12 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "clock_front",
+        "1": "clock_side",
+        "2": "clock_back"
+      },
+      "name": "default"
+    }
+  }
+}

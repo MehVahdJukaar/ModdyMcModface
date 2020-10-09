@@ -1,0 +1,11 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "wind_vane",
+        "1": "wind_vane_details"
+      },
+      "name": "default"
+    }
+  }
+}

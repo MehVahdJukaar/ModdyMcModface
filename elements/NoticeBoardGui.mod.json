@@ -1,0 +1,43 @@
+{
+  "_fv": 10,
+  "_type": "gui",
+  "definition": {
+    "type": 1,
+    "width": 352,
+    "height": 332,
+    "renderBgLayer": true,
+    "doesPauseGame": false,
+    "components": [
+      {
+        "type": "label",
+        "data": {
+          "text": "NoticeBoard",
+          "color": {
+            "value": -16777216,
+            "falpha": 0.0
+          },
+          "name": "NoticeBoard",
+          "x": 282,
+          "y": 96
+        }
+      },
+      {
+        "type": "inputslot",
+        "data": {
+          "inputLimit": {
+            "value": "Items.WRITTEN_BOOK"
+          },
+          "id": 0,
+          "disableStackInteraction": false,
+          "dropItemsWhenNotBound": true,
+          "onSlotChanged": {
+            "name": "UpdateNoticeBoard"
+          },
+          "name": "Slot #0",
+          "x": 408,
+          "y": 150
+        }
+      }
+    ]
+  }
+}

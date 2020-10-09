@@ -1,0 +1,10 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "1": "skull_lantern"
+      },
+      "name": "default"
+    }
+  }
+}

@@ -1,0 +1,188 @@
+/**
+ * This mod element is always locked. Enter your code in the methods below.
+ * If you don't need some of these methods, you can remove them as they
+ * are overrides of the base class ModdymcmodfaceModElements.ModElement.
+ *
+ * You can register new events in this class too.
+ *
+ * As this class is loaded into mod element list, it NEEDS to extend
+ * ModElement class. If you remove this extend statement or remove the
+ * constructor, the compilation will fail.
+ *
+ * If you want to make a plain independent class, create it using
+ * Project Browser - New... and make sure to make the class
+ * outside net.mcreator.moddymcmodface as this package is managed by MCreator.
+ *
+ * If you change workspace package, modid or prefix, you will need
+ * to manually adapt this file to these changes or remake it.
+*/
+package net.mcreator.moddymcmodface;
+
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.World;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.server.management.PlayerList;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.Minecraft;
+
+import net.mcreator.moddymcmodface.block.NoticeBoardBlock;
+import net.mcreator.moddymcmodface.block.PedestalBlock;
+
+
+import java.util.function.Supplier;
+import net.minecraft.entity.Entity;
+import net.minecraft.world.server.ServerWorld;
+
+@ModdymcmodfaceModElements.ModElement.Tag
+public class Network extends ModdymcmodfaceModElements.ModElement {
+	/**
+	 * Do not remove this constructor
+	 */
+	public Network(ModdymcmodfaceModElements instance) {
+		super(instance, 124);
+	}
+
+	@Override
+	public void initElements() {
+	}
+
+	@Override
+	public void init(FMLCommonSetupEvent event) {
+		Networking.registerMessages();
+	}
+
+	@Override
+	public void serverLoad(FMLServerStartingEvent event) {
+	}
+	public static class myMessage {
+	};
+
+	public static class PacketUpdateNoticeBoard extends myMessage {
+		private BlockPos pos;
+		private ItemStack stack;
+		public PacketUpdateNoticeBoard(PacketBuffer buf) {
+			this.pos = buf.readBlockPos();
+			this.stack = buf.readItemStack();
+		}
+
+		public PacketUpdateNoticeBoard(BlockPos pos, ItemStack stack) {
+			this.pos = pos;
+			this.stack = stack;
+		}
+
+		public void toBytes(PacketBuffer buf) {
+			buf.writeBlockPos(this.pos);
+			buf.writeItemStack(this.stack);
+		}
+
+		public void handle(Supplier<NetworkEvent.Context> ctx) {
+			ctx.get().enqueueWork(() -> {
+				World world = Minecraft.getInstance().world;
+				if (world != null) {
+					TileEntity tileentity = world.getTileEntity(pos);
+					if (tileentity instanceof NoticeBoardBlock.CustomTileEntity) {
+						((NoticeBoardBlock.CustomTileEntity) tileentity).callUpdate(this.stack);
+					}
+				}
+			});
+			ctx.get().setPacketHandled(true);
+		}
+	}
+
+
+
+	public static class PacketUpdatePedestal extends myMessage {
+		private BlockPos pos;
+		private ItemStack stack;
+		public PacketUpdatePedestal(PacketBuffer buf) {
+			this.pos = buf.readBlockPos();
+			this.stack = buf.readItemStack();
+		}
+
+		public PacketUpdatePedestal(BlockPos pos, ItemStack stack) {
+			this.pos = pos;
+			this.stack = stack;
+		}
+
+		public void toBytes(PacketBuffer buf) {
+			buf.writeBlockPos(this.pos);
+			buf.writeItemStack(this.stack);
+		}
+
+		public void handle(Supplier<NetworkEvent.Context> ctx) {
+			ctx.get().enqueueWork(() -> {
+				World world = Minecraft.getInstance().world;
+				if (world != null) {
+					TileEntity tileentity = world.getTileEntity(pos);
+					if (tileentity instanceof PedestalBlock.CustomTileEntity) {
+						((PedestalBlock.CustomTileEntity) tileentity).updatePedestal(this.stack);
+					}
+				}
+			});
+			ctx.get().setPacketHandled(true);
+		}
+	}
+
+
+
+
+
+
+	
+
+	public static class Networking {
+		public static SimpleChannel INSTANCE;
+		private static int ID = 0;
+		public static int nextID() {
+			return ID++;
+		}
+
+		public static void registerMessages() {
+			INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation("moddymcmodface:mychannel"), () -> "1.0", s -> true, s -> true);
+			INSTANCE.registerMessage(nextID(), 
+					PacketUpdateNoticeBoard.class, 
+					PacketUpdateNoticeBoard::toBytes, 
+					PacketUpdateNoticeBoard::new,
+					PacketUpdateNoticeBoard::handle);
+			INSTANCE.registerMessage(nextID(), 
+					PacketUpdatePedestal.class, 
+					PacketUpdatePedestal::toBytes, 
+					PacketUpdatePedestal::new,
+					PacketUpdatePedestal::handle);
+
+		}
+	}
+	// I'm so bad with this, I know. should work fine though.. I hope
+	//for te
+	public static void sendToAllNear(double x, double y, double z, double radius, DimensionType dimension, myMessage message) {
+		MinecraftServer mcserv = ServerLifecycleHooks.getCurrentServer();
+		if (mcserv != null && dimension != null) {
+			PlayerList players = mcserv.getPlayerList();
+			players.sendToAllNearExcept((PlayerEntity) null, x, y, z, radius, dimension,
+					Networking.INSTANCE.toVanillaPacket(message, NetworkDirection.PLAY_TO_CLIENT));
+		}
+	}
+	
+	//better method for entities
+	public static void sendToAllTracking(World world, Entity entityIn, myMessage message){
+		if (world instanceof ServerWorld){
+		((ServerWorld)world).getChunkProvider().sendToAllTracking(entityIn, Networking.INSTANCE.toVanillaPacket(message, NetworkDirection.PLAY_TO_CLIENT));
+		}
+
+	}
+	
+	
+}

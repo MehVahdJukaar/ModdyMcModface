@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "lightupmyenvironment:blocks/redstone_illuminator",
+    "up": "lightupmyenvironment:blocks/redstone_illuminator",
+    "north": "lightupmyenvironment:blocks/redstone_illuminator",
+    "east": "lightupmyenvironment:blocks/redstone_illuminator",
+    "south": "lightupmyenvironment:blocks/redstone_illuminator",
+    "west": "lightupmyenvironment:blocks/redstone_illuminator",
+    "particle": "lightupmyenvironment:blocks/redstone_illuminator"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "parent": "lightupmyenvironment:custom/clock",
+  "textures": {
+    "all": "lightupmyenvironment:blocks/clock_front",
+    "particle": "lightupmyenvironment:blocks/clock_front",
+    "0": "lightupmyenvironment:blocks/clock_front",
+    "1": "lightupmyenvironment:blocks/clock_side",
+	"2": "lightupmyenvironment:blocks/clock_back",
+    "missing": "lightupmyenvironment:blocks/clock_front"
+  }
+}

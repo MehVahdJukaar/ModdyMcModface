@@ -1,0 +1,11 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "pedestal_top",
+        "1": "pedestal_side"
+      },
+      "name": "default"
+    }
+  }
+}

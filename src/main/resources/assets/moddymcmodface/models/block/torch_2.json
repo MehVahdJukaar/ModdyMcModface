@@ -1,0 +1,10 @@
+{
+  "parent": "moddymcmodface:custom/torch",
+  "textures": {
+    "all": "moddymcmodface:blocks/honey_liquid",
+    "particle": "moddymcmodface:blocks/honey_liquid",
+    "0": "moddymcmodface:blocks/t1",
+    "1": "moddymcmodface:blocks/t2",
+    "2": "moddymcmodface:blocks/t3"
+  }
+}

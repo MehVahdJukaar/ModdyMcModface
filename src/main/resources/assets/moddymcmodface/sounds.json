@@ -1,0 +1,20 @@
+{
+  "tick_1": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "moddymcmodface:tick1",
+        "stream": false
+      }
+    ]
+  },
+  "tick_2": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "moddymcmodface:tick2",
+        "stream": false
+      }
+    ]
+  }
+}

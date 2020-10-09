@@ -1,0 +1,9 @@
+{
+  "parent": "moddymcmodface:custom/tiki",
+  "textures": {
+    "all": "moddymcmodface:blocks/tiki",
+    "particle": "moddymcmodface:blocks/tiki",
+    "0": "moddymcmodface:blocks/tiki",
+    "1": "moddymcmodface:blocks/tikitop"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "planter_bottom",
+        "1": "planter_side",
+        "2": "dirt_moist"
+      },
+      "name": "default"
+    }
+  }
+}

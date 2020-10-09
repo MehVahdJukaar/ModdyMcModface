@@ -1,0 +1,12 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "fancy_lamp",
+        "1": "fancy_lamp_back",
+        "2": "fancy_lamp_glow"
+      },
+      "name": "default"
+    }
+  }
+}

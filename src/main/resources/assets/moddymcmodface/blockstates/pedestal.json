@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "up=false,down=false": {
+      "model": "lightupmyenvironment:block/pedestal"
+    },
+    "up=true,down=false": {
+      "model": "lightupmyenvironment:block/pedestal_up"
+    },
+    "up=false,down=true": {
+      "model": "lightupmyenvironment:block/pedestal_down"
+    },
+    "up=true,down=true": {
+      "model": "lightupmyenvironment:block/pedestal_middle"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "parent": "lightupmyenvironment:custom/clover",
+  "textures": {
+    "all": "lightupmyenvironment:blocks/clover_top",
+    "particle": "lightupmyenvironment:blocks/clover_top",
+    "1": "lightupmyenvironment:blocks/clover_top",
+    "2": "lightupmyenvironment:blocks/clover_side"
+  }
+}

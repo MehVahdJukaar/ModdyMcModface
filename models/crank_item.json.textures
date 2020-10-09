@@ -1,0 +1,11 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "crank_base",
+        "1": "crank_handle"
+      },
+      "name": "default"
+    }
+  }
+}

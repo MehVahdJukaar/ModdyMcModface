@@ -1,0 +1,11 @@
+{
+  "parent": "lightupmyenvironment:custom/jar",
+  "textures": {
+    "all": "lightupmyenvironment:blocks/jar_bottom",
+    "particle": "lightupmyenvironment:blocks/jar_bottom",
+    "0": "lightupmyenvironment:blocks/jar_side",
+    "1": "lightupmyenvironment:blocks/jar_top",
+    "2": "lightupmyenvironment:blocks/jar_cork",
+    "3": "lightupmyenvironment:blocks/jar_bottom"
+  }
+}

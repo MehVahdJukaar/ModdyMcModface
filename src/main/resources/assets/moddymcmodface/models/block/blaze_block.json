@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "lightupmyenvironment:blocks/blaze_block",
+    "up": "lightupmyenvironment:blocks/blaze_block",
+    "north": "lightupmyenvironment:blocks/blaze_block",
+    "east": "lightupmyenvironment:blocks/blaze_block",
+    "south": "lightupmyenvironment:blocks/blaze_block",
+    "west": "lightupmyenvironment:blocks/blaze_block",
+    "particle": "lightupmyenvironment:blocks/blaze_block"
+  }
+}

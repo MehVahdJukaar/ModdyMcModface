@@ -1,0 +1,366 @@
+{
+  "id_map": {},
+  "mod_elements": [
+    {
+      "name": "RedstoneIlluminatorRecipe",
+      "type": "recipe",
+      "sortid": 19,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_recipe"
+    },
+    {
+      "name": "SkullLanternDown",
+      "type": "block",
+      "sortid": 28,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "skull_lantern_down"
+    },
+    {
+      "name": "PistonLauncher",
+      "type": "block",
+      "sortid": 34,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "piston_launcher"
+    },
+    {
+      "name": "PistonLauncherHead",
+      "type": "block",
+      "sortid": 42,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "piston_launcher_head"
+    },
+    {
+      "name": "PistonLauncherArmTile",
+      "type": "block",
+      "sortid": 58,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "piston_launcher_arm_tile"
+    },
+    {
+      "name": "Planter",
+      "type": "block",
+      "sortid": 64,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "planter"
+    },
+    {
+      "name": "Clock",
+      "type": "block",
+      "sortid": 65,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "clock"
+    },
+    {
+      "name": "PistonLauncherRecipe",
+      "type": "recipe",
+      "sortid": 71,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "piston_launcher_recipe"
+    },
+    {
+      "name": "PlanterRecipe",
+      "type": "recipe",
+      "sortid": 74,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "planter_recipe"
+    },
+    {
+      "name": "RedstoneIlluminator",
+      "type": "block",
+      "sortid": 75,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "redstone_illuminator"
+    },
+    {
+      "name": "ClockBlockRecipe",
+      "type": "recipe",
+      "sortid": 78,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "clock_block_recipe"
+    },
+    {
+      "name": "WindVane",
+      "type": "block",
+      "sortid": 79,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "wind_vane"
+    },
+    {
+      "name": "WindVaneRecipe",
+      "type": "recipe",
+      "sortid": 80,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "wind_vane_recipe"
+    },
+    {
+      "name": "NoticeBoard",
+      "type": "block",
+      "sortid": 85,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "notice_board"
+    },
+    {
+      "name": "NoticeBoardGui",
+      "type": "gui",
+      "sortid": 85,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "notice_board_gui"
+    },
+    {
+      "name": "Pedestal",
+      "type": "block",
+      "sortid": 102,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "pedestal"
+    },
+    {
+      "name": "Faucet",
+      "type": "block",
+      "sortid": 104,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "faucet"
+    },
+    {
+      "name": "Jar",
+      "type": "block",
+      "sortid": 106,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "jar"
+    },
+    {
+      "name": "Customrender",
+      "type": "code",
+      "sortid": 109,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "customrender"
+    },
+    {
+      "name": "Firefly",
+      "type": "mob",
+      "sortid": 111,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "firefly"
+    },
+    {
+      "name": "FancyLamp",
+      "type": "block",
+      "sortid": 112,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "fancy_lamp"
+    },
+    {
+      "name": "Laser",
+      "type": "block",
+      "sortid": 113,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "laser"
+    },
+    {
+      "name": "Tiki",
+      "type": "block",
+      "sortid": 116,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "tiki"
+    },
+    {
+      "name": "TextureLoader",
+      "type": "block",
+      "sortid": 117,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "texture_loader"
+    },
+    {
+      "name": "Network",
+      "type": "code",
+      "sortid": 124,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "network"
+    },
+    {
+      "name": "Clover",
+      "type": "plant",
+      "sortid": 134,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "clover"
+    },
+    {
+      "name": "TurnTable",
+      "type": "block",
+      "sortid": 135,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "turn_table"
+    },
+    {
+      "name": "Particles",
+      "type": "code",
+      "sortid": 136,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "particles"
+    },
+    {
+      "name": "BlazeBlock",
+      "type": "block",
+      "sortid": 138,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "blaze_block"
+    },
+    {
+      "name": "Torch2",
+      "type": "block",
+      "sortid": 139,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "torch_2"
+    },
+    {
+      "name": "FireflyJar",
+      "type": "block",
+      "sortid": 144,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "firefly_jar"
+    },
+    {
+      "name": "Crank",
+      "type": "block",
+      "sortid": 148,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "crank"
+    },
+    {
+      "name": "NoticeBoardRecipe",
+      "type": "recipe",
+      "sortid": 149,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "notice_board_recipe"
+    }
+  ],
+  "variable_elements": [],
+  "sound_elements": [
+    {
+      "name": "tick_1",
+      "file": "tick1",
+      "category": "block"
+    },
+    {
+      "name": "tick_2",
+      "file": "tick2",
+      "category": "block"
+    }
+  ],
+  "language_map": {
+    "en_us": {
+      "block.lightupmyenvironment.texture_loader": "Texture Loader",
+      "block.lightupmyenvironment.faucet": "Faucet",
+      "block.moddymcmodface.tiki": "Tiki",
+      "block.moddymcmodface.fancy_lamp": "Fancy Lamp",
+      "block.lightupmyenvironment.planter": "Planter",
+      "entity.lightupmyenvironment.firefly": "Firefly",
+      "block.lightupmyenvironment.blaze_block": "Blaze Block",
+      "block.lightupmyenvironment.tiki": "Tiki",
+      "block.lightupmyenvironment.firefly_jar": "Firefly Jar",
+      "block.lightupmyenvironment.wind_vane": "Wind Vane",
+      "block.lightupmyenvironment.clock": "Clock",
+      "block.lightupmyenvironment.clover": "Clover",
+      "block.lightupmyenvironment.fancy_lamp": "Fancy Lamp",
+      "block.lightupmyenvironment.piston_launcher_arm_tile": "Piston Launcher Arm Tile",
+      "block.lightupmyenvironment.crank": "Crank",
+      "block.lightupmyenvironment.piston_launcher": "Piston Launcher",
+      "block.lightupmyenvironment.jar": "Jar",
+      "block.lightupmyenvironment.piston_launcher_head": "Piston Launcher",
+      "block.lightupmyenvironment.pedestal": "Pedestal",
+      "block.moddymcmodface.texture_loader": "Texture Loader",
+      "item.lightupmyenvironment.firefly": "Firefly Spawn Egg",
+      "block.moddymcmodface.skull_lantern_down": "Skull Lantern Down",
+      "block.lightupmyenvironment.laser": "Laser",
+      "block.lightupmyenvironment.turn_table": "Turn Table",
+      "block.lightupmyenvironment.redstone_illuminator": "Redstone Illuminator",
+      "block.lightupmyenvironment.skull_lantern_down": "Skull Lantern Down",
+      "block.lightupmyenvironment.torch_2": "Torch 2",
+      "block.lightupmyenvironment.notice_board": "Notice Board",
+      "block.moddymcmodface.torch_2": "Torch 2"
+    }
+  },
+  "workspaceSettings": {
+    "modid": "moddymcmodface",
+    "modName": "Moddy McModface",
+    "version": "1.0.0",
+    "author": "Meh-Vah\u0027d Jukaar, MCreator",
+    "websiteURL": "https://mcreator.net",
+    "disableForgeVersionCheck": true,
+    "serverSideOnly": false,
+    "requiredMods": [],
+    "dependencies": [],
+    "dependants": [],
+    "mcreatorDependencies": [],
+    "currentGenerator": "forge-1.15.2",
+    "credits": "Created using mod maker MCreator - https://mcreator.net/about",
+    "modElementsPackage": "net.mcreator.moddymcmodface",
+    "lockBaseModFiles": false
+  },
+  "mcreatorVersion": 202000432115
+}

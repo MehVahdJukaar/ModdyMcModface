@@ -1,0 +1,12 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "turn_table_top",
+        "1": "turn_table_side_left",
+        "2": "turb_table_bottom"
+      },
+      "name": "default"
+    }
+  }
+}

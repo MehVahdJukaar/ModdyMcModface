@@ -1,0 +1,578 @@
+{
+  "id_map": {},
+  "mod_elements": [
+    {
+      "name": "RedstoneIlluminatorRedstoneOn",
+      "type": "procedure",
+      "sortid": 1,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "redstone_illuminator_redstone_on",
+      "metadata": {
+        "dependencies": [
+          {
+            "name": "x",
+            "type": "number"
+          },
+          {
+            "name": "y",
+            "type": "number"
+          },
+          {
+            "name": "z",
+            "type": "number"
+          },
+          {
+            "name": "world",
+            "type": "world"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RedstoneIlluminator",
+      "type": "block",
+      "sortid": 1,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator"
+    },
+    {
+      "name": "RedstoneIlluminator1RedstoneOff",
+      "type": "procedure",
+      "sortid": 3,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_1_redstone_off",
+      "metadata": {
+        "dependencies": [
+          {
+            "name": "x",
+            "type": "number"
+          },
+          {
+            "name": "y",
+            "type": "number"
+          },
+          {
+            "name": "z",
+            "type": "number"
+          },
+          {
+            "name": "world",
+            "type": "world"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RedstoneIlluminator15",
+      "type": "block",
+      "sortid": 5,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_15"
+    },
+    {
+      "name": "RedstoneIlluminator14",
+      "type": "block",
+      "sortid": 6,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_14"
+    },
+    {
+      "name": "RedstoneIlluminator2",
+      "type": "block",
+      "sortid": 4,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_2"
+    },
+    {
+      "name": "RedstoneIlluminator13",
+      "type": "block",
+      "sortid": 7,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_13"
+    },
+    {
+      "name": "RedstoneIlluminator1",
+      "type": "block",
+      "sortid": 8,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_1"
+    },
+    {
+      "name": "RedstoneIlluminator12",
+      "type": "block",
+      "sortid": 9,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_12"
+    },
+    {
+      "name": "RedstoneIlluminator11",
+      "type": "block",
+      "sortid": 10,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_11"
+    },
+    {
+      "name": "RedstoneIlluminator10",
+      "type": "block",
+      "sortid": 11,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_10"
+    },
+    {
+      "name": "RedstoneIlluminator9",
+      "type": "block",
+      "sortid": 12,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_9"
+    },
+    {
+      "name": "RedstoneIlluminator8",
+      "type": "block",
+      "sortid": 13,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_8"
+    },
+    {
+      "name": "RedstoneIlluminator7",
+      "type": "block",
+      "sortid": 14,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_7"
+    },
+    {
+      "name": "RedstoneIlluminator6",
+      "type": "block",
+      "sortid": 15,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_6"
+    },
+    {
+      "name": "RedstoneIlluminator5",
+      "type": "block",
+      "sortid": 16,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_5"
+    },
+    {
+      "name": "RedstoneIlluminator4",
+      "type": "block",
+      "sortid": 17,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_4"
+    },
+    {
+      "name": "RedstoneIlluminator3",
+      "type": "block",
+      "sortid": 18,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_3"
+    },
+    {
+      "name": "RedstoneIlluminatorRecipe",
+      "type": "recipe",
+      "sortid": 19,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "redstone_illuminator_recipe"
+    },
+    {
+      "name": "CandleDown",
+      "type": "block",
+      "sortid": 20,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "candle_down"
+    },
+    {
+      "name": "CandleNorth",
+      "type": "block",
+      "sortid": 21,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "candle_north"
+    },
+    {
+      "name": "Candle",
+      "type": "item",
+      "sortid": 24,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "candle"
+    },
+    {
+      "name": "CandleDownNeighbourBlockChanges",
+      "type": "procedure",
+      "sortid": 25,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "candle_down_neighbour_block_changes",
+      "metadata": {
+        "dependencies": [
+          {
+            "name": "x",
+            "type": "number"
+          },
+          {
+            "name": "y",
+            "type": "number"
+          },
+          {
+            "name": "z",
+            "type": "number"
+          },
+          {
+            "name": "world",
+            "type": "world"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CandleRightClickedOnBlock",
+      "type": "procedure",
+      "sortid": 26,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "candle_right_clicked_on_block",
+      "metadata": {
+        "dependencies": [
+          {
+            "name": "direction",
+            "type": "direction"
+          },
+          {
+            "name": "entity",
+            "type": "entity"
+          },
+          {
+            "name": "itemstack",
+            "type": "itemstack"
+          },
+          {
+            "name": "x",
+            "type": "number"
+          },
+          {
+            "name": "y",
+            "type": "number"
+          },
+          {
+            "name": "z",
+            "type": "number"
+          },
+          {
+            "name": "world",
+            "type": "world"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CandleNorthNeighbourBlockChanges",
+      "type": "procedure",
+      "sortid": 27,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "candle_north_neighbour_block_changes",
+      "metadata": {
+        "dependencies": [
+          {
+            "name": "x",
+            "type": "number"
+          },
+          {
+            "name": "y",
+            "type": "number"
+          },
+          {
+            "name": "z",
+            "type": "number"
+          },
+          {
+            "name": "world",
+            "type": "world"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SkullLanternDown",
+      "type": "block",
+      "sortid": 28,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "skull_lantern_down"
+    },
+    {
+      "name": "PistonLauncher",
+      "type": "block",
+      "sortid": 34,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "piston_launcher"
+    },
+    {
+      "name": "PistonLauncherArm",
+      "type": "mob",
+      "sortid": 37,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "piston_launcher_arm"
+    },
+    {
+      "name": "PistonLauncherBase",
+      "type": "block",
+      "sortid": 39,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "piston_launcher_base"
+    },
+    {
+      "name": "PistonLauncherHead",
+      "type": "block",
+      "sortid": 42,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "piston_launcher_head"
+    },
+    {
+      "name": "Tempmob",
+      "type": "mob",
+      "sortid": 49,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "tempmob"
+    },
+    {
+      "name": "Temprocdel",
+      "type": "procedure",
+      "sortid": 51,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "temprocdel",
+      "metadata": {
+        "dependencies": [
+          {
+            "name": "entity",
+            "type": "entity"
+          },
+          {
+            "name": "x",
+            "type": "number"
+          },
+          {
+            "name": "y",
+            "type": "number"
+          },
+          {
+            "name": "z",
+            "type": "number"
+          },
+          {
+            "name": "world",
+            "type": "world"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PistonLauncherHeadBlockDestroyedByPlayer",
+      "type": "procedure",
+      "sortid": 59,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "piston_launcher_head_block_destroyed_by_player",
+      "metadata": {
+        "dependencies": [
+          {
+            "name": "x",
+            "type": "number"
+          },
+          {
+            "name": "y",
+            "type": "number"
+          },
+          {
+            "name": "z",
+            "type": "number"
+          },
+          {
+            "name": "world",
+            "type": "world"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Planter",
+      "type": "block",
+      "sortid": 64,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "planter"
+    },
+    {
+      "name": "Clock",
+      "type": "block",
+      "sortid": 65,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "clock"
+    },
+    {
+      "name": "TestTile",
+      "type": "block",
+      "sortid": 66,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "test_tile"
+    },
+    {
+      "name": "Eee",
+      "type": "procedure",
+      "sortid": 68,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "eee",
+      "metadata": {
+        "dependencies": [
+          {
+            "name": "x",
+            "type": "number"
+          },
+          {
+            "name": "y",
+            "type": "number"
+          },
+          {
+            "name": "z",
+            "type": "number"
+          },
+          {
+            "name": "world",
+            "type": "world"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PistonLauncherArmTile",
+      "type": "block",
+      "sortid": 69,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "piston_launcher_arm_tile"
+    }
+  ],
+  "variable_elements": [],
+  "sound_elements": [],
+  "language_map": {
+    "en_us": {
+      "block.lightupmyenvironment.redstone_illuminator_15": "Redstone Illuminator",
+      "block.lightupmyenvironment.redstone_illuminator_14": "Redstone Illuminator",
+      "block.lightupmyenvironment.redstone_illuminator_9": "Redstone Illuminator",
+      "block.lightupmyenvironment.redstone_illuminator_8": "Redstone Illuminator",
+      "block.lightupmyenvironment.redstone_illuminator_13": "Redstone Illuminator",
+      "block.lightupmyenvironment.redstone_illuminator_7": "Redstone Illuminator",
+      "block.lightupmyenvironment.redstone_illuminator_12": "Redstone Illuminator",
+      "item.lightupmyenvironment.tempmob": "Tempmob Spawn Egg",
+      "block.lightupmyenvironment.redstone_illuminator_11": "Redstone Illuminator",
+      "block.lightupmyenvironment.redstone_illuminator_10": "Redstone Illuminator",
+      "block.lightupmyenvironment.planter": "Planter",
+      "block.lightupmyenvironment.test_tile": "Test Tile",
+      "block.lightupmyenvironment.candle_down": "Candle Down",
+      "block.lightupmyenvironment.clock": "Clock",
+      "block.lightupmyenvironment.piston_launcher_arm_tile": "Piston Launcher Arm Tile",
+      "block.lightupmyenvironment.piston_launcher": "Piston Launcher",
+      "entity.lightupmyenvironment.tempmob": "Tempmob",
+      "block.lightupmyenvironment.piston_launcher_head": "Piston Launcher",
+      "block.lightupmyenvironment.candle_north": "Candle Down",
+      "block.lightupmyenvironment.redstone_illuminator": "Redstone Illuminator",
+      "item.lightupmyenvironment.piston_launcher_arm": "Piston Launcher Arm Spawn Egg",
+      "item.lightupmyenvironment.candle": "Candle",
+      "block.lightupmyenvironment.piston_launcher_base": "Piston Launcher",
+      "block.lightupmyenvironment.skull_lantern_down": "Skull Lantern Down",
+      "block.lightupmyenvironment.redstone_illuminator_2": "Redstone Illuminator",
+      "entity.lightupmyenvironment.piston_launcher_arm": "Piston Launcher Arm",
+      "block.lightupmyenvironment.redstone_illuminator_1": "Redstone Illuminator",
+      "block.lightupmyenvironment.redstone_illuminator_6": "Redstone Illuminator",
+      "block.lightupmyenvironment.redstone_illuminator_5": "Redstone Illuminator",
+      "block.lightupmyenvironment.redstone_illuminator_4": "Redstone Illuminator",
+      "block.lightupmyenvironment.redstone_illuminator_3": "Redstone Illuminator"
+    }
+  },
+  "workspaceSettings": {
+    "modid": "lightupmyenvironment",
+    "modName": "L.U.M.EN",
+    "version": "1.0.0",
+    "author": "UNKNOWN, MCreator",
+    "websiteURL": "https://mcreator.net",
+    "disableForgeVersionCheck": true,
+    "serverSideOnly": false,
+    "requiredMods": [],
+    "dependencies": [],
+    "dependants": [],
+    "mcreatorDependencies": [],
+    "currentGenerator": "forge-1.15.2",
+    "credits": "Created using mod maker MCreator - https://mcreator.net/about",
+    "modElementsPackage": "net.mcreator.lightupmyenvironment",
+    "lockBaseModFiles": false
+  },
+  "mcreatorVersion": 202000432115
+}

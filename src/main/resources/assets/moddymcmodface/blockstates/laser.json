@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lightupmyenvironment:block/laser"
+    },
+    "facing=east": {
+      "model": "lightupmyenvironment:block/laser",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "lightupmyenvironment:block/laser",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightupmyenvironment:block/laser",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "lightupmyenvironment:block/laser",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "lightupmyenvironment:block/laser",
+      "x": 90
+    }
+  }
+}

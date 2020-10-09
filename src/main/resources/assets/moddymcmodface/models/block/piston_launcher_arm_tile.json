@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "lightupmyenvironment:blocks/transparent",
+    "up": "lightupmyenvironment:blocks/transparent",
+    "north": "lightupmyenvironment:blocks/transparent",
+    "east": "lightupmyenvironment:blocks/transparent",
+    "south": "lightupmyenvironment:blocks/transparent",
+    "west": "lightupmyenvironment:blocks/transparent",
+    "particle": "lightupmyenvironment:blocks/transparent"
+  }
+}

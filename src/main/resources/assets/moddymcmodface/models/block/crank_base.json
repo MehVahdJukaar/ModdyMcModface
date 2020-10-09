@@ -1,0 +1,7 @@
+{
+  "parent": "lightupmyenvironment:custom/crank_base",
+  "textures": {
+    "particle": "lightupmyenvironment:blocks/crank_base",
+    "1": "lightupmyenvironment:blocks/crank_base"
+  }
+}

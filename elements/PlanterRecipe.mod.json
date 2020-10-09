@@ -1,0 +1,46 @@
+{
+  "_fv": 10,
+  "_type": "recipe",
+  "definition": {
+    "recipeType": "Crafting",
+    "xpReward": 0.0,
+    "cookingTime": 200,
+    "recipeRetstackSize": 1,
+    "group": "",
+    "recipeShapeless": false,
+    "recipeSlots": [
+      {
+        "value": "Items.BRICK"
+      },
+      {
+        "value": "Items.WATER_BUCKET"
+      },
+      {
+        "value": "Items.BRICK"
+      },
+      {
+        "value": "Items.BRICK"
+      },
+      {
+        "value": "Blocks.DIRT"
+      },
+      {
+        "value": "Items.BRICK"
+      },
+      {
+        "value": "Items.BRICK"
+      },
+      {
+        "value": "Items.BRICK"
+      },
+      {
+        "value": "Items.BRICK"
+      }
+    ],
+    "recipeReturnStack": {
+      "value": "CUSTOM:Planter"
+    },
+    "name": "planter_recipe",
+    "namespace": "mod"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "1": "clover_top",
+        "2": "clover_side"
+      },
+      "name": "default"
+    }
+  }
+}

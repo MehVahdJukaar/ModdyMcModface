@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "extended=false": {
+      "model": "lightupmyenvironment:block/planter"
+    },
+    "extended=true": {
+      "model": "lightupmyenvironment:block/planter_extended"
+    }
+  }
+}

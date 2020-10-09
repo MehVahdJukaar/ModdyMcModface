@@ -1,0 +1,8 @@
+{
+  "parent": "moddymcmodface:custom/skulllanterndown",
+  "textures": {
+    "all": "moddymcmodface:blocks/skull_lantern",
+    "particle": "moddymcmodface:blocks/skull_lantern",
+    "1": "moddymcmodface:blocks/skull_lantern"
+  }
+}

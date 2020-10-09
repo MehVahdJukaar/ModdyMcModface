@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "moddymcmodface:blocks/potion_liquid",
+    "up": "moddymcmodface:blocks/xp_liquid",
+    "north": "moddymcmodface:blocks/milk_liquid",
+    "east": "moddymcmodface:blocks/honey_liquid",
+    "south": "moddymcmodface:blocks/dragon_breath_liquid",
+    "west": "moddymcmodface:blocks/potion_liquid2",
+    "particle": "moddymcmodface:blocks/potion_liquid"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "parent": "lightupmyenvironment:custom/crank_0",
+  "textures": {
+    "all": "lightupmyenvironment:blocks/crank_handle",
+    "particle": "lightupmyenvironment:blocks/crank_handle",
+    "0": "lightupmyenvironment:blocks/crank_base",
+    "1": "lightupmyenvironment:blocks/crank_handle"
+  }
+}
