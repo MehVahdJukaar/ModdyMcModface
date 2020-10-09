@@ -1,11 +1,11 @@
 {
-  "parent": "lightupmyenvironment:custom/jar",
+  "parent": "moddymcmodface:custom/jar",
   "textures": {
-    "all": "lightupmyenvironment:blocks/jar_bottom",
-    "particle": "lightupmyenvironment:blocks/jar_bottom",
-    "0": "lightupmyenvironment:blocks/jar_side",
-    "1": "lightupmyenvironment:blocks/jar_top",
-    "2": "lightupmyenvironment:blocks/jar_cork",
-    "3": "lightupmyenvironment:blocks/jar_bottom"
+    "all": "moddymcmodface:blocks/jar_bottom",
+    "particle": "moddymcmodface:blocks/jar_bottom",
+    "0": "moddymcmodface:blocks/jar_side",
+    "1": "moddymcmodface:blocks/jar_top",
+    "2": "moddymcmodface:blocks/jar_cork",
+    "3": "moddymcmodface:blocks/jar_bottom"
   }
 }

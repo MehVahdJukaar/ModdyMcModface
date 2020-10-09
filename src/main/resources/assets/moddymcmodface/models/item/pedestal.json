@@ -1,5 +1,5 @@
 {
-  "parent": "lightupmyenvironment:block/pedestal",
+  "parent": "moddymcmodface:block/pedestal",
 	"display": {
 		"thirdperson_righthand": {
 			"rotation": [75, 45, 0],

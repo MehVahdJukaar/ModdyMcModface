@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "lightupmyenvironment:block/firefly_jar"
+      "model": "moddymcmodface:block/firefly_jar"
     }
   }
 }

@@ -1,12 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "down": "lightupmyenvironment:blocks/transparent",
-    "up": "lightupmyenvironment:blocks/transparent",
-    "north": "lightupmyenvironment:blocks/transparent",
-    "east": "lightupmyenvironment:blocks/transparent",
-    "south": "lightupmyenvironment:blocks/transparent",
-    "west": "lightupmyenvironment:blocks/transparent",
-    "particle": "lightupmyenvironment:blocks/transparent"
+    "down": "moddymcmodface:blocks/transparent",
+    "up": "moddymcmodface:blocks/transparent",
+    "north": "moddymcmodface:blocks/transparent",
+    "east": "moddymcmodface:blocks/transparent",
+    "south": "moddymcmodface:blocks/transparent",
+    "west": "moddymcmodface:blocks/transparent",
+    "particle": "moddymcmodface:blocks/transparent"
   }
 }

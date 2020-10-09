@@ -1,10 +1,10 @@
 {
   "variants": {
     "extended=false": {
-      "model": "lightupmyenvironment:block/planter"
+      "model": "moddymcmodface:block/planter"
     },
     "extended=true": {
-      "model": "lightupmyenvironment:block/planter_extended"
+      "model": "moddymcmodface:block/planter_extended"
     }
   }
 }

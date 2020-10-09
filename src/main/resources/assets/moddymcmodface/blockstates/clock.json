@@ -1,33 +1,33 @@
 {
   "variants": {
     "facing=north,inverted=false": {
-      "model": "lightupmyenvironment:block/clock"
+      "model": "moddymcmodface:block/clock"
     },
     "facing=north,inverted=true": {
-      "model": "lightupmyenvironment:block/clock_hand"
+      "model": "moddymcmodface:block/clock_hand"
     },
     "facing=east,inverted=false": {
-      "model": "lightupmyenvironment:block/clock",
+      "model": "moddymcmodface:block/clock",
       "y": 90
     },
     "facing=east,inverted=true": {
-      "model": "lightupmyenvironment:block/clock_hand",
+      "model": "moddymcmodface:block/clock_hand",
       "y": 90
     },
     "facing=south,inverted=false": {
-      "model": "lightupmyenvironment:block/clock",
+      "model": "moddymcmodface:block/clock",
       "y": 180
     },
     "facing=south,inverted=true": {
-      "model": "lightupmyenvironment:block/clock_hand",
+      "model": "moddymcmodface:block/clock_hand",
       "y": 180
     },
     "facing=west,inverted=false": {
-      "model": "lightupmyenvironment:block/clock",
+      "model": "moddymcmodface:block/clock",
       "y": 270
     },
     "facing=west,inverted=true": {
-      "model": "lightupmyenvironment:block/clock_hand",
+      "model": "moddymcmodface:block/clock_hand",
       "y": 270
     }
   }

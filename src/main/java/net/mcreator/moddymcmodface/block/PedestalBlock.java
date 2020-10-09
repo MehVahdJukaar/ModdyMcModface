@@ -93,9 +93,9 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
-	@ObjectHolder("Moddymcmodface:pedestal")
+	@ObjectHolder("moddymcmodface:pedestal")
 	public static final Block block = null;
-	@ObjectHolder("Moddymcmodface:pedestal")
+	@ObjectHolder("moddymcmodface:pedestal")
 	public static final TileEntityType<CustomTileEntity> tileEntityType = null;
 	public PedestalBlock(ModdymcmodfaceModElements instance) {
 		super(instance, 102);
@@ -528,7 +528,7 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 	}
 
 	public static class CustomRender extends TileEntityRenderer<CustomTileEntity> {
-		private static final ResourceLocation texture = new ResourceLocation("Moddymcmodface:textures/pistonlauncherentity.png");
+		private static final ResourceLocation texture = new ResourceLocation("moddymcmodface:textures/pistonlauncherentity.png");
 		public CustomRender(TileEntityRendererDispatcher rendererDispatcherIn) {
 			super(rendererDispatcherIn);
 		}

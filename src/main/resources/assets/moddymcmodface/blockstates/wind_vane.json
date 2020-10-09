@@ -1,10 +1,10 @@
 {
   "variants": {
     "inverted=false": {
-      "model": "lightupmyenvironment:block/wind_vane_down"
+      "model": "moddymcmodface:block/wind_vane_down"
     },
     "inverted=true": {
-      "model": "lightupmyenvironment:block/wind_vane_up"
+      "model": "moddymcmodface:block/wind_vane_up"
     }
   }
 }

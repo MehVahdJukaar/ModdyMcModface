@@ -42,7 +42,7 @@ import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 import java.util.Random;
 import java.util.List;
 import java.util.Collections;
-
+/*
 @ModdymcmodfaceModElements.ModElement.Tag
 public class CloverBlock extends ModdymcmodfaceModElements.ModElement {
 	@ObjectHolder("moddymcmodface:clover")
@@ -110,4 +110,4 @@ public class CloverBlock extends ModdymcmodfaceModElements.ModElement {
 			return PlantType.Plains;
 		}
 	}
-}
+}*/

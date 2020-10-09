@@ -1,10 +1,10 @@
 {
-  "parent": "lightupmyenvironment:custom/piston_launcher_head_small",
+  "parent": "moddymcmodface:custom/piston_launcher_head_small",
   "textures": {
-    "all": "lightupmyenvironment:blocks/piston_launcher_base",
-    "particle": "lightupmyenvironment:blocks/piston_launcher_base",
-    "0": "lightupmyenvironment:blocks/piston_launcher_base",
-	"1": "lightupmyenvironment:blocks/piston_launcher_arm",
-	"2": "lightupmyenvironment:blocks/piston_launcher_side"
+    "all": "moddymcmodface:blocks/piston_launcher_base",
+    "particle": "moddymcmodface:blocks/piston_launcher_base",
+    "0": "moddymcmodface:blocks/piston_launcher_base",
+	"1": "moddymcmodface:blocks/piston_launcher_arm",
+	"2": "moddymcmodface:blocks/piston_launcher_side"
   }
 }

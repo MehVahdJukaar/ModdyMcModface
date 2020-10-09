@@ -34,7 +34,7 @@ import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 
 import java.util.List;
 import java.util.Collections;
-
+/*
 @ModdymcmodfaceModElements.ModElement.Tag
 public class FancyLampBlock extends ModdymcmodfaceModElements.ModElement {
 	@ObjectHolder("moddymcmodface:fancy_lamp")
@@ -123,4 +123,4 @@ public class FancyLampBlock extends ModdymcmodfaceModElements.ModElement {
 			return Collections.singletonList(new ItemStack(this, 1));
 		}
 	}
-}
+}*/

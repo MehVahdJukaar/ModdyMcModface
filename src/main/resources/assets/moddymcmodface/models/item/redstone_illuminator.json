@@ -1,5 +1,5 @@
 {
-  "parent": "lightupmyenvironment:block/redstone_illuminator",
+  "parent": "moddymcmodface:block/redstone_illuminator",
   "display": {
     "thirdperson": {
       "rotation": [

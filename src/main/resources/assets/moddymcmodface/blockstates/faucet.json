@@ -1,33 +1,33 @@
 {
   "variants": {
     "facing=north,enabled=false": {
-      "model": "lightupmyenvironment:block/faucet"
+      "model": "moddymcmodface:block/faucet"
     },
     "facing=north,enabled=true": {
-      "model": "lightupmyenvironment:block/faucet_on"
+      "model": "moddymcmodface:block/faucet_on"
     },
     "facing=east,enabled=false": {
-      "model": "lightupmyenvironment:block/faucet",
+      "model": "moddymcmodface:block/faucet",
       "y": 90
     },
     "facing=east,enabled=true": {
-      "model": "lightupmyenvironment:block/faucet_on",
+      "model": "moddymcmodface:block/faucet_on",
       "y": 90
     },
     "facing=south,enabled=false": {
-      "model": "lightupmyenvironment:block/faucet",
+      "model": "moddymcmodface:block/faucet",
       "y": 180
     },
     "facing=south,enabled=true": {
-      "model": "lightupmyenvironment:block/faucet_on",
+      "model": "moddymcmodface:block/faucet_on",
       "y": 180
     },
     "facing=west,enabled=false": {
-      "model": "lightupmyenvironment:block/faucet",
+      "model": "moddymcmodface:block/faucet",
       "y": 270
     },
     "facing=west,enabled=true": {
-      "model": "lightupmyenvironment:block/faucet_on",
+      "model": "moddymcmodface:block/faucet_on",
       "y": 270
     }
   }

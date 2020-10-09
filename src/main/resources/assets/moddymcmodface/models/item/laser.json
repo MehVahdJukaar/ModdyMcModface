@@ -1,5 +1,5 @@
 {
-  "parent": "lightupmyenvironment:block/laser",
+  "parent": "moddymcmodface:block/laser",
   "display": {
     "thirdperson": {
       "rotation": [

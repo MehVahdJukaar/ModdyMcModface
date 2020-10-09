@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "lightupmyenvironment:block/blaze_block"
+      "model": "moddymcmodface:block/blaze_block"
     }
   }
 }

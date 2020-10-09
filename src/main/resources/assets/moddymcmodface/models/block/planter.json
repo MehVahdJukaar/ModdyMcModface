@@ -1,9 +1,9 @@
 {
-  "parent": "lightupmyenvironment:custom/planter",
+  "parent": "moddymcmodface:custom/planter",
   "textures": {
-		"0": "lightupmyenvironment:blocks/planter_bottom",
-		"1": "lightupmyenvironment:blocks/planter_side",
-		"2": "lightupmyenvironment:blocks/dirt_moist",
-		"particle": "lightupmyenvironment:blocks/planter_bottom"
+		"0": "moddymcmodface:blocks/planter_bottom",
+		"1": "moddymcmodface:blocks/planter_side",
+		"2": "moddymcmodface:blocks/dirt_moist",
+		"particle": "moddymcmodface:blocks/planter_bottom"
   }
 }

@@ -1,9 +1,9 @@
 {
-  "parent": "lightupmyenvironment:custom/pedestal_middle",
+  "parent": "moddymcmodface:custom/pedestal_middle",
   "textures": {
-    "0": "lightupmyenvironment:blocks/pedestal_top",
-    "1": "lightupmyenvironment:blocks/pedestal_side",
-    "particle": "lightupmyenvironment:blocks/pedestal_side"
+    "0": "moddymcmodface:blocks/pedestal_top",
+    "1": "moddymcmodface:blocks/pedestal_side",
+    "particle": "moddymcmodface:blocks/pedestal_side"
 
   }
 }

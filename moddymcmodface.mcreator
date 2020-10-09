@@ -15,7 +15,7 @@
       "type": "block",
       "sortid": 28,
       "compiles": true,
-      "locked_code": false,
+      "locked_code": true,
       "ids": {},
       "registry_name": "skull_lantern_down"
     },
@@ -186,7 +186,7 @@
       "type": "block",
       "sortid": 112,
       "compiles": true,
-      "locked_code": false,
+      "locked_code": true,
       "ids": {},
       "registry_name": "fancy_lamp"
     },
@@ -204,7 +204,7 @@
       "type": "block",
       "sortid": 116,
       "compiles": true,
-      "locked_code": false,
+      "locked_code": true,
       "ids": {},
       "registry_name": "tiki"
     },
@@ -267,7 +267,7 @@
       "type": "block",
       "sortid": 139,
       "compiles": true,
-      "locked_code": false,
+      "locked_code": true,
       "ids": {},
       "registry_name": "torch_2"
     },
@@ -297,6 +297,24 @@
       "locked_code": false,
       "ids": {},
       "registry_name": "notice_board_recipe"
+    },
+    {
+      "name": "CrankRecipe",
+      "type": "recipe",
+      "sortid": 150,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "crank_recipe"
+    },
+    {
+      "name": "TurnTableRecipe",
+      "type": "recipe",
+      "sortid": 151,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "turn_table_recipe"
     }
   ],
   "variable_elements": [],
@@ -348,11 +366,13 @@
   "workspaceSettings": {
     "modid": "moddymcmodface",
     "modName": "Moddy McModface",
-    "version": "1.0.0",
+    "version": "alpha. WIP",
+    "description": "Random blocks that I wanted to add to vanilla minecraft. Enjoy",
     "author": "Meh-Vah\u0027d Jukaar, MCreator",
     "websiteURL": "https://mcreator.net",
     "disableForgeVersionCheck": true,
     "serverSideOnly": false,
+    "modPicture": "logo",
     "requiredMods": [],
     "dependencies": [],
     "dependants": [],

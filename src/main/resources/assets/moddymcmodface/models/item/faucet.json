@@ -1,5 +1,5 @@
 {
-  "parent": "lightupmyenvironment:block/faucet",
+  "parent": "moddymcmodface:block/faucet",
 	"display": {
 		"thirdperson_righthand": {
 			"rotation": [75, 45, 0],

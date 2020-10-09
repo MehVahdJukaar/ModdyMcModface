@@ -1,12 +1,12 @@
  {
   "parent": "block/cube",
   "textures": {
-    "down": "lightupmyenvironment:blocks/notice_board_side",
-    "up": "lightupmyenvironment:blocks/notice_board_side",
-    "north": "lightupmyenvironment:blocks/notice_board_front_full",
-    "east": "lightupmyenvironment:blocks/notice_board_side",
-    "south": "lightupmyenvironment:blocks/notice_board_side",
-    "west": "lightupmyenvironment:blocks/notice_board_side",
-    "particle": "lightupmyenvironment:blocks/notice_board_side"
+    "down": "moddymcmodface:blocks/notice_board_side",
+    "up": "moddymcmodface:blocks/notice_board_side",
+    "north": "moddymcmodface:blocks/notice_board_front_full",
+    "east": "moddymcmodface:blocks/notice_board_side",
+    "south": "moddymcmodface:blocks/notice_board_side",
+    "west": "moddymcmodface:blocks/notice_board_side",
+    "particle": "moddymcmodface:blocks/notice_board_side"
   }
 }

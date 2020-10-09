@@ -1,5 +1,5 @@
 {
-  "parent": "lightupmyenvironment:block/notice_board",
+  "parent": "moddymcmodface:block/notice_board",
 
   "display": {
     "thirdperson": {

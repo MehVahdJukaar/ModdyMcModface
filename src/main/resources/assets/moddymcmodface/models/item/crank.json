@@ -1,10 +1,10 @@
 
 
 {
-  "parent": "lightupmyenvironment:custom/crank_item",
+  "parent": "moddymcmodface:custom/crank_item",
   "textures": {
-	    "1": "lightupmyenvironment:blocks/crank_base",
-	    "0": "lightupmyenvironment:blocks/crank_handle"
+	    "1": "moddymcmodface:blocks/crank_base",
+	    "0": "moddymcmodface:blocks/crank_handle"
   },
     "display": {
         "gui": {

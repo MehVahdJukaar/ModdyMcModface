@@ -1,8 +1,8 @@
 {
-  "parent": "lightupmyenvironment:custom/crank_handle",
+  "parent": "moddymcmodface:custom/crank_handle",
   "textures": {
-    "all": "lightupmyenvironment:blocks/pedestal_side",
-    "particle": "lightupmyenvironment:blocks/pedestal_side",
-    "0": "lightupmyenvironment:blocks/crank_handle"
+    "all": "moddymcmodface:blocks/pedestal_side",
+    "particle": "moddymcmodface:blocks/pedestal_side",
+    "0": "moddymcmodface:blocks/crank_handle"
   }
 }

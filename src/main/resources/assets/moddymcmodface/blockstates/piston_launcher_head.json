@@ -1,49 +1,49 @@
 {
   "variants": {
     "facing=north,extended=true": {
-      "model": "lightupmyenvironment:block/piston_launcher_head"
+      "model": "moddymcmodface:block/piston_launcher_head"
     },
     "facing=north,extended=false": {
-      "model": "lightupmyenvironment:block/piston_launcher_head_small"
+      "model": "moddymcmodface:block/piston_launcher_head_small"
     },
     "facing=east,extended=true": {
-      "model": "lightupmyenvironment:block/piston_launcher_head",
+      "model": "moddymcmodface:block/piston_launcher_head",
       "y": 90
     },
     "facing=east,extended=false": {
-      "model": "lightupmyenvironment:block/piston_launcher_head_small",
+      "model": "moddymcmodface:block/piston_launcher_head_small",
       "y": 90
     },
     "facing=south,extended=true": {
-      "model": "lightupmyenvironment:block/piston_launcher_head",
+      "model": "moddymcmodface:block/piston_launcher_head",
       "y": 180
     },
     "facing=south,extended=false": {
-      "model": "lightupmyenvironment:block/piston_launcher_head_small",
+      "model": "moddymcmodface:block/piston_launcher_head_small",
       "y": 180
     },
     "facing=west,extended=true": {
-      "model": "lightupmyenvironment:block/piston_launcher_head",
+      "model": "moddymcmodface:block/piston_launcher_head",
       "y": 270
     },
     "facing=west,extended=false": {
-      "model": "lightupmyenvironment:block/piston_launcher_head_small",
+      "model": "moddymcmodface:block/piston_launcher_head_small",
       "y": 270
     },
     "facing=up,extended=true": {
-      "model": "lightupmyenvironment:block/piston_launcher_head",
+      "model": "moddymcmodface:block/piston_launcher_head",
       "x": 270
     },
     "facing=up,extended=false": {
-      "model": "lightupmyenvironment:block/piston_launcher_head_small",
+      "model": "moddymcmodface:block/piston_launcher_head_small",
       "x": 270
     },
     "facing=down,extended=true": {
-      "model": "lightupmyenvironment:block/piston_launcher_head",
+      "model": "moddymcmodface:block/piston_launcher_head",
       "x": 90
     },
     "facing=down,extended=false": {
-      "model": "lightupmyenvironment:block/piston_launcher_head_small",
+      "model": "moddymcmodface:block/piston_launcher_head_small",
       "x": 90
     }
   }

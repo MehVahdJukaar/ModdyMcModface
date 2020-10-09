@@ -24,7 +24,7 @@ import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 
 import java.util.List;
 import java.util.Collections;
-
+/*
 @ModdymcmodfaceModElements.ModElement.Tag
 public class Torch2Block extends ModdymcmodfaceModElements.ModElement {
 	@ObjectHolder("moddymcmodface:torch_2")
@@ -69,4 +69,4 @@ public class Torch2Block extends ModdymcmodfaceModElements.ModElement {
 			return Collections.singletonList(new ItemStack(this, 1));
 		}
 	}
-}
+}*/

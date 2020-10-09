@@ -1,10 +1,10 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "lightupmyenvironment:blocks/piston_launcher_base",
-		"1": "lightupmyenvironment:blocks/piston_launcher_arm",
-		"2": "lightupmyenvironment:blocks/piston_launcher_side",
-		"particle": "lightupmyenvironment:blocks/piston_launcher_base"
+		"0": "moddymcmodface:blocks/piston_launcher_base",
+		"1": "moddymcmodface:blocks/piston_launcher_arm",
+		"2": "moddymcmodface:blocks/piston_launcher_side",
+		"particle": "moddymcmodface:blocks/piston_launcher_base"
 	},
 	"elements": [
 		{

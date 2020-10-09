@@ -1,5 +1,5 @@
 {
-  "parent": "lightupmyenvironment:block/blaze_block",
+  "parent": "moddymcmodface:block/blaze_block",
   "display": {
     "thirdperson": {
       "rotation": [

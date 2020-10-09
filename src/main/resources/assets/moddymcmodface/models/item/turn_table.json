@@ -1,5 +1,5 @@
 {
-  "parent": "lightupmyenvironment:block/turn_table_left",
+  "parent": "moddymcmodface:block/turn_table_left",
   "display": {
         "gui": {
             "rotation": [ 120, 0, 135 ],

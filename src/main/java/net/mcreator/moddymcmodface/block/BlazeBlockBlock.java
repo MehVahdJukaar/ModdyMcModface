@@ -38,7 +38,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.pathfinding.PathType;
-
+/*
 @ModdymcmodfaceModElements.ModElement.Tag
 public class BlazeBlockBlock extends ModdymcmodfaceModElements.ModElement {
 	@ObjectHolder("moddymcmodface:blaze_block")
@@ -134,3 +134,4 @@ public class BlazeBlockBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 	}
 }
+*/

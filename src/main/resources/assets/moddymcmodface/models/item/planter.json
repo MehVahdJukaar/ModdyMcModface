@@ -1,5 +1,5 @@
 {
-  "parent": "lightupmyenvironment:block/planter",
+  "parent": "moddymcmodface:block/planter",
     "display": {
         "gui": {
             "rotation": [ 30, 225, 0 ],

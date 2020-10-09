@@ -24,7 +24,7 @@ import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 
 import java.util.List;
 import java.util.Collections;
-
+/*
 @ModdymcmodfaceModElements.ModElement.Tag
 public class TikiBlock extends ModdymcmodfaceModElements.ModElement {
 	@ObjectHolder("moddymcmodface:tiki")
@@ -68,4 +68,4 @@ public class TikiBlock extends ModdymcmodfaceModElements.ModElement {
 			return Collections.singletonList(new ItemStack(this, 1));
 		}
 	}
-}
+}*/

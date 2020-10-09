@@ -1,7 +1,7 @@
 {
   "parent": "builtin/entity",
   "textures": {
-    "particle": "lightupmyenvironment:blocks/jar_side"
+    "particle": "moddymcmodface:blocks/jar_side"
   },
 	"display": {
 		"thirdperson_righthand": {

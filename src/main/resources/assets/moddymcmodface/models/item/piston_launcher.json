@@ -1,5 +1,5 @@
 {
-  "parent": "lightupmyenvironment:block/piston_launcher",
+  "parent": "moddymcmodface:block/piston_launcher",
   "display": {
         "gui": {
             "rotation": [ 120, 0, 135 ],

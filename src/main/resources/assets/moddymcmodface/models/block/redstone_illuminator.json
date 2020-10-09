@@ -1,12 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "down": "lightupmyenvironment:blocks/redstone_illuminator",
-    "up": "lightupmyenvironment:blocks/redstone_illuminator",
-    "north": "lightupmyenvironment:blocks/redstone_illuminator",
-    "east": "lightupmyenvironment:blocks/redstone_illuminator",
-    "south": "lightupmyenvironment:blocks/redstone_illuminator",
-    "west": "lightupmyenvironment:blocks/redstone_illuminator",
-    "particle": "lightupmyenvironment:blocks/redstone_illuminator"
+    "down": "moddymcmodface:blocks/redstone_illuminator",
+    "up": "moddymcmodface:blocks/redstone_illuminator",
+    "north": "moddymcmodface:blocks/redstone_illuminator",
+    "east": "moddymcmodface:blocks/redstone_illuminator",
+    "south": "moddymcmodface:blocks/redstone_illuminator",
+    "west": "moddymcmodface:blocks/redstone_illuminator",
+    "particle": "moddymcmodface:blocks/redstone_illuminator"
   }
 }

@@ -1,12 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "down": "lightupmyenvironment:blocks/blaze_block",
-    "up": "lightupmyenvironment:blocks/blaze_block",
-    "north": "lightupmyenvironment:blocks/blaze_block",
-    "east": "lightupmyenvironment:blocks/blaze_block",
-    "south": "lightupmyenvironment:blocks/blaze_block",
-    "west": "lightupmyenvironment:blocks/blaze_block",
-    "particle": "lightupmyenvironment:blocks/blaze_block"
+    "down": "moddymcmodface:blocks/blaze_block",
+    "up": "moddymcmodface:blocks/blaze_block",
+    "north": "moddymcmodface:blocks/blaze_block",
+    "east": "moddymcmodface:blocks/blaze_block",
+    "south": "moddymcmodface:blocks/blaze_block",
+    "west": "moddymcmodface:blocks/blaze_block",
+    "particle": "moddymcmodface:blocks/blaze_block"
   }
 }

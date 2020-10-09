@@ -1,10 +1,10 @@
 {
-  "parent": "lightupmyenvironment:custom/turntable",
+  "parent": "moddymcmodface:custom/turntable",
   "textures": {
-    "0": "lightupmyenvironment:blocks/turn_table_top",
-    "1": "lightupmyenvironment:blocks/turn_table_side_right",
-    "2": "lightupmyenvironment:blocks/turn_table_bottom",
-    "particle": "lightupmyenvironment:blocks/turn_table_side_right"
+    "0": "moddymcmodface:blocks/turn_table_top",
+    "1": "moddymcmodface:blocks/turn_table_side_right",
+    "2": "moddymcmodface:blocks/turn_table_bottom",
+    "particle": "moddymcmodface:blocks/turn_table_side_right"
 
   }
 }

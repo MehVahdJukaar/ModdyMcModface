@@ -1,9 +1,9 @@
 {
-  "parent": "lightupmyenvironment:custom/wind_vane",
+  "parent": "moddymcmodface:custom/wind_vane",
   "textures": {
-    "all": "lightupmyenvironment:blocks/wind_vane",
-    "particle": "lightupmyenvironment:blocks/wind_vane",
-    "0": "lightupmyenvironment:blocks/wind_vane",
-    "1": "lightupmyenvironment:blocks/wind_vane_details"
+    "all": "moddymcmodface:blocks/wind_vane",
+    "particle": "moddymcmodface:blocks/wind_vane",
+    "0": "moddymcmodface:blocks/wind_vane",
+    "1": "moddymcmodface:blocks/wind_vane_details"
   }
 }

@@ -1,11 +1,11 @@
 {
-  "parent": "lightupmyenvironment:custom/clock",
+  "parent": "moddymcmodface:custom/clock",
   "textures": {
-    "all": "lightupmyenvironment:blocks/clock_front",
-    "particle": "lightupmyenvironment:blocks/clock_front",
-    "0": "lightupmyenvironment:blocks/clock_front",
-    "1": "lightupmyenvironment:blocks/clock_side",
-	"2": "lightupmyenvironment:blocks/clock_back",
-    "missing": "lightupmyenvironment:blocks/clock_front"
+    "all": "moddymcmodface:blocks/clock_front",
+    "particle": "moddymcmodface:blocks/clock_front",
+    "0": "moddymcmodface:blocks/clock_front",
+    "1": "moddymcmodface:blocks/clock_side",
+	"2": "moddymcmodface:blocks/clock_back",
+    "missing": "moddymcmodface:blocks/clock_front"
   }
 }

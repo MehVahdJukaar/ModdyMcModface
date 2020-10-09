@@ -1,7 +1,7 @@
 /**
  * This mod element is always locked. Enter your code in the methods below.
  * If you don't need some of these methods, you can remove them as they
- * are overrides of the base class ModdimcmodfaceModElements.ModElement.
+ * are overrides of the base class ModdymcmodfaceModElements.ModElement.
  *
  * You can register new events in this class too.
  *
@@ -11,7 +11,7 @@
  *
  * If you want to make a plain independent class, create it using
  * Project Browser - New... and make sure to make the class
- * outside net.mcreator.moddimcmodface as this package is managed by MCreator.
+ * outside net.mcreator.moddymcmodface as this package is managed by MCreator.
  *
  * If you change workspace package, modid or prefix, you will need
  * to manually adapt this file to these changes or remake it.
@@ -77,7 +77,7 @@ public class Particles extends ModdymcmodfaceModElements.ModElement {
 
 
 	public static class ParticleList{
-		public static final DeferredRegister<ParticleType<?>> PARTICLES = new DeferredRegister<>(ForgeRegistries.PARTICLE_TYPES, "moddimcmodface");
+		public static final DeferredRegister<ParticleType<?>> PARTICLES = new DeferredRegister<>(ForgeRegistries.PARTICLE_TYPES, "moddymcmodface");
 		
 		public static final RegistryObject<BasicParticleType> FIREFLY_GLOW = PARTICLES.register("firefly_glow", () -> new BasicParticleType(true)); 
 		

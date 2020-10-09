@@ -1,5 +1,5 @@
 {
-  "parent": "lightupmyenvironment:block/piston_launcher_arm_tile",
+  "parent": "moddymcmodface:block/piston_launcher_arm_tile",
   "display": {
     "thirdperson": {
       "rotation": [
