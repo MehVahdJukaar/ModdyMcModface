@@ -209,7 +209,7 @@ public class FireflyJarBlock extends ModdymcmodfaceModElements.ModElement {
 
 	@OnlyIn(Dist.CLIENT)
 	public static class CustomItemRender extends ItemStackTileEntityRenderer {
-		private static final ResourceLocation texture = new ResourceLocation("moddymcmodface:textures/firefly");
+		private static final ResourceLocation texture = new ResourceLocation("moddymcmodface:textures/firefly.png");
 
 		//private static final ResourceLocation texture = new ResourceLocation("moddymcmodface:particles/firefly_glow");
 		@Override
@@ -228,15 +228,16 @@ public class FireflyJarBlock extends ModdymcmodfaceModElements.ModElement {
 			EntityRendererManager renderManager = Minecraft.getInstance().getRenderManager();
 
 			matrixStackIn.translate(0.5, 0.5, 0.5);
-			matrixStackIn.rotate(renderManager.getCameraOrientation());
+			matrixStackIn.translate(0, -0.1, 0);
+			//matrixStackIn.rotate(renderManager.getCameraOrientation());
 
 			//renderManager.renderEntityStatic(new FireflyEntity.CustomEntity(FireflyEntity.entity, (World)Minecraft.getInstance().world), 0d, 0d, 0d, 0f, 1f, matrixStackIn, bufferIn, combinedLightIn);
 
 			//TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_PARTICLES_TEXTURE).apply(texture);
+			matrixStackIn.scale(0.6f, 0.6f, 0.6f);
 
 
-
-			World world = (World)Minecraft.getInstance().world;
+			//World world = (World)Minecraft.getInstance().world;
 			//world.addParticle(Particles.ParticleList.FIREFLY_GLOW.get(), 0, 0, 0, 0, 0, 0);
 			//matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180.0F));
 			float f9 = 0.32F;
@@ -252,11 +253,14 @@ public class FireflyJarBlock extends ModdymcmodfaceModElements.ModElement {
 			MatrixStack.Entry matrixstack$entry = matrixStackIn.getLast();
 			Matrix4f matrix4f = matrixstack$entry.getMatrix();
 			Matrix3f matrix3f = matrixstack$entry.getNormal();
-			vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, -0.5F, j, k, l, a, minu, minv, combinedLightIn);
-			vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, -0.5F, j, k, l, a, maxu, minv, combinedLightIn);
-			vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, 0.5F, j, k, l, a, maxu, maxv, combinedLightIn);
-			vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, 0.5F, j, k, l, a, minu, maxv, combinedLightIn);
-			
+			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(45));
+			for (int i =0; i<4; i++){
+				vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, -0.5F, j, k, l, a, minu, minv, combinedLightIn);
+				vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, -0.5F, j, k, l, a, maxu, minv, combinedLightIn);
+				vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, 0.5F, j, k, l, a, maxu, maxv, combinedLightIn);
+				vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, 0.5F, j, k, l, a, minu, maxv, combinedLightIn);
+				matrixStackIn.rotate(Vector3f.YP.rotationDegrees(90));
+			}
 			matrixStackIn.pop();
 		}
 

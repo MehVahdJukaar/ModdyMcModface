@@ -334,11 +334,11 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		public void markDirty() {
-			super.markDirty();
 			//this.updateType();
 			this.updateServerAndClient();
 			this.updateBlockShape(this.world.getBlockState(this.pos), this.world, this.pos, this.pos.down());
 			this.updateBlockShape(this.world.getBlockState(this.pos), this.world, this.pos, this.pos.up());
+			super.markDirty();
 		}
 
 		public void updateServerAndClient() {

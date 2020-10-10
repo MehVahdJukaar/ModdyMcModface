@@ -77,6 +77,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Block;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
+import net.mcreator.moddymcmodface.Customrender;
 
 import javax.annotation.Nullable;
 
@@ -108,6 +109,7 @@ import sun.reflect.generics.tree.BottomSignature;
 import sun.reflect.generics.tree.BottomSignature;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.IWorldReader;
+import javax.swing.border.EmptyBorder;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class JarBlock extends ModdymcmodfaceModElements.ModElement {
@@ -167,7 +169,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			if (tileentity instanceof CustomTileEntity) {
 				CustomTileEntity te = (CustomTileEntity) tileentity;
 				if(te.isEmpty())return null;
-				int color = te.getColor();
+				int color = te.color;
 				float r = (float) ((color >> 16 & 255)) / 255.0F;
 				float g = (float) ((color >> 8 & 255)) / 255.0F;
 				float b = (float) ((color >> 0 & 255)) / 255.0F;
@@ -178,79 +180,22 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 
 
 
-
-
 		@Override
 		public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
 				BlockRayTraceResult hit) {
 			TileEntity tileentity = worldIn.getTileEntity(pos);
 			if (tileentity instanceof CustomTileEntity) {
-				ItemStack itemstack = player.getHeldItem(handIn);
+				//make te to the work
 				CustomTileEntity te = (CustomTileEntity) tileentity;
-				if (player.abilities.allowEdit) {
-					if(itemstack.getItem() == new ItemStack(Items.GLASS_BOTTLE).getItem()){
-						if(te.canExtract(1)){
-							itemstack = this.fillItem(itemstack, player, te.extractItems(1));
-							worldIn.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
-							player.addStat(Stats.ITEM_USED.get(new ItemStack(Items.GLASS_BOTTLE).getItem()));
-							te.markDirty();
-
-							return ActionResultType.SUCCESS;
-						}
-						return ActionResultType.PASS;
- 
-					}  
-					else if (itemstack.getItem() == new ItemStack(Items.BUCKET).getItem()){
-						if(te.canExtract(4)){
-							itemstack = this.fillItem(itemstack, player, te.extractItems(4));
-	   						SoundEvent soundevent = state.get(HAS_LAVA) ? SoundEvents.ITEM_BUCKET_FILL_LAVA : SoundEvents.ITEM_BUCKET_FILL;
-           					worldIn.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
-							player.addStat(Stats.ITEM_USED.get(new ItemStack(Items.BUCKET).getItem()));
-							te.markDirty();
-
-							return ActionResultType.SUCCESS;
-						}
-						return ActionResultType.PASS;
-
-					}
-					else if (te.canInsertItem(0, itemstack, null)) {
-						te.addItem(itemstack.copy());
-						if (!player.isCreative()) {
-							//TODO: add BucketItem support
-							itemstack.shrink(1);
-						}
-						te.markDirty();
-						return ActionResultType.SUCCESS;
-					} else if (player.isSneaking() && !te.isEmpty()) {
-						ItemStack it = te.removeStackFromSlot(0);
-						ItemEntity drop = new ItemEntity(worldIn, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, it);
-						worldIn.addEntity(drop);
-						te.markDirty();
-						return ActionResultType.SUCCESS;
-					}
+				if(te.handleInteraction(player, handIn)){
+					te.markDirty();
+					return ActionResultType.SUCCESS;
 				}
 			}
 			return ActionResultType.PASS;
 		}
 
 
-	   private ItemStack fillItem(ItemStack handitem, PlayerEntity player, ItemStack stack) {
-	   	 if (!player.isCreative()) {
-	
-		      handitem.shrink(1);
-		      
-		      if (handitem.isEmpty()) {
-		         return stack;
-		      } else {
-		         if (!player.inventory.addItemStackToInventory(stack)) {
-		            player.dropItem(stack, false);
-		         }
-		         return handitem;
-		      }
-	   	 }
-	   	 return handitem;
-	   }
-		
 
 		// shoulker box code
 		@Override
@@ -420,76 +365,86 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 
 	public static class CustomTileEntity extends LockableLootTileEntity implements ISidedInventory {
 		private NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, ItemStack.EMPTY);
-		private int color = 0xffffff;
-		private float opacity = 1;
-		private float fluidLevel = 0;
-		private int liquidType = 0; 
-		/* 0=potion, 1=honey, 2=water, 3=lava, 4=milk, 5=xp */
+		public int color = 0xffffff;
+		public float opacity = 1;
+		public float fluidLevel = 0;
+		private boolean bottle = false;  //can liquid be extracted with bottle?
+		private boolean bucket =false; //with buclet?
+		private int liquidType = 0;
+		
 		private String texture = "minecraft:block/water_still";
 		protected CustomTileEntity() {
 			super(tileEntityType);
 		}
 
+		//called when inventory is updatet -> update fluid information
+		//callen when item is placed chen item has blockentyty tag
 		@Override
 		public void markDirty() {
-			this.updateTile();
+				
+			MinecraftServer mcserv = ServerLifecycleHooks.getCurrentServer();
+			if (mcserv != null && !this.world.isRemote())
+				mcserv.getPlayerList().sendMessage(new StringTextComponent("Message"));
+
+			this.updateFluidInformations();
 			super.markDirty();
 		}
 
-		public float getFluidLevel() {
-			return this.fluidLevel;
-		}
 
-		public int getColor() {
-			return this.color;
-		}
-
-		public void updateTile() {
+		public void updateFluidInformations() {
 			boolean haslava = false;
 			this.color = 0xffffff;
 			ItemStack stack = this.getStackInSlot(0);
 			Item it = stack.getItem();
+			this.bottle=false;
+			this.bucket=false;
 			if (it instanceof PotionItem) {
 				if(PotionUtils.getPotionFromItem(stack) == Potions.WATER){
 					this.color = PotionUtils.getColor(stack);
 					this.liquidType = 2;
 					this.opacity = 1f;//0.85f;
 					this.texture = "minecraft:block/water_still";
+					this.bottle=true;
+					this.bucket=true;
 				}
 				else{
 					this.color = PotionUtils.getColor(stack);
 					this.liquidType = 0;
 					this.opacity = 0.88f;//0.85f;
 					this.texture = "moddymcmodface:blocks/potion_liquid";
+					this.bottle=true;
 				}
 			} else if (it instanceof HoneyBottleItem) {
 				this.color = 0xFFFFFF;
 				this.liquidType = 1;
 				this.opacity = 0.85f;
 				this.texture = "moddymcmodface:blocks/honey_liquid";
+				this.bottle=true;
 			} else if (it instanceof MilkBucketItem) {
 				this.color = 0xFFFFFF;
 				this.liquidType = 4;
 				this.opacity = 1f;
 				this.texture = "moddymcmodface:blocks/milk_liquid";
+				this.bucket=true;
 			} else if (it == new ItemStack(Items.LAVA_BUCKET, 1).getItem()) {
 				this.color = 0xFFFFFF;
 				this.liquidType = 3;
 				this.opacity = 1f;
 				this.texture = "minecraft:block/lava_still";
+				this.bucket=true;
 				haslava=true;
-
-				
 			} else if (it == new ItemStack(Items.DRAGON_BREATH, 1).getItem()) {
 				this.color = 0x9900FF;
 				this.liquidType = 0;
 				this.opacity = 0.9f;//0.35f;
 				this.texture = "moddymcmodface:blocks/dragon_breath_liquid";
+				this.bottle=true;
 			} else if (it instanceof ExperienceBottleItem){
 				this.color = 0xFFFFFF;
 				this.liquidType = 5;
 				this.opacity = 0.95f;
 				this.texture = "moddymcmodface:blocks/xp_liquid";
+				this.bottle=true;
 			}
 
 			// this.texture="minecraft:textures/block/water_still.png"
@@ -503,61 +458,114 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 
 			
 		}
-
-		public boolean canExtract(int amount){
-			ItemStack stack = getStackInSlot(0);
-			if(amount > this.getStackInSlot(0).getCount())
-				return false;
-			Item i = stack.getItem();
-			switch(amount){
-				case 1:
-					//can extract 1 stack with bottle
-					if(!(i == new ItemStack(Items.LAVA_BUCKET).getItem() ||
-					i == new ItemStack(Items.MILK_BUCKET).getItem())){
+		
+		//does all the calculation for handling player interaction.
+		public boolean handleInteraction(PlayerEntity player, Hand hand){
+			ItemStack handstack = player.getHeldItem(hand);
+			Item handitem = handstack.getItem();
+			boolean isbucket = (handitem == new ItemStack(Items.BUCKET).getItem());
+			boolean isbottle = (handitem == new ItemStack(Items.GLASS_BOTTLE).getItem());
+			//is hand item bottle?
+			if(isbottle){
+				//can content be extracted with bottle
+				if(this.bottle){
+					//if extraction successfull
+					if(this.extractItem(false, handstack, player, hand)){
+						this.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+						player.addStat(Stats.ITEM_USED.get(new ItemStack(Items.GLASS_BOTTLE).getItem()));
 						return true;
 					}
-
-				case 4:
-					//can extract 4 stack with bucket
-					if(PotionUtils.getPotionFromItem(stack) == Potions.WATER ||
-					i == new ItemStack(Items.LAVA_BUCKET).getItem() ||
-					i == new ItemStack(Items.MILK_BUCKET).getItem()){
-						return true;
-					}
-				default:
-					return false;
+				}
+				return false;	
 			}
+			//is hand item bucket?
+			else if(isbucket){
+				//can content be extracted with bucket
+				if(this.bucket){
+					//if extraction successfull
+					if(this.extractItem(true, handstack, player, hand)){
+						//TODO:add lava sound
+						this.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BUCKET_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+						player.addStat(Stats.ITEM_USED.get(new ItemStack(Items.BUCKET).getItem()));
+						return true;
+					}
+				}
+				return false;
+			}
+			//can I insert this item?
+			else if(this.isItemValidForSlot(0, handstack)){
+				this.addItem(handstack, player, hand);
+				this.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BOTTLE_EMPTY, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+				return true;
+			}
+			return false;
+			
+		}
+		//removes item from te and gives it to player
+		public boolean extractItem(boolean isbucket, ItemStack handstack, PlayerEntity player, Hand handIn){
+			int amount = isbucket? 4 : 1;
+			ItemStack mystack = this.getStackInSlot(0);
+			int count = mystack.getCount();
+			//do i have enough?
+			if(count>=amount){
+				ItemStack extracted = mystack.copy();
+				extracted.setCount(1);
+				//special case to convert water bottles into bucket
+				if(this.bottle&&isbucket){
+					extracted = new ItemStack(Items.WATER_BUCKET);
+				}
+				if(!player.isCreative()){
+					handstack.shrink(1);	
+					if (handstack.isEmpty()) {
+	             		player.setHeldItem(handIn, extracted);
+	            	} else if (!player.inventory.addItemStackToInventory(extracted)) {
+	             		player.dropItem(extracted, false);
+	          		} 
+	          		/*
+	          		else if (player instanceof ServerPlayerEntity) {
+	             			((ServerPlayerEntity)player).sendContainerToPlayer(player.container);
+	          		}*/
+				}
+				mystack.setCount(Math.max(0, count-amount));
+				return true;
+			}		
+			return false;
 		}
 
-		public ItemStack extractItems(int amount){
-			
-				ItemStack it = getStackInSlot(0);
-				ItemStack ret = it.copy();
-				ret.setCount(1);
-				it.shrink(amount);
-				return ret;
-			
-		}
-
-
-		public void addItem(ItemStack it) {
+		//adds item to te, removes from player
+		public void addItem(ItemStack handstack, PlayerEntity player, Hand handIn) {
+			ItemStack it = handstack.copy();
 			Item i = it.getItem();
+			boolean iswaterbucket = (i == new ItemStack(Items.WATER_BUCKET).getItem());
+			boolean isbucket = iswaterbucket || i == new ItemStack(Items.LAVA_BUCKET).getItem() ||
+					i == new ItemStack(Items.MILK_BUCKET).getItem();
+
+			//shrink stack and replace bottle /bucket with empty ones
+			if(!player.isCreative()){
+				ItemStack emptybottle = isbucket? new ItemStack(Items.BUCKET) :  new ItemStack(Items.GLASS_BOTTLE);
+				handstack.shrink(1);
+				if (handstack.isEmpty()) {
+	             	player.setHeldItem(handIn, emptybottle);
+	            } else if (!player.inventory.addItemStackToInventory(emptybottle)) {
+	             	player.dropItem(emptybottle, false);
+	          	} 
+			}		
+			//empty
 			if (this.isEmpty()) {
-				it.setCount((int) 1);
-				if (i == new ItemStack(Items.WATER_BUCKET, 1).getItem()) {
+				it.setCount(1);
+				if (iswaterbucket) {
 					it = PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION, 4), Potions.WATER);
 				}
-				else if( i == new ItemStack(Items.LAVA_BUCKET, 1).getItem() ||
-					i == new ItemStack(Items.MILK_BUCKET, 1).getItem()){
+				else if(isbucket){
 					it.grow(3);
 				}
 				NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, it);
 				this.setItems(stacks);
-			} else {
+			} 
+			//non empty->increment
+			else {
 				
-				if (i == new ItemStack(Items.WATER_BUCKET, 1).getItem() ||
-					i == new ItemStack(Items.LAVA_BUCKET, 1).getItem() ||
-					i == new ItemStack(Items.MILK_BUCKET, 1).getItem()) {
+				if (isbucket) {
 					ItemStack st = this.getStackInSlot(0);
 					st.grow(Math.min(4, 12-st.getCount()));
 				} else {
@@ -566,17 +574,11 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 		}
 
+
 		public boolean isFull() {
 			return this.getStackInSlot(0).getCount() >= this.getInventoryStackLimit();
 		}
 
-		public float getOpacity() {
-			return this.opacity;
-		}
-
-		public String getTexture() {
-			return this.texture;
-		}
 
 		@Override
 		public boolean isItemValidForSlot(int index, ItemStack stack) {
@@ -611,6 +613,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 		}*/
 
+		//save to itemstack
 		public CompoundNBT saveToNbt(CompoundNBT compound) {
 			if (!this.checkLootAndWrite(compound)) {
 				ItemStackHelper.saveAllItems(compound, this.stacks, false);
@@ -634,8 +637,11 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			this.color = compound.getInt("color");
 			this.opacity = compound.getFloat("opacity");
 			this.fluidLevel = compound.getFloat("fluid_level");
-			this.liquidType = compound.getInt("liquid_type");
 			this.texture = compound.getString("texture");
+			this.bucket = compound.getBoolean("bucket");
+			this.bottle = compound.getBoolean("bottle");
+
+
 		}
 
 		@Override
@@ -649,6 +655,8 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			compound.putFloat("fluid_level", this.fluidLevel);
 			compound.putInt("liquid_type", this.liquidType);
 			compound.putString("texture", this.texture);
+			compound.putBoolean("bucket", this.bucket);
+			compound.putBoolean("bottle", this.bottle);
 			return compound;
 		}
 
@@ -812,14 +820,15 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
-			ResourceLocation texture = new ResourceLocation(entityIn.getTexture());
+			ResourceLocation texture = new ResourceLocation(entityIn.texture);
 			TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture);
-			IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
-			// IVertexBuilder builder
-			// =bufferIn.getBuffer(Customrender.CustomRenderTypes.TRANSLUCENT_CUSTOM);
-			int color = entityIn.getColor();
-			float opacity = entityIn.getOpacity();
-			float height = entityIn.getFluidLevel();
+			//TODO:remove breaking animation
+			//IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
+			 IVertexBuilder builder
+			 =bufferIn.getBuffer(Customrender.CustomRenderTypes.TRANSLUCENT_CUSTOM);
+			int color = entityIn.color;
+			float opacity = entityIn.opacity;
+			float height = entityIn.fluidLevel;
 			matrixStackIn.push();
 			matrixStackIn.translate(0.25, 0.0625, 0.25);
 			if (height != 0) {

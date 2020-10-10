@@ -315,6 +315,27 @@
       "locked_code": false,
       "ids": {},
       "registry_name": "turn_table_recipe"
+    },
+    {
+      "name": "PedestalRecipe",
+      "type": "recipe",
+      "sortid": 152,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "pedestal_recipe"
+    },
+    {
+      "name": "Wqs",
+      "type": "procedure",
+      "sortid": 153,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "wqs",
+      "metadata": {
+        "dependencies": []
+      }
     }
   ],
   "variable_elements": [],

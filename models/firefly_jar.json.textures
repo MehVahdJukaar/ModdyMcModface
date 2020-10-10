@@ -1,0 +1,14 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "jar_side",
+        "1": "jar_top",
+        "2": "jar_cork",
+        "3": "jar_bottom",
+        "4": "firefly"
+      },
+      "name": "default"
+    }
+  }
+}

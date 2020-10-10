@@ -52,6 +52,8 @@ import net.minecraft.block.BlockState;
 
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
+import net.mcreator.moddymcmodface.block.FireflyJarBlock;
+import net.mcreator.moddymcmodface.block.JarBlock;
 
 import javax.annotation.Nullable;
 
@@ -63,6 +65,12 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.SoundEvents;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
@@ -124,6 +132,32 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 			this.setRenderDistanceWeight(20);
 			this.flickerCounter = (int)(this.rand.nextFloat()*this.flickerPeriod);
 		}
+
+
+		@Override
+		public ActionResultType applyPlayerInteraction(PlayerEntity player, Vec3d vec, Hand hand) {
+			ItemStack itemstack = player.getHeldItem(hand);
+			Item item = itemstack.getItem();
+		
+			if (item == new ItemStack(JarBlock.block).getItem()) {
+				ItemStack itemstack4 = new ItemStack(FireflyJarBlock.block);				
+          		if (!player.abilities.isCreativeMode) {
+              		itemstack.shrink(1);
+              		if (itemstack.isEmpty()) {
+                 		player.setHeldItem(hand, itemstack4);
+              		} else if (!player.inventory.addItemStackToInventory(itemstack4) && !this.world.isRemote()) {
+                 		player.dropItem(itemstack4, false);
+              		}
+           		}
+			    this.world.playSound((PlayerEntity)null, this.getPosition(), SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
+				this.dead=true;			
+			    this.getCombatTracker().reset();			
+	            this.remove();
+	            return ActionResultType.SUCCESS;
+			}
+			return ActionResultType.PASS;
+		}
+		
 
 		public float getAlpha() {
 			return this.alpha;

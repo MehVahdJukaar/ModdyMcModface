@@ -345,8 +345,8 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		//hijacking this method to work with hoppers
 		@Override
 		public void markDirty() {
-			super.markDirty();
 			this.updateServerAndClient();
+			super.markDirty();
 		}
 
 		@Override
