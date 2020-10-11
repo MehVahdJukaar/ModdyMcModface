@@ -326,16 +326,22 @@
       "registry_name": "pedestal_recipe"
     },
     {
-      "name": "Wqs",
-      "type": "procedure",
-      "sortid": 153,
+      "name": "FireflyJarRecipe",
+      "type": "recipe",
+      "sortid": 156,
       "compiles": true,
       "locked_code": false,
       "ids": {},
-      "registry_name": "wqs",
-      "metadata": {
-        "dependencies": []
-      }
+      "registry_name": "firefly_jar_recipe"
+    },
+    {
+      "name": "RenderUtil",
+      "type": "code",
+      "sortid": 157,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "render_util"
     }
   ],
   "variable_elements": [],

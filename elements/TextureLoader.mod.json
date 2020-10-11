@@ -6,7 +6,7 @@
     "textureTop": "xp_liquid",
     "textureLeft": "honey_liquid",
     "textureFront": "milk_liquid",
-    "textureRight": "potion_liquid2",
+    "textureRight": "faucet_water",
     "textureBack": "dragon_breath_liquid",
     "renderType": 10,
     "customModelName": "Normal",

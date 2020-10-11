@@ -57,6 +57,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Block;
 import net.minecraft.block.CauldronBlock;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 
@@ -69,9 +71,23 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.Minecraft;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.world.biome.BiomeColors;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
+	public static final ResourceLocation texture = new ResourceLocation("moddymcmodface:blocks/faucet_water");
+	
 	@ObjectHolder("moddymcmodface:faucet")
 	public static final Block block = null;
 	@ObjectHolder("moddymcmodface:faucet")
@@ -96,6 +112,8 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 	@OnlyIn(Dist.CLIENT)
 	public void clientLoad(FMLClientSetupEvent event) {
 		RenderTypeLookup.setRenderLayer(block, RenderType.getCutoutMipped());
+		ClientRegistry.bindTileEntityRenderer(tileEntityType, CustomRender::new);
+
 	}
 	public static class CustomBlock extends Block {
 		public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
@@ -128,39 +146,37 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
-				BlockRayTraceResult hit) {
-			worldIn.setBlockState(pos, state.with(ENABLED, !state.get(ENABLED)), 3);
+				BlockRayTraceResult hit) { 
+				
 			float f = state.get(ENABLED) ? 0.6F : 0.5F;
 			worldIn.playSound((PlayerEntity) null, pos, SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.BLOCKS, 0.3F, f);
-			this.updateBlock(state, worldIn, pos);
+			this.updateBlock(state, worldIn, pos, true);
 			return ActionResultType.SUCCESS;
 		}
 
 		@Override
 		public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
-			this.updateBlock(state, worldIn, pos);
+			this.updateBlock(state, worldIn, pos, false);
 		}
 
 		@Override
 		public void neighborChanged(BlockState state, World world, BlockPos pos, Block neighborBlock, BlockPos fromPos, boolean moving) {
 			super.neighborChanged(state, world, pos, neighborBlock, fromPos, moving);
-			this.updateBlock(state, world, pos);
+			this.updateBlock(state, world, pos, false);
 		}
 
-		public void updateBlock(BlockState state, World world, BlockPos pos) {
+		public void updateBlock(BlockState state, World world, BlockPos pos, boolean toggle) {
 			boolean flag = world.getRedstonePowerFromNeighbors(pos) > 0;
-			if (flag != state.get(POWERED)) {
-				world.setBlockState(pos, state.with(POWERED, flag));
-			}
+
 			BlockPos backpos = pos.offset(state.get(FACING), -1);
 			BlockState backblock = world.getBlockState(backpos);
-						MinecraftServer mcserv = ServerLifecycleHooks.getCurrentServer();
 						
 			boolean flag2 = (world.getFluidState(backpos).isTagged(FluidTags.WATER)
 					|| ((backblock.getBlock() instanceof CauldronBlock) && backblock.getComparatorInputOverride(world, backpos) > 0));
-			
-			if (flag2 != state.get(HAS_WATER)) {
-				world.setBlockState(pos, state.with(HAS_WATER, flag2));
+
+			//if update blockstate with powered, haswater and enabled
+			if (flag != state.get(POWERED) || flag2 != state.get(HAS_WATER) || toggle) {
+				world.setBlockState(pos, state.with(POWERED, flag).with(HAS_WATER, flag2).with(ENABLED, toggle ^ state.get(ENABLED)));
 			}
 		}
 
@@ -244,10 +260,13 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 	}
 
 	public static class CustomTileEntity extends TileEntity implements ITickableTileEntity {
-		private int transferCooldown = 0;protected final Random rand = new Random();
+		private int transferCooldown = 0;
+		protected final Random rand = new Random();
+		public int watercolor = 0x423cf7;
 
 		protected CustomTileEntity() {
 			super(tileEntityType);
+			
 		}
 
 		private boolean isOnTransferCooldown() {
@@ -268,8 +287,13 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 		}
 
+
 		public boolean isOpen() {
 			return (this.getBlockState().get(BlockStateProperties.POWERED) ^ this.getBlockState().get(BlockStateProperties.ENABLED));
+		}
+		
+		public boolean hasWater(){
+			return this.getBlockState().get(CustomBlock.HAS_WATER);
 		}
 
 		// hopper code
@@ -332,11 +356,13 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void read(CompoundNBT compound) {
 			super.read(compound);
+			this.watercolor=compound.getInt("watercolor");
 		}
 
 		@Override
 		public CompoundNBT write(CompoundNBT compound) {
-			super.write(compound);
+			super.write(compound);this.watercolor = BiomeColors.getWaterColor(this.world, this.pos);
+			compound.putInt("watercolor",this.watercolor);
 			return compound;
 		}
 
@@ -355,4 +381,119 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			this.read(pkt.getNbtCompound());
 		}
 	}
+
+
+
+
+
+
+	@OnlyIn(Dist.CLIENT)
+	public static class CustomRender extends TileEntityRenderer<CustomTileEntity> {
+		public CustomRender(TileEntityRendererDispatcher rendererDispatcherIn) {
+			super(rendererDispatcherIn);
+		}
+
+		// shaded rectangle with wx = wz with texture flipped vertically. starts from
+		// block 0,0,0
+
+		@Override
+		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
+				int combinedOverlayIn) {
+			if(entityIn.hasWater() && entityIn.isOpen()){
+				 TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture);
+				//TODO:remove breaking animation
+				IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
+				int color =entityIn.watercolor;
+				float opacity =0.75f;
+				float height = 1;
+				matrixStackIn.push();
+				matrixStackIn.translate(0.5, 0.5, 0.5);
+				matrixStackIn.rotate(Vector3f.XP.rotationDegrees(180));
+				matrixStackIn.translate(-0.125, 0.1875, -0.125);
+				if (height != 0) {
+					addCube(builder, matrixStackIn, 0.25f, height, sprite, combinedLightIn, color, opacity, combinedOverlayIn, true);
+				}
+				matrixStackIn.pop();
+			}
+		}
+	}
+
+
+
+
+
+
+
+	private static void addCube(IVertexBuilder builder, MatrixStack matrixStackIn, float w, float h, TextureAtlasSprite sprite, int combinedLightIn,
+			int color, float a, int combinedOverlayIn, boolean fakeshading) {
+		int lu = combinedLightIn & '\uffff';
+		int lv = combinedLightIn >> 16 & '\uffff'; // ok
+		float minu = sprite.getMinU();
+		float minv = sprite.getMinV();
+		float maxu = (sprite.getMaxU() - minu) * w + minu;
+		float maxv = (sprite.getMaxV() - minv) * h + minv;
+		float maxv2 = (sprite.getMaxV() - minv) * w + minv;
+		float r = (float) ((color >> 16 & 255)) / 255.0F;
+		float g = (float) ((color >> 8 & 255)) / 255.0F;
+		float b = (float) ((color >> 0 & 255)) / 255.0F;
+		// float a = 1f;// ((color >> 24) & 0xFF) / 255f;
+		// shading:
+		float r8 = r;
+		float g8 = g;
+		float b8 = b;
+		float r6 = r;
+		float g6 = g;
+		float b6 = b;
+		float r5 = r;
+		float g5 = g;
+		float b5 = b;
+
+		if(fakeshading){
+			// 80%: s,n
+			r8 *= 0.8f;
+			g8 *= 0.8f;
+			b8 *= 0.8f;
+			// 60%: e,w
+			r6 *= 0.6f;
+			g6 *= 0.6f;
+			b6 *= 0.6f;
+			// 50%: d
+			r5 *= 0.5f;
+			g5 *= 0.5f;
+			b5 *= 0.5f;
+		}
+
+		
+		// r6=r;r8=r;r5=r;g6=g;g8=g;g5=g;b8=b;b6=b;b5=b;
+		// south z+
+		// x y z u v r g b a lu lv
+		addVert(builder, matrixStackIn, 0, 0, w, minu, minv, r8, g8, b8, a, lu, lv, 0, 0, 1);
+		addVert(builder, matrixStackIn, w, 0, w, maxu, minv, r8, g8, b8, a, lu, lv, 0, 0, 1);
+		addVert(builder, matrixStackIn, w, h, w, maxu, maxv, r8, g8, b8, a, lu, lv, 0, 0, 1);
+		addVert(builder, matrixStackIn, 0, h, w, minu, maxv, r8, g8, b8, a, lu, lv, 0, 0, 1);
+		// west
+		addVert(builder, matrixStackIn, 0, 0, 0, minu, minv, r6, g6, b6, a, lu, lv, -1, 0, 0);
+		addVert(builder, matrixStackIn, 0, 0, w, maxu, minv, r6, g6, b6, a, lu, lv, -1, 0, 0);
+		addVert(builder, matrixStackIn, 0, h, w, maxu, maxv, r6, g6, b6, a, lu, lv, -1, 0, 0);
+		addVert(builder, matrixStackIn, 0, h, 0, minu, maxv, r6, g6, b6, a, lu, lv, -1, 0, 0);
+		// north
+		addVert(builder, matrixStackIn, w, 0, 0, minu, minv, r8, g8, b8, a, lu, lv, 0, 0, -1);
+		addVert(builder, matrixStackIn, 0, 0, 0, maxu, minv, r8, g8, b8, a, lu, lv, 0, 0, -1);
+		addVert(builder, matrixStackIn, 0, h, 0, maxu, maxv, r8, g8, b8, a, lu, lv, 0, 0, -1);
+		addVert(builder, matrixStackIn, w, h, 0, minu, maxv, r8, g8, b8, a, lu, lv, 0, 0, -1);
+		// east
+		addVert(builder, matrixStackIn, w, 0, w, minu, minv, r6, g6, b6, a, lu, lv, 1, 0, 0);
+		addVert(builder, matrixStackIn, w, 0, 0, maxu, minv, r6, g6, b6, a, lu, lv, 1, 0, 0);
+		addVert(builder, matrixStackIn, w, h, 0, maxu, maxv, r6, g6, b6, a, lu, lv, 1, 0, 0);
+		addVert(builder, matrixStackIn, w, h, w, minu, maxv, r6, g6, b6, a, lu, lv, 1, 0, 0);
+	}
+
+	private static void addVert(IVertexBuilder builder, MatrixStack matrixStackIn, float x, float y, float z, float u, float v, float r, float g,
+			float b, float a, int lu, int lv, float dx, float dy, float dz) {
+		builder.pos(matrixStackIn.getLast().getMatrix(), x, y, z).color(r, g, b, a).tex(u, v).overlay(OverlayTexture.NO_OVERLAY).lightmap(lu, lv)
+				.normal(matrixStackIn.getLast().getNormal(), 0, 1, 0).endVertex();
+	}
+
+
+	
 }

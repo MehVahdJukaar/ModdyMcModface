@@ -381,10 +381,6 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		//callen when item is placed chen item has blockentyty tag
 		@Override
 		public void markDirty() {
-				
-			MinecraftServer mcserv = ServerLifecycleHooks.getCurrentServer();
-			if (mcserv != null && !this.world.isRemote())
-				mcserv.getPlayerList().sendMessage(new StringTextComponent("Message"));
 
 			this.updateFluidInformations();
 			super.markDirty();
@@ -823,9 +819,9 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			ResourceLocation texture = new ResourceLocation(entityIn.texture);
 			TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture);
 			//TODO:remove breaking animation
-			//IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
-			 IVertexBuilder builder
-			 =bufferIn.getBuffer(Customrender.CustomRenderTypes.TRANSLUCENT_CUSTOM);
+			IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
+			 //IVertexBuilder builder
+			 //=bufferIn.getBuffer(Customrender.CustomRenderTypes.TRANSLUCENT_CUSTOM);
 			int color = entityIn.color;
 			float opacity = entityIn.opacity;
 			float height = entityIn.fluidLevel;

@@ -71,6 +71,13 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.world.IWorld;
+import net.minecraft.block.LogBlock;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.Block;
+import net.minecraft.entity.passive.AnimalEntity;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
@@ -107,10 +114,11 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 				biomeCriteria = true;
 			if (!biomeCriteria)
 				continue;
-			biome.getSpawns(EntityClassification.AMBIENT).add(new Biome.SpawnListEntry(entity, 8, 2, 5));
+			biome.getSpawns(EntityClassification.AMBIENT).add(new Biome.SpawnListEntry(entity, 1, 3, 7));
 		}
+		//TODO:adjust this so they can spawn on more blocks but not underground
 		EntitySpawnPlacementRegistry.register(entity, EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS,
-				Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, MobEntity::canSpawnOn);
+				Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, AnimalEntity::canAnimalSpawn);
 	}
 
 	public static class CustomEntity extends CreatureEntity implements IFlyingAnimal {
@@ -129,10 +137,23 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 			setNoAI(false);
 			this.moveController = new FlyingMovementController(this, 10, true);
 			this.navigator = new FlyingPathNavigator(this, this.world);
-			this.setRenderDistanceWeight(20);
+			//this.setRenderDistanceWeight(20);
 			this.flickerCounter = (int)(this.rand.nextFloat()*this.flickerPeriod);
 		}
 
+	
+	   public static boolean canSpawnOn(CustomEntity ce, IWorld worldIn, SpawnReason reason, BlockPos pos, Random random) {
+	      Block block = worldIn.getBlockState(pos.down()).getBlock();
+	      return (block.isIn(BlockTags.LEAVES) || block == Blocks.GRASS_BLOCK || block instanceof LogBlock || block == Blocks.AIR) ;
+	   }
+   
+	    @Override
+	    public boolean canSpawn(IWorld world, SpawnReason spawnReasonIn)
+	    {
+	        if (this.world.isDaytime()||this.world.isThundering())
+	            return false;
+	        return true;
+	    }
 
 		@Override
 		public ActionResultType applyPlayerInteraction(PlayerEntity player, Vec3d vec, Hand hand) {
@@ -167,20 +188,24 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 			return this.prevAlpha;
 		}
 
-		@OnlyIn(Dist.CLIENT)
-		public double getMaxRenderDistanceSquared() {
-			return 65536.0D;
-		}
+		//@OnlyIn(Dist.CLIENT)
+		//public double getMaxRenderDistanceSquared() {
+		//		return 65536.0D;
+		//	}
 
 		@Override
 		public void tick() {
 			super.tick();
+			//despawn when entity is not lit
+        	if ((this.flickerCounter+(this.flickerPeriod/2)) % (this.flickerPeriod*2) == 0){
+				long dayTime = this.world.getWorldInfo().getDayTime();
+	       		if (dayTime > 23500 || dayTime < 12500)
+	            	this.remove();
+        	}
 			this.flickerCounter++;
 			this.prevAlpha = this.alpha;
 			float p = 0.3f; 
 			this.alpha = Math.max( (1-p)*MathHelper.sin(this.flickerCounter * ((float) Math.PI / this.flickerPeriod))+p, 0);
-						MinecraftServer mcserv = ServerLifecycleHooks.getCurrentServer();
-			//mcserv.getPlayerList().sendMessage(new StringTextComponent("no"+this.alpha));
 
 
 			

@@ -93,7 +93,7 @@ public class FireflyJarBlock extends ModdymcmodfaceModElements.ModElement {
 	}
 	public static class CustomBlock extends Block {
 		public CustomBlock() {
-			super(Block.Properties.create(Material.GLASS).sound(SoundType.GLASS).hardnessAndResistance(1f, 10f).lightValue(0).notSolid());
+			super(Block.Properties.create(Material.GLASS).sound(SoundType.GLASS).hardnessAndResistance(1f, 10f).lightValue(8).notSolid());
 			setRegistryName("firefly_jar");
 		}
 

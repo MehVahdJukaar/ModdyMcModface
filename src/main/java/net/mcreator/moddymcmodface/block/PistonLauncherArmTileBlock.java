@@ -213,8 +213,7 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 		protected final Random rand = new Random();
 		protected CustomTileEntity() {
 			super(tileEntityType);
-			MinecraftServer mcserv = ServerLifecycleHooks.getCurrentServer();
-			mcserv.getPlayerList().sendMessage(new StringTextComponent("no"));
+
 		}
 
 		protected CustomTileEntity(int dir, boolean ext) {
