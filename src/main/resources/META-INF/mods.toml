@@ -3,8 +3,8 @@ loaderVersion="[31,)"
 
 [[mods]]
 modId="moddymcmodface"
-version="alpha. WIP"
-displayName="Moddy McModface"
+version="alpha 0.3. WIP"
+displayName="Supplementaries"
 credits="Created using mod maker MCreator - https://mcreator.net/about"
 displayURL="https://mcreator.net"
 logoFile="logo.png"

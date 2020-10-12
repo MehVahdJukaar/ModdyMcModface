@@ -1,0 +1,16 @@
+{
+  "group": "moddymcmodface",
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "0"
+  ],
+  "key": {
+    "0": {
+      "item": "moddymcmodface:wall_glass_pane"
+    }
+  },
+  "result": {
+    "item": "minecraft:glass_pane",
+    "count": 1
+  }
+}

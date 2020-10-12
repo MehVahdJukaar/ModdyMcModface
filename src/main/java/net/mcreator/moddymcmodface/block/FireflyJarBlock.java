@@ -226,7 +226,7 @@ public class FireflyJarBlock extends ModdymcmodfaceModElements.ModElement {
 			int l = 255;
 			int a = 255;
 			EntityRendererManager renderManager = Minecraft.getInstance().getRenderManager();
-
+		
 			matrixStackIn.translate(0.5, 0.5, 0.5);
 			matrixStackIn.translate(0, -0.1, 0);
 			//matrixStackIn.rotate(renderManager.getCameraOrientation());
@@ -237,8 +237,6 @@ public class FireflyJarBlock extends ModdymcmodfaceModElements.ModElement {
 			matrixStackIn.scale(0.6f, 0.6f, 0.6f);
 
 
-			//World world = (World)Minecraft.getInstance().world;
-			//world.addParticle(Particles.ParticleList.FIREFLY_GLOW.get(), 0, 0, 0, 0, 0, 0);
 			//matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180.0F));
 			float f9 = 0.32F;
 			//matrixStackIn.scale(0.3F, 0.3F, 0.3F);

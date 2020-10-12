@@ -83,6 +83,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.world.biome.BiomeColors;
+import net.minecraft.util.math.AxisAlignedBB;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
@@ -126,6 +127,9 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 					.with(HAS_WATER, false));
 			setRegistryName("faucet");
 		}
+
+
+
 
 		@Override
 		public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
@@ -269,6 +273,12 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			
 		}
 
+
+		@Override
+		public AxisAlignedBB getRenderBoundingBox(){
+			return new AxisAlignedBB(getPos().add(0,-1,0), getPos().add(1,1,1));
+		}
+
 		private boolean isOnTransferCooldown() {
 			return this.transferCooldown > 0;
 		}
@@ -361,7 +371,8 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		public CompoundNBT write(CompoundNBT compound) {
-			super.write(compound);this.watercolor = BiomeColors.getWaterColor(this.world, this.pos);
+			super.write(compound);
+			this.watercolor = BiomeColors.getWaterColor(this.world, this.pos);
 			compound.putInt("watercolor",this.watercolor);
 			return compound;
 		}

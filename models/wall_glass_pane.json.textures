@@ -1,0 +1,11 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "laser_side",
+        "1": "laser_front"
+      },
+      "name": "default"
+    }
+  }
+}

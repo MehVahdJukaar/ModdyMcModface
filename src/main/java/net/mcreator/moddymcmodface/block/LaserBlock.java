@@ -227,7 +227,7 @@ import java.util.List;
 import java.util.Collections;
 import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
 import net.minecraft.util.math.AxisAlignedBB;
-/*
+
 @ModdymcmodfaceModElements.ModElement.Tag
 public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 	@ObjectHolder("moddymcmodface:laser")
@@ -355,10 +355,11 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		public AxisAlignedBB getRenderBoundingBox(){
-			return new AxisAlignedBB(this.pos, this.pos.offset(this.dir,this.lenght+2));
+			return new AxisAlignedBB(getPos(), getPos().offset(this.dir,this.lenght+2).add(1,1,1));
 		}
 
 
+		
 		@Override
 		public void tick(){
 			if (this.world != null && this.world.getGameTime() % 20L == 0L) {
@@ -514,4 +515,4 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 	}	
 			
 	
-}*/
+}

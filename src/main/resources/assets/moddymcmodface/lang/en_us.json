@@ -15,6 +15,7 @@
   "block.lightupmyenvironment.piston_launcher_arm_tile": "Piston Launcher Arm Tile",
   "block.lightupmyenvironment.crank": "Crank",
   "block.lightupmyenvironment.piston_launcher": "Piston Launcher",
+  "block.moddymcmodface.textureloader_2": "Textureloader 2",
   "block.lightupmyenvironment.jar": "Jar",
   "block.lightupmyenvironment.piston_launcher_head": "Piston Launcher",
   "block.lightupmyenvironment.pedestal": "Pedestal",
@@ -26,6 +27,7 @@
   "block.lightupmyenvironment.redstone_illuminator": "Redstone Illuminator",
   "block.lightupmyenvironment.skull_lantern_down": "Skull Lantern Down",
   "block.lightupmyenvironment.torch_2": "Torch 2",
+  "block.moddymcmodface.wall_glass_pane": "Wall Glass Pane",
   "block.lightupmyenvironment.notice_board": "Notice Board",
   "block.moddymcmodface.torch_2": "Torch 2"
 }
