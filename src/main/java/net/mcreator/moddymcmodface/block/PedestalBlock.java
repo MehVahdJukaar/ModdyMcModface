@@ -332,26 +332,28 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 			super(tileEntityType);
 		}
 
+		//hijacking this method to work with hoppers
 		@Override
 		public void markDirty() {
-			//this.updateType();
 			this.updateServerAndClient();
-			this.updateBlockShape(this.world.getBlockState(this.pos), this.world, this.pos, this.pos.down());
-			this.updateBlockShape(this.world.getBlockState(this.pos), this.world, this.pos, this.pos.up());
 			super.markDirty();
 		}
 
-		public void updateServerAndClient() {
-			if (this.world instanceof World && !this.world.isRemote) {
+		private void updateServerAndClient() {
+			if (this.world instanceof World && !this.world.isRemote()) {
 				Network.sendToAllNear(this.pos.getX(), this.pos.getY(), this.pos.getZ(), 128, this.world.getDimension().getType(),
 							new Network.PacketUpdatePedestal(this.pos, this.getStackInSlot(0)));
-				this.updatePedestal(this.getStackInSlot(0));
+				this.updateTile();
 			}
-
-			
 		}
 
-
+		//receive new inv from server, then update tile
+		public void updateInventoryFromServer(ItemStack stack){
+			ItemStack newstack = stack.copy();
+			NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, newstack);
+			this.setItems(stacks);
+			this.updateTile();
+		}
 
 
 		public void updateBlockShape(BlockState state, World world, BlockPos pos, BlockPos fromPos){
@@ -390,11 +392,16 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 
 
 
-		public void updatePedestal(ItemStack itemstack) {
+		public void updateTile() {
+		
+			this.updateBlockShape(this.world.getBlockState(this.pos), this.world, this.pos, this.pos.down());
+			this.updateBlockShape(this.world.getBlockState(this.pos), this.world, this.pos, this.pos.up());
+	
+			ItemStack itemstack = getStackInSlot(0);
 			ItemStack its = (ItemStack) itemstack.copy();
 			its.setCount((int) 1);
 			NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, its);
-			this.setItems(stacks);
+			//this.setItems(stacks);
 			
 			Item it = its.getItem();
 			if (it instanceof BlockItem){

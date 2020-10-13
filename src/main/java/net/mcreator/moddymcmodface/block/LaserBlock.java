@@ -227,7 +227,7 @@ import java.util.List;
 import java.util.Collections;
 import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
 import net.minecraft.util.math.AxisAlignedBB;
-
+/*
 @ModdymcmodfaceModElements.ModElement.Tag
 public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 	@ObjectHolder("moddymcmodface:laser")
@@ -515,4 +515,4 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 	}	
 			
 	
-}
+}*/

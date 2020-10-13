@@ -464,7 +464,7 @@ public class NoticeBoardGuiGui extends ModdymcmodfaceModElements.ModElement {
 				if (tileentity instanceof CustomTileEntity){
 					CustomTileEntity t = (CustomTileEntity) tileentity;
 
-					t.callUpdate();
+					t.updateTile();
 				}
 
 			}

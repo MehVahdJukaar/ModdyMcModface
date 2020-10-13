@@ -61,6 +61,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
+import net.mcreator.moddymcmodface.block.JarBlock;
+
 
 import java.util.stream.IntStream;
 import java.util.Random;
@@ -121,9 +123,10 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 		public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 		public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 		public static final BooleanProperty HAS_WATER = BooleanProperty.create("has_water");
+		public static final BooleanProperty HAS_JAR = BooleanProperty.create("has_jar");
 		public CustomBlock() {
 			super(Block.Properties.create(Material.IRON).sound(SoundType.METAL).hardnessAndResistance(3f, 4.8f).lightValue(0).notSolid());
-			this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH).with(ENABLED, false).with(POWERED, false)
+			this.setDefaultState(this.stateContainer.getBaseState().with(HAS_JAR, false).with(FACING, Direction.NORTH).with(ENABLED, false).with(POWERED, false)
 					.with(HAS_WATER, false));
 			setRegistryName("faucet");
 		}
@@ -133,18 +136,36 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
-			switch ((Direction) state.get(FACING)) {
-				case UP :
-				case DOWN :
-				case NORTH :
-				default :
-					return VoxelShapes.create(0.6875D, 0.3125D, 1D, 0.3125D, 0.9375D, 0.312D);
-				case SOUTH :
-					return VoxelShapes.create(0.3125D, 0.3125D, 0D, 0.6875D, 0.9375D, 0.688D);
-				case EAST :
-					return VoxelShapes.create(0D, 0.3125D, 0.6875D, 0.688D, 0.9375D, 0.3125D);
-				case WEST :
-					return VoxelShapes.create(1D, 0.3125D, 0.3125D, 0.312D, 0.9375D, 0.6875D);
+			if(state.get(HAS_JAR)){
+				switch ((Direction) state.get(FACING)) {
+					case UP :
+					case DOWN :
+					case NORTH :
+					default :
+						return VoxelShapes.create(0.6875D, 0, 1D, 0.3125D, 0.625D, 0.312D);
+					case SOUTH :
+						return VoxelShapes.create(0.3125D, 0, 0D, 0.6875D, 0.625D, 0.688D);
+					case EAST :
+						return VoxelShapes.create(0D, 0, 0.6875D, 0.688D, 0.625D, 0.3125D);
+					case WEST :
+						return VoxelShapes.create(1D, 0, 0.3125D, 0.312D, 0.625D, 0.6875D);
+				}
+			}
+			else{
+				switch ((Direction) state.get(FACING)) {
+					case UP :
+					case DOWN :
+					case NORTH :
+					default :
+						return VoxelShapes.create(0.6875D, 0.3125D, 1D, 0.3125D, 0.9375D, 0.312D);
+					case SOUTH :
+						return VoxelShapes.create(0.3125D, 0.3125D, 0D, 0.6875D, 0.9375D, 0.688D);
+					case EAST :
+						return VoxelShapes.create(0D, 0.3125D, 0.6875D, 0.688D, 0.9375D, 0.3125D);
+					case WEST :
+						return VoxelShapes.create(1D, 0.3125D, 0.3125D, 0.312D, 0.9375D, 0.6875D);
+				}
+
 			}
 		}
 
@@ -178,9 +199,10 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			boolean flag2 = (world.getFluidState(backpos).isTagged(FluidTags.WATER)
 					|| ((backblock.getBlock() instanceof CauldronBlock) && backblock.getComparatorInputOverride(world, backpos) > 0));
 
+			boolean flag3 = world.getBlockState(pos.down()).getBlock() == JarBlock.block;
 			//if update blockstate with powered, haswater and enabled
-			if (flag != state.get(POWERED) || flag2 != state.get(HAS_WATER) || toggle) {
-				world.setBlockState(pos, state.with(POWERED, flag).with(HAS_WATER, flag2).with(ENABLED, toggle ^ state.get(ENABLED)));
+			if (flag != state.get(POWERED) || flag2 != state.get(HAS_WATER) || flag3 !=state.get(HAS_JAR)|| toggle) {
+				world.setBlockState(pos, state.with(POWERED, flag).with(HAS_WATER, flag2).with(HAS_JAR, flag3).with(ENABLED, toggle ^ state.get(ENABLED)));
 			}
 		}
 
@@ -200,7 +222,7 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-			builder.add(FACING, ENABLED, POWERED, HAS_WATER);
+			builder.add(FACING, ENABLED, POWERED, HAS_WATER, HAS_JAR);
 		}
 
 		public BlockState rotate(BlockState state, Rotation rot) {
@@ -306,6 +328,10 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			return this.getBlockState().get(CustomBlock.HAS_WATER);
 		}
 
+		public boolean hasJar(){
+			return this.getBlockState().get(CustomBlock.HAS_JAR);
+		}
+
 		// hopper code
 		private static boolean canExtractItemFromSlot(IInventory inventoryIn, ItemStack stack, int index, Direction side) {
 			return !(inventoryIn instanceof ISidedInventory) || ((ISidedInventory) inventoryIn).canExtractItem(index, stack, side);
@@ -313,13 +339,31 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 
 		private boolean pullItemFromSlot(IInventory inventoryIn, int index, Direction direction) {
 			ItemStack itemstack = inventoryIn.getStackInSlot(index);
-			if (!itemstack.isEmpty() && canExtractItemFromSlot(inventoryIn, itemstack, index, direction)) {
+			BlockPos backpos =this.pos.offset(this.getBlockState().get(HorizontalBlock.HORIZONTAL_FACING), -1);
 
+			//special case for jars. has to be done to prevent other hoppers frominteracting with them cause canextractitems is always false
+			if(world.getBlockState(backpos).getBlock() == JarBlock.block.getDefaultState().getBlock()&&!itemstack.isEmpty() && this.hasJar()){
+				TileEntity tileentity = world.getTileEntity(this.pos.down());
+				if(tileentity instanceof JarBlock.CustomTileEntity){
+					JarBlock.CustomTileEntity jartileentity = (JarBlock.CustomTileEntity) tileentity;
+					if (jartileentity.isItemValidForSlot(0, itemstack)){
+						ItemStack it = (ItemStack) itemstack.copy();
+						itemstack.shrink(1);
+						inventoryIn.markDirty();
+						
+						jartileentity.addItem(it,null,null);
+						jartileentity.markDirty();
+						
+						return true;
+					}
+				}
+				return false;
+			}
+			else if (!itemstack.isEmpty() && canExtractItemFromSlot(inventoryIn, itemstack, index, direction)) {
+	
 				ItemStack it = (ItemStack) itemstack.copy();
 				itemstack.shrink(1);
-				if (itemstack.isEmpty()) {
-		            inventoryIn.markDirty();
-		         }
+
 				inventoryIn.markDirty();
 				it.setCount((int) 1);
 				ItemEntity drop = new ItemEntity(this.world, this.pos.getX() + 0.5, this.pos.getY(), this.pos.getZ() + 0.5, it);
@@ -329,6 +373,7 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 				this.world.playSound((PlayerEntity) null, this.pos, SoundEvents.ENTITY_CHICKEN_EGG, SoundCategory.BLOCKS, 0.3F, 0.5f+f);
 	
 				return true;
+				
 			}
 			return false;
 		}
@@ -410,7 +455,7 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
-			if(entityIn.hasWater() && entityIn.isOpen()){
+			if(entityIn.hasWater() && entityIn.isOpen() && !entityIn.hasJar()){
 				 TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture);
 				//TODO:remove breaking animation
 				IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());

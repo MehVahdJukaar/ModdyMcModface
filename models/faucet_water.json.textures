@@ -1,0 +1,11 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "faucet",
+        "1": "faucet_water"
+      },
+      "name": "default"
+    }
+  }
+}

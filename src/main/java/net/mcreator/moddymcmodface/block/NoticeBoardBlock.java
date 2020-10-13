@@ -307,16 +307,6 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 		}
   
-		public void callUpdate(ItemStack i) {
-			ItemStack it = i.copy();
-			this.updateBook(it);
-		}
-
-		public void callUpdate() {
-			ItemStack itemstack = this.getStackInSlot(0);
-			this.updateBook(itemstack);
-		}
-
 		//update blockstate and plays sound
 		public void updateBoardBlock(boolean b) {
 			BlockState _bs = this.world.getBlockState(this.pos);
@@ -333,13 +323,13 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 		}
 
-		public void updateServerAndClient() {
-			//call updatebook on both server(from here) and on client trough packet
-			if (this.world instanceof World && !this.world.isRemote) {
-				Network.sendToAllNear(this.pos.getX(), this.pos.getY(), this.pos.getZ(), 128, this.world.getDimension().getType(),
-							new Network.PacketUpdateNoticeBoard(this.pos, this.getStackInSlot(0)));
-				this.callUpdate();
-			}
+
+		//receive new inv from server, then update tile
+		public void updateInventoryFromServer(ItemStack stack){
+			ItemStack newstack = stack.copy();
+			NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, newstack);
+			this.setItems(stacks);
+			this.updateTile();
 		}
 
 		//hijacking this method to work with hoppers
@@ -349,13 +339,18 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 			super.markDirty();
 		}
 
-		@Override
-		public ItemStack getStackInSlot(int index) {
-			return super.getStackInSlot(index);
+		
+		private void updateServerAndClient() {
+			if (this.world instanceof World && !this.world.isRemote()) {
+				Network.sendToAllNear(this.pos.getX(), this.pos.getY(), this.pos.getZ(), 128, this.world.getDimension().getType(),
+							new Network.PacketUpdateNoticeBoard(this.pos, this.getStackInSlot(0)));
+				this.updateTile();
+			}
 		}
 
  
-		public void updateBook(ItemStack itemstack) {
+		public void updateTile() {
+		    ItemStack itemstack = getStackInSlot(0);
 			String s = null;
 			this.inventoryChanged = true;
 			this.cachedPageLines = Collections.emptyList();

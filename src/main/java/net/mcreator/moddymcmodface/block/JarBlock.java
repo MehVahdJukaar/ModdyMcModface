@@ -78,6 +78,7 @@ import net.minecraft.block.Block;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 import net.mcreator.moddymcmodface.Customrender;
+import net.mcreator.moddymcmodface.Network;
 
 import javax.annotation.Nullable;
 
@@ -120,6 +121,7 @@ import java.util.Random;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class JarBlock extends ModdymcmodfaceModElements.ModElement {
@@ -380,7 +382,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		public int color = 0xffffff;
 		public float liquidLevel = 0;
 		public int rand = (new Random()).nextInt(360);
-		private JarContentType liquidType = JarContentType.WATER;
+		private JarContentType liquidType = JarContentType.EMPTY;
 		protected CustomTileEntity() {
 			super(tileEntityType);
 		}
@@ -390,17 +392,34 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			this.rand=rand;	
 		}
         
-		//called when inventory is updatet -> update fluid information
+		//called when inventory is updated -> update tile
 		//callen when item is placed chen item has blockentyty tag
+		//hijacking this method to work with hoppers
 		@Override
 		public void markDirty() {
-
-			this.updateFluidInformations();
+			this.updateServerAndClient();
 			super.markDirty();
 		}
 
+		
+		private void updateServerAndClient() {
+			if (this.world instanceof World && !this.world.isRemote()) {
+				Network.sendToAllNear(this.pos.getX(), this.pos.getY(), this.pos.getZ(), 128, this.world.getDimension().getType(),
+							new Network.PacketUpdateJar(this.pos, this.getStackInSlot(0)));
+				this.updateTile();
+			}
+		}
+
+		//receive new inv from server, then update tile
+		public void updateInventoryFromServer(ItemStack stack){
+			ItemStack newstack = stack.copy();
+			NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, newstack);
+			this.setItems(stacks);
+			this.updateTile();
+		}
+
 		//I love hardcoding
-		public void updateFluidInformations() {
+		public void updateTile() {
 			boolean haslava = false;
 			ItemStack stack = this.getStackInSlot(0);
 			Item it = stack.getItem();
@@ -494,7 +513,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 				if(this.liquidType.bottle){
 					//if extraction successfull
 					if(this.extractItem(false, handstack, player, hand, true)){
-						this.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+						this.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
 						player.addStat(Stats.ITEM_USED.get(new ItemStack(Items.GLASS_BOTTLE).getItem()));
 						return true;
 					}
@@ -518,7 +537,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 						else{ 
 							se = SoundEvents.ITEM_BUCKET_FILL;
 						}
-						this.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BUCKET_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+						this.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BUCKET_FILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
 						player.addStat(Stats.ITEM_USED.get(new ItemStack(Items.BUCKET).getItem()));
 						return true;
 					}
@@ -569,28 +588,31 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 
 		//adds item to te, removes from player
-		public void addItem(ItemStack handstack, PlayerEntity player, Hand handIn) {
+		public void addItem(ItemStack handstack, @Nullable PlayerEntity player, @Nullable Hand handIn) {
 			ItemStack it = handstack.copy();
 			Item i = it.getItem();
 			boolean isfish = i instanceof FishBucketItem;
 			boolean iswaterbucket = (i == new ItemStack(Items.WATER_BUCKET).getItem());
 			boolean isbucket = iswaterbucket || i == new ItemStack(Items.LAVA_BUCKET).getItem() ||
 					i == new ItemStack(Items.MILK_BUCKET).getItem() || isfish;
-			boolean iscookie = i == new ItemStack(Items.COOKIE).getItem();
+			boolean iscookie = i == Items.COOKIE;
 			
 			//shrink stack and replace bottle /bucket with empty ones
-			if(!player.isCreative()){
-				handstack.shrink(1);
-				if(!iscookie){
-					ItemStack emptybottle = isbucket? new ItemStack(Items.BUCKET) :  new ItemStack(Items.GLASS_BOTTLE);
-					
-					if (handstack.isEmpty()) {
-		             	player.setHeldItem(handIn, emptybottle);
-		            } else if (!player.inventory.addItemStackToInventory(emptybottle)) {
-		             	player.dropItem(emptybottle, false);
-		          	}
+			if(player!=null && handIn!=null){			
+				if(!player.isCreative()){
+					handstack.shrink(1);
+					if(!iscookie){
+						ItemStack emptybottle = isbucket? new ItemStack(Items.BUCKET) :  new ItemStack(Items.GLASS_BOTTLE);
+						
+						if (handstack.isEmpty()) {
+			             	player.setHeldItem(handIn, emptybottle);
+			            } else if (!player.inventory.addItemStackToInventory(emptybottle)) {
+			             	player.dropItem(emptybottle, false);
+			          	}
+					}
 				}
-			}		
+			if(!iscookie)this.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BOTTLE_EMPTY, SoundCategory.BLOCKS, 1.0F, 1.0F);	
+			}
 			//empty
 			if (this.isEmpty()) {
 				it.setCount(1);
@@ -613,8 +635,8 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 					this.getStackInSlot(0).grow(1);
 				}
 			}
-			if(!iscookie)this.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BOTTLE_EMPTY, SoundCategory.NEUTRAL, 1.0F, 1.0F);
 		}
+
 
 
 		public boolean isFull() {
@@ -767,12 +789,12 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		public boolean canInsertItem(int index, ItemStack stack, @Nullable Direction direction) {
-			return this.isItemValidForSlot(index, stack);
+			return this.isItemValidForSlot(index, stack) && (this.liquidType==JarContentType.COOKIES||this.liquidType==JarContentType.EMPTY);
 		}
 
 		@Override
 		public boolean canExtractItem(int index, ItemStack stack, Direction direction) {
-			return false;
+			return this.liquidType==JarContentType.COOKIES;
 		}
 		private final LazyOptional<? extends IItemHandler>[] handlers = SidedInvWrapper.create(this, Direction.values());
 		@Override
@@ -799,12 +821,10 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 	@OnlyIn(Dist.CLIENT)
 	public static class CustomItemRender extends ItemStackTileEntityRenderer {
 	
-
 	
 	    @Override
 	    public void render( ItemStack stack,  MatrixStack matrixStackIn,  IRenderTypeBuffer bufferIn,
 	          int combinedLightIn, int combinedOverlayIn) {
-
 
 	        matrixStackIn.push();
 
@@ -915,12 +935,13 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 				
 				for(float i=0; i<height; i+=0.0625){
 					matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(rand.nextInt(360)));
-					matrixStackIn.translate(0, 0, 0.0625);
+					//matrixStackIn.translate(0, 0, 0.0625);
+					matrixStackIn.translate(0, 0, 1/(16f*scale));
 					ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 			        ItemStack stack = new ItemStack(Items.COOKIE);
 			        IBakedModel ibakedmodel = itemRenderer.getItemModelWithOverrides(stack, entityIn.getWorld(), null);
 	       			itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.FIXED, true, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, ibakedmodel);	        	
-					matrixStackIn.translate(0, 0, scale/16f);
+					
 				}
 				matrixStackIn.pop();
 			}
@@ -1121,7 +1142,5 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		public boolean isFish(){
 			return this.fishtype!=-1;	
 		}
-	}
-
-	
+	}	
 }

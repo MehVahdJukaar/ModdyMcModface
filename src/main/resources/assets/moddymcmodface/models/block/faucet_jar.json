@@ -1,0 +1,8 @@
+{
+  "parent": "moddymcmodface:custom/faucet_jar",
+  "textures": {
+    "all": "moddymcmodface:blocks/faucet",
+    "particle": "moddymcmodface:blocks/faucet",
+    "0": "moddymcmodface:blocks/faucet"
+  }
+}

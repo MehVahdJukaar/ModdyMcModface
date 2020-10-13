@@ -1,33 +1,63 @@
 {
   "variants": {
-    "facing=north,enabled=false": {
+    "facing=north,enabled=false,has_jar=false": {
       "model": "moddymcmodface:block/faucet"
     },
-    "facing=north,enabled=true": {
+    "facing=north,enabled=true,has_jar=false": {
       "model": "moddymcmodface:block/faucet_on"
     },
-    "facing=east,enabled=false": {
+    "facing=east,enabled=false,has_jar=false": {
       "model": "moddymcmodface:block/faucet",
       "y": 90
     },
-    "facing=east,enabled=true": {
+    "facing=east,enabled=true,has_jar=false": {
       "model": "moddymcmodface:block/faucet_on",
       "y": 90
     },
-    "facing=south,enabled=false": {
+    "facing=south,enabled=false,has_jar=false": {
       "model": "moddymcmodface:block/faucet",
       "y": 180
     },
-    "facing=south,enabled=true": {
+    "facing=south,enabled=true,has_jar=false": {
       "model": "moddymcmodface:block/faucet_on",
       "y": 180
     },
-    "facing=west,enabled=false": {
+    "facing=west,enabled=false,has_jar=false": {
       "model": "moddymcmodface:block/faucet",
       "y": 270
     },
-    "facing=west,enabled=true": {
+    "facing=west,enabled=true,has_jar=false": {
       "model": "moddymcmodface:block/faucet_on",
+      "y": 270
+    },
+    "facing=north,enabled=false,has_jar=true": {
+      "model": "moddymcmodface:block/faucet_jar"
+    },
+    "facing=north,enabled=true,has_jar=true": {
+      "model": "moddymcmodface:block/faucet_jar_on"
+    },
+    "facing=east,enabled=false,has_jar=true": {
+      "model": "moddymcmodface:block/faucet_jar",
+      "y": 90
+    },
+    "facing=east,enabled=true,has_jar=true": {
+      "model": "moddymcmodface:block/faucet_jar_on",
+      "y": 90
+    },
+    "facing=south,enabled=false,has_jar=true": {
+      "model": "moddymcmodface:block/faucet_jar",
+      "y": 180
+    },
+    "facing=south,enabled=true,has_jar=true": {
+      "model": "moddymcmodface:block/faucet_jar_on",
+      "y": 180
+    },
+    "facing=west,enabled=false,has_jar=true": {
+      "model": "moddymcmodface:block/faucet_jar",
+      "y": 270
+    },
+    "facing=west,enabled=true,has_jar=true": {
+      "model": "moddymcmodface:block/faucet_jar_on",
       "y": 270
     }
   }
