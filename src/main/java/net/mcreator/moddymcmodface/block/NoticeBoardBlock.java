@@ -96,6 +96,7 @@ import java.util.Collections;
 import io.netty.buffer.Unpooled;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraftforge.common.util.Constants;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
@@ -124,7 +125,7 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 	public void clientLoad(FMLClientSetupEvent event) {
 		ClientRegistry.bindTileEntityRenderer(tileEntityType, CustomRender::new);
 	}
-	public static class CustomBlock extends GlassBlock {
+	public static class CustomBlock extends Block {
 		public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
 		public static final BooleanProperty HAS_BOOK = BlockStateProperties.HAS_BOOK;
 		public CustomBlock() {
@@ -191,13 +192,11 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 				} 
 				// change color
 				else if (flag) {
-					boolean flag1 = te.setTextColor(((DyeItem) itemstack.getItem()).getDyeColor());
-					if (flag1 && !player.isCreative()) {
-						itemstack.shrink(1);
-					}
-					if (worldIn.isRemote) {
-						return flag ? ActionResultType.SUCCESS : ActionResultType.CONSUME;
-					} else {
+					if(te.setTextColor(((DyeItem) itemstack.getItem()).getDyeColor())){
+						if (!player.isCreative()) {
+							itemstack.shrink(1);
+						}
+						te.markDirty();
 						return ActionResultType.SUCCESS;
 					}
 				}
@@ -299,8 +298,7 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		public boolean setTextColor(DyeColor newColor) {
 			if (newColor != this.getTextColor()) {
 				this.textColor = newColor;
-				this.markDirty();
-				this.world.notifyBlockUpdate(this.getPos(), this.getBlockState(), this.getBlockState(), 3);
+				//this.world.notifyBlockUpdate(this.getPos(), this.getBlockState(), this.getBlockState(), 3);
 				return true;
 			} else {
 				return false;
@@ -311,7 +309,7 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		public void updateBoardBlock(boolean b) {
 			BlockState _bs = this.world.getBlockState(this.pos);
 			if(_bs.get(BlockStateProperties.HAS_BOOK)!=b){
-				this.world.setBlockState(this.pos, _bs.with(BlockStateProperties.HAS_BOOK,b), 3);
+				this.world.setBlockState(this.pos, _bs.with(BlockStateProperties.HAS_BOOK,b), 2);
 				if(b){
 					this.world.playSound((PlayerEntity) null, pos, SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.BLOCKS, 1F,
 							this.world.rand.nextFloat() * 0.10F + 0.85F);
@@ -335,7 +333,9 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		//hijacking this method to work with hoppers
 		@Override
 		public void markDirty() {
-			this.updateServerAndClient();
+			this.updateTile();
+			this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), Constants.BlockFlags.BLOCK_UPDATE);
+			//this.updateServerAndClient();
 			super.markDirty();
 		}
 
@@ -419,7 +419,7 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 			this.inventoryChanged = compound.getBoolean("invchanged");
 			this.textColor = DyeColor.byTranslationKey(compound.getString("Color"), DyeColor.BLACK);
 			// this.packedFrontLight = compound.getInt("light");
-			// this.markDirty();
+
 		}
 
 		@Override
@@ -543,6 +543,17 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 		}
 
+		//TODO:make this work
+		public boolean isTextVisible(){
+			return true;
+			/*
+			BlockState state = this.getBlockState();
+			Direction dir = state.get(CustomBlock.FACING);
+			BlockPos frontpos = this.pos.offset(dir);
+			return state.getBlock().shouldSideBeRendered(state, this.world, frontpos, dir);
+			*/
+		}
+
 		public int getFrontLight() {
 			World world = this.getWorld();
 			IWorldLightListener block = world.getLightManager().getLightEngine(LightType.BLOCK);
@@ -586,68 +597,69 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
-		    String page = entityIn.getText();
-        	if (page == null || page == "") {
-				return;
-			}
-			FontRenderer fontrenderer = this.renderDispatcher.getFontRenderer();
+			if(entityIn.isTextVisible()){
+			    String page = entityIn.getText();
+	        	if (page == null || page == "") {
+					return;
+				}
+				FontRenderer fontrenderer = this.renderDispatcher.getFontRenderer();
+		
+				matrixStackIn.push();		
 	
-			matrixStackIn.push();
-			
-
-			int newl = entityIn.getFrontLight();
-
-			float d0 = 0f;
-			if (entityIn.getAxis()) {
-				d0 = 0.8f*0.7f; //0.54
-			} else {
-				d0 = 0.6f*0.7f;
+				int newl = entityIn.getFrontLight();
+	
+				float d0 = 0f;
+				if (entityIn.getAxis()) {
+					d0 = 0.8f*0.7f; //0.54
+				} else {
+					d0 = 0.6f*0.7f;
+				}
+	
+				matrixStackIn.translate(0.5, 0.5, 0.5);
+				matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entityIn.getYaw()));
+				matrixStackIn.translate(0, 0.5, 0.5005);
+				int i = entityIn.getTextColor().getTextColor();
+				int r = (int) ((double) NativeImage.getRed(i) * d0);
+				int g = (int) ((double) NativeImage.getGreen(i) * d0);
+				int b = (int) ((double) NativeImage.getBlue(i) * d0);
+				int i1 = NativeImage.getCombined(0, b, g, r);
+				float bordery = 0.125f;
+				float borderx = 0.1875f;
+				int scalingfactor = 1;
+				List<ITextComponent> tempPageLines;
+				ITextComponent txt = iGetPageText(page);
+				int width = fontrenderer.getStringWidth(txt.getFormattedText());
+				if (entityIn.getFlag()) {
+					float lx = 1 - (2 * borderx);
+					float ly = 1 - (2 * bordery);
+					float maxlines = 1;
+					do {
+						scalingfactor = MathHelper.floor(MathHelper.sqrt((width * 8f) / (lx * ly)));
+						tempPageLines = RenderComponentsUtil.splitText(txt, MathHelper.floor(lx * scalingfactor), fontrenderer, true, true);
+						maxlines = ly * scalingfactor / 8f;
+						width += 1;
+						// when lines fully filled @scaling factor > actual lines -> no overflow lines
+						// rendered
+					} while (maxlines < tempPageLines.size());
+					entityIn.setFontScale(scalingfactor);
+					entityIn.setChachedPageLines(tempPageLines);
+				} else {
+					tempPageLines = entityIn.getCachedPageLines();
+					scalingfactor = entityIn.getFontScale();
+				}
+				float scale = 1 / (float) scalingfactor;
+				matrixStackIn.scale(scale, -scale, scale);
+				int numberoflin = tempPageLines.size();
+				for (int lin = 0; lin < numberoflin; ++lin) {
+					String str = tempPageLines.get(lin).getFormattedText();
+					//border offsets. always add 0.5 to center properly
+					float dx = (float) (-fontrenderer.getStringWidth(str) / 2f) + 0.5f;
+					// float dy = (float) scalingfactor * bordery;
+					float dy = (float) ((scalingfactor - (8 * numberoflin)) / 2f) + 0.5f;
+					fontrenderer.renderString(str, dx, dy + 8 * lin, i1, false, matrixStackIn.getLast().getMatrix(), bufferIn, false, 0, newl);
+				}
+				matrixStackIn.pop();
 			}
-
-			matrixStackIn.translate(0.5, 0.5, 0.5);
-			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entityIn.getYaw()));
-			matrixStackIn.translate(0, 0.5, 0.5005);
-			int i = entityIn.getTextColor().getTextColor();
-			int r = (int) ((double) NativeImage.getRed(i) * d0);
-			int g = (int) ((double) NativeImage.getGreen(i) * d0);
-			int b = (int) ((double) NativeImage.getBlue(i) * d0);
-			int i1 = NativeImage.getCombined(0, b, g, r);
-			float bordery = 0.125f;
-			float borderx = 0.1875f;
-			int scalingfactor = 1;
-			List<ITextComponent> tempPageLines;
-			ITextComponent txt = iGetPageText(page);
-			int width = fontrenderer.getStringWidth(txt.getFormattedText());
-			if (entityIn.getFlag()) {
-				float lx = 1 - (2 * borderx);
-				float ly = 1 - (2 * bordery);
-				float maxlines = 1;
-				do {
-					scalingfactor = MathHelper.floor(MathHelper.sqrt((width * 8f) / (lx * ly)));
-					tempPageLines = RenderComponentsUtil.splitText(txt, MathHelper.floor(lx * scalingfactor), fontrenderer, true, true);
-					maxlines = ly * scalingfactor / 8f;
-					width += 1;
-					// when lines fully filled @scaling factor > actual lines -> no overflow lines
-					// rendered
-				} while (maxlines < tempPageLines.size());
-				entityIn.setFontScale(scalingfactor);
-				entityIn.setChachedPageLines(tempPageLines);
-			} else {
-				tempPageLines = entityIn.getCachedPageLines();
-				scalingfactor = entityIn.getFontScale();
-			}
-			float scale = 1 / (float) scalingfactor;
-			matrixStackIn.scale(scale, -scale, scale);
-			int numberoflin = tempPageLines.size();
-			for (int lin = 0; lin < numberoflin; ++lin) {
-				String str = tempPageLines.get(lin).getFormattedText();
-				//border offsets. always add 0.5 to center properly
-				float dx = (float) (-fontrenderer.getStringWidth(str) / 2f) + 0.5f;
-				// float dy = (float) scalingfactor * bordery;
-				float dy = (float) ((scalingfactor - (8 * numberoflin)) / 2f) + 0.5f;
-				fontrenderer.renderString(str, dx, dy + 8 * lin, i1, false, matrixStackIn.getLast().getMatrix(), bufferIn, false, 0, newl);
-			}
-			matrixStackIn.pop();
 		}
 	}
 }

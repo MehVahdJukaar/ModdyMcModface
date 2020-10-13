@@ -112,7 +112,7 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 				weather = 1;
 			}
 			if (weather != bs.get(POWER)) {
-				world.setBlockState(pos, bs.with(POWER, weather), 3);
+				world.setBlockState(pos, bs.with(POWER, weather), 2);
 			}
 		}
 

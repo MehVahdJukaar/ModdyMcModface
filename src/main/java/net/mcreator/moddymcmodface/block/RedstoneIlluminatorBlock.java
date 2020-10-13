@@ -152,7 +152,7 @@ public class RedstoneIlluminatorBlock extends ModdymcmodfaceModElements.ModEleme
 
 		public void updatePower(BlockState state, World world, BlockPos pos){
 			int pow = world.getRedstonePowerFromNeighbors(pos);
-			world.setBlockState(pos,state.with(POWER, MathHelper.clamp(pow, 0, 15)));		
+			world.setBlockState(pos,state.with(POWER, MathHelper.clamp(pow, 0, 15)), 2);		
 		}
 
 		@Override

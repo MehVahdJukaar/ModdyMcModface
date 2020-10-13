@@ -110,7 +110,7 @@ public class PlanterBlock extends ModdymcmodfaceModElements.ModElement {
 			if ((_bk instanceof AirBlock) || (_bk instanceof StemBlock) || (_bk instanceof CropsBlock)) {
 				flag = false;
 			}
-			world.setBlockState(pos, state.with(EXTENDED, flag));
+			world.setBlockState(pos, state.with(EXTENDED, flag), 2);
 
 
 

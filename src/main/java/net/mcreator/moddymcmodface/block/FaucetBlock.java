@@ -202,7 +202,7 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			boolean flag3 = world.getBlockState(pos.down()).getBlock() == JarBlock.block;
 			//if update blockstate with powered, haswater and enabled
 			if (flag != state.get(POWERED) || flag2 != state.get(HAS_WATER) || flag3 !=state.get(HAS_JAR)|| toggle) {
-				world.setBlockState(pos, state.with(POWERED, flag).with(HAS_WATER, flag2).with(HAS_JAR, flag3).with(ENABLED, toggle ^ state.get(ENABLED)));
+				world.setBlockState(pos, state.with(POWERED, flag).with(HAS_WATER, flag2).with(HAS_JAR, flag3).with(ENABLED, toggle ^ state.get(ENABLED)), 2);
 			}
 		}
 
@@ -351,7 +351,7 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 						itemstack.shrink(1);
 						inventoryIn.markDirty();
 						
-						jartileentity.addItem(it,null,null);
+						jartileentity.addItem(it,1);
 						jartileentity.markDirty();
 						
 						return true;

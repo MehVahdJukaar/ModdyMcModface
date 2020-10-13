@@ -122,6 +122,7 @@ import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
+import net.minecraftforge.common.util.Constants;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class JarBlock extends ModdymcmodfaceModElements.ModElement {
@@ -165,12 +166,11 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		// Minecraft.getInstance().getBlockColors().register(new myBlockColor(), block);
 	}
 	public static class CustomBlock extends Block {
-		public static final IntegerProperty LIQUID_LEVEL = IntegerProperty.create("liquid", 0, 12);
 		public static final BooleanProperty HAS_LAVA = BooleanProperty.create("has_lava");
 		public CustomBlock() {
 			super(Block.Properties.create(Material.GLASS).sound(SoundType.GLASS).hardnessAndResistance(1f, 1f).lightValue(0).notSolid());
 			setRegistryName("jar");
-			this.setDefaultState(this.stateContainer.getBaseState().with(LIQUID_LEVEL, 0).with(HAS_LAVA, false));
+			this.setDefaultState(this.stateContainer.getBaseState().with(HAS_LAVA, false));
 		}
 
 
@@ -198,17 +198,15 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 				BlockRayTraceResult hit) {
 			TileEntity tileentity = worldIn.getTileEntity(pos);
 			if (tileentity instanceof CustomTileEntity) {
-				//make te to the work
+				//make te do the work
 				CustomTileEntity te = (CustomTileEntity) tileentity;
 				if(te.handleInteraction(player, handIn)){
-					te.markDirty();
+					if(!worldIn.isRemote()) te.markDirty();
 					return ActionResultType.SUCCESS;
 				}
 			}
 			return ActionResultType.PASS;
 		}
-
-
 
 		// shoulker box code
 		@Override
@@ -307,7 +305,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		// end shoulker box code
 		@Override
 		protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-			builder.add(LIQUID_LEVEL, HAS_LAVA);
+			builder.add(HAS_LAVA);
 		}
 
 		@Override
@@ -356,11 +354,9 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 
 
 		@Override
-	    public int  getLightValue(BlockState state, IBlockReader world, BlockPos pos)
-	    {
+	    public int  getLightValue(BlockState state, IBlockReader world, BlockPos pos){
 	        return state.get(HAS_LAVA) ? 15 : 0;
 	    }
-
 
 		@Override
 		public boolean hasComparatorInputOverride(BlockState state) {
@@ -386,18 +382,16 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		protected CustomTileEntity() {
 			super(tileEntityType);
 		}
-
-		public CustomTileEntity(int rand){
-			this();
-			this.rand=rand;	
-		}
         
 		//called when inventory is updated -> update tile
 		//callen when item is placed chen item has blockentyty tag
 		//hijacking this method to work with hoppers
 		@Override
 		public void markDirty() {
-			this.updateServerAndClient();
+			//this.updateServerAndClient();
+			this.updateTile();
+			this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), Constants.BlockFlags.BLOCK_UPDATE);
+
 			super.markDirty();
 		}
 
@@ -486,7 +480,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			
 			BlockState bs = this.world.getBlockState(this.pos);	
 			if(bs.get(CustomBlock.HAS_LAVA) != haslava){
-				this.world.setBlockState(this.pos, bs.with(CustomBlock.HAS_LAVA, haslava));
+				this.world.setBlockState(this.pos, bs.with(CustomBlock.HAS_LAVA, haslava), 2);
 			}		
 		}
 		
@@ -546,7 +540,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 			//can I insert this item?
 			else if(this.isItemValidForSlot(0, handstack)){
-				this.addItem(handstack, player, hand);
+				this.handleAddItem(handstack, player, hand);
 				
 				return true;
 			}
@@ -588,7 +582,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 
 		//adds item to te, removes from player
-		public void addItem(ItemStack handstack, @Nullable PlayerEntity player, @Nullable Hand handIn) {
+		public void handleAddItem(ItemStack handstack, @Nullable PlayerEntity player, @Nullable Hand handIn) {
 			ItemStack it = handstack.copy();
 			Item i = it.getItem();
 			boolean isfish = i instanceof FishBucketItem;
@@ -613,30 +607,29 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 				}
 			if(!iscookie)this.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BOTTLE_EMPTY, SoundCategory.BLOCKS, 1.0F, 1.0F);	
 			}
-			//empty
-			if (this.isEmpty()) {
-				it.setCount(1);
-				if (iswaterbucket) {
-					it = PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION, 4), Potions.WATER);
-				}
-				else if(isbucket && !isfish){
-					it.grow(3);
-				}
-				NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, it);
-				this.setItems(stacks);
-			} 
-			//non empty->increment
-			else {
-				
-				if (isbucket) {
-					ItemStack st = this.getStackInSlot(0);
-					st.grow(Math.min(4, 12-st.getCount()));
-				} else {
-					this.getStackInSlot(0).grow(1);
-				}
+
+			int count = 1;
+			
+			if (iswaterbucket) {
+				it = PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION), Potions.WATER);
 			}
+			if(isbucket && !isfish){
+				count=4;
+			}
+
+			this.addItem(it, count);
 		}
 
+		public void addItem(ItemStack itemstack, int amount){
+			if (this.isEmpty()) {
+				itemstack.setCount(amount);
+				NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, itemstack);
+				this.setItems(stacks);
+			}
+			else{
+				this.getStackInSlot(0).grow(Math.min(amount, this.getInventoryStackLimit()-itemstack.getCount()));
+			}
+		}
 
 
 		public boolean isFull() {
@@ -908,8 +901,6 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 	        }
 	    }
 	}
-	
-	
 	
 
 

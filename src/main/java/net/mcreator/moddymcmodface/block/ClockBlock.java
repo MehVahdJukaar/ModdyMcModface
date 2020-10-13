@@ -262,9 +262,7 @@ public class ClockBlock extends ModdymcmodfaceModElements.ModElement {
 			int power = MathHelper.clamp((int) MathHelper.floor(time / 1500D), 0, 15);
 			int hour = MathHelper.clamp((int) MathHelper.floor(time / 1000D), 0, 24);
 			int flag = 3;
-			if (bs.get(HOUR) == hour) {
-				flag = 16;
-			} else {
+			if (bs.get(HOUR) != hour){
 				ResourceLocation res;
 				if (hour % 2 == 0) {
 					res = new ResourceLocation("moddymcmodface:tick_1");
@@ -276,7 +274,7 @@ public class ClockBlock extends ModdymcmodfaceModElements.ModElement {
 							SoundCategory.BLOCKS, (float) .3, (float) 1.2f);
 				
 			}
-			world.setBlockState(pos, bs.with(POWER, power).with(HOUR, hour), flag);
+			world.setBlockState(pos, bs.with(POWER, power).with(HOUR, hour), 2);
 		}
 	}
 

@@ -90,6 +90,7 @@ import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.common.util.Constants;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
@@ -335,7 +336,10 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 		//hijacking this method to work with hoppers
 		@Override
 		public void markDirty() {
-			this.updateServerAndClient();
+			//this.updateServerAndClient();
+			this.updateTile();
+			this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), Constants.BlockFlags.BLOCK_UPDATE);
+
 			super.markDirty();
 		}
 
@@ -357,11 +361,11 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 
 
 		public void updateBlockShape(BlockState state, World world, BlockPos pos, BlockPos fromPos){
-
-	
+			boolean up = false;
+			boolean down = false;
 			if(fromPos.equals(pos.up())){
 
-				boolean up = false;
+				
 				if(world.getBlockState(fromPos).getBlock() instanceof CustomBlock){
 					
 					if (this.isEmpty()){
@@ -370,11 +374,11 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 
 				}
 				if(up!=state.get(CustomBlock.UP)){
-					world.setBlockState(pos, state.with(CustomBlock.UP,up));
+					world.setBlockState(pos, state.with(CustomBlock.UP,up), 2);
 				}
 			}
 			else if(fromPos.equals(pos.down())){
-				boolean down = false;
+				
 				if(world.getBlockState(fromPos).getBlock() instanceof CustomBlock){
 					TileEntity te2 = world.getTileEntity(fromPos);
 					if (!(te2 instanceof CustomTileEntity)) return;
@@ -383,7 +387,7 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 					}
 				}
 				if(down!=state.get(CustomBlock.DOWN)){
-					world.setBlockState(pos, state.with(CustomBlock.DOWN,down));
+					world.setBlockState(pos, state.with(CustomBlock.DOWN,down), 2);
 				}
 			}
 		}

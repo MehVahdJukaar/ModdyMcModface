@@ -36,6 +36,7 @@ import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 
 import java.util.List;
 import java.util.Collections;
+import net.minecraft.block.BreakableBlock;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class WallGlassPaneBlock extends ModdymcmodfaceModElements.ModElement {
@@ -57,7 +58,7 @@ public class WallGlassPaneBlock extends ModdymcmodfaceModElements.ModElement {
 	public void clientLoad(FMLClientSetupEvent event) {
 		RenderTypeLookup.setRenderLayer(block, RenderType.getCutoutMipped());
 	}
-	public static class CustomBlock extends Block {
+	public static class CustomBlock extends BreakableBlock {
 		public static final DirectionProperty FACING = DirectionalBlock.FACING;
 		public CustomBlock() {
 			super(Block.Properties.create(Material.GLASS).sound(SoundType.GLASS).hardnessAndResistance(0.3f, 0.3f).lightValue(0).notSolid());
@@ -70,10 +71,7 @@ public class WallGlassPaneBlock extends ModdymcmodfaceModElements.ModElement {
 			return false;
 		}
 
-		@OnlyIn(Dist.CLIENT)
-		public boolean isSideInvisible(BlockState state, BlockState adjacentBlockState, Direction side) {
-			return adjacentBlockState.getBlock() == this ? true : super.isSideInvisible(state, adjacentBlockState, side);
-		}
+
 
 		@Override
 		public boolean propagatesSkylightDown(BlockState state, IBlockReader reader, BlockPos pos) {
