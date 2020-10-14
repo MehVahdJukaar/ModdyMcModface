@@ -65,6 +65,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Block;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
+import net.mcreator.moddymcmodface.CommonUtil;
 
 import java.util.List;
 import java.util.Collections;
@@ -102,7 +103,7 @@ public class ClockBlock extends ModdymcmodfaceModElements.ModElement {
 	public static class CustomBlock extends Block {
 		public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
 		public static final IntegerProperty POWER = BlockStateProperties.POWER_0_15;
-		public static final IntegerProperty HOUR = IntegerProperty.create("hour", 0, 23);
+		public static final IntegerProperty HOUR = CommonUtil.HOUR;
 		public static final BooleanProperty INVERTED = BlockStateProperties.INVERTED; // is it hand only? (used only for
 																						// tile entity renrering)
 		public CustomBlock() {
@@ -257,24 +258,26 @@ public class ClockBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 
 		public static void updatePower(BlockState bs, World world, BlockPos pos) {
-			// 0-24000
-			int time = (int) (world.getWorld().getDayTime() % 24000);
-			int power = MathHelper.clamp((int) MathHelper.floor(time / 1500D), 0, 15);
-			int hour = MathHelper.clamp((int) MathHelper.floor(time / 1000D), 0, 24);
-			int flag = 3;
-			if (bs.get(HOUR) != hour){
-				ResourceLocation res;
-				if (hour % 2 == 0) {
-					res = new ResourceLocation("moddymcmodface:tick_1");
-				} else {
-					res = new ResourceLocation("moddymcmodface:tick_2");
+			if (!world.isRemote){
+				// 0-24000
+				int time = (int) (world.getWorld().getDayTime() % 24000);
+				int power = MathHelper.clamp((int) MathHelper.floor(time / 1500D), 0, 15);
+				int hour = MathHelper.clamp((int) MathHelper.floor(time / 1000D), 0, 24);
+				int flag = 3;
+				if (bs.get(HOUR) != hour){
+					ResourceLocation res;
+					if (hour % 2 == 0) {
+						res = new ResourceLocation("moddymcmodface:tick_1");
+					} else {
+						res = new ResourceLocation("moddymcmodface:tick_2");
+					}
+	
+					world.getWorld().playSound(null, pos, (net.minecraft.util.SoundEvent) ForgeRegistries.SOUND_EVENTS.getValue(res),
+								SoundCategory.BLOCKS, (float) .3, (float) 1.2f);
+					
 				}
-
-				world.getWorld().playSound(null, pos, (net.minecraft.util.SoundEvent) ForgeRegistries.SOUND_EVENTS.getValue(res),
-							SoundCategory.BLOCKS, (float) .3, (float) 1.2f);
-				
+				world.setBlockState(pos, bs.with(POWER, power).with(HOUR, hour), 2);
 			}
-			world.setBlockState(pos, bs.with(POWER, power).with(HOUR, hour), 2);
 		}
 	}
 

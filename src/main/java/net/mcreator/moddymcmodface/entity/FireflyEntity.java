@@ -54,6 +54,7 @@ import net.minecraft.block.BlockState;
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 import net.mcreator.moddymcmodface.block.FireflyJarBlock;
 import net.mcreator.moddymcmodface.block.JarBlock;
+import net.mcreator.moddymcmodface.CommonUtil;
 
 import javax.annotation.Nullable;
 
@@ -417,33 +418,24 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 			// TextureAtlasSprite sprite =
 			// Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_PARTICLES_TEXTURE);
 
-			int j = 255;
-			int k = 255;
-			int l = 255;
-			int a =(int) ((float)255f*MathHelper.lerp(partialTicks, entityIn.getAlpha(), entityIn.getPrevAlpha()));
+			float r = 1;
+			float g = 1;
+			float b = 1;
+			float a =(float)MathHelper.lerp(partialTicks, entityIn.getAlpha(), entityIn.getPrevAlpha());
 
 			matrixStackIn.translate(0.0D, (double) 0.5F, 0.0D);
 			matrixStackIn.rotate(this.renderManager.getCameraOrientation());
 			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180.0F));
 			float f9 = 0.32F;
 			matrixStackIn.scale(0.3F, 0.3F, 0.3F);
-			IVertexBuilder ivertexbuilder = bufferIn.getBuffer(RenderType.getBeaconBeam(texture, true));
-			MatrixStack.Entry matrixstack$entry = matrixStackIn.getLast();
-			Matrix4f matrix4f = matrixstack$entry.getMatrix();
-			Matrix3f matrix3f = matrixstack$entry.getNormal();
-			vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, -0.5F, j, k, l, a, 0, 0, packedLightIn);
-			vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, -0.5F, j, k, l, a, 1, 0, packedLightIn);
-			vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, 0.5F, j, k, l, a, 1, 1, packedLightIn);
-			vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, 0.5F, j, k, l, a, 0, 1, packedLightIn);
+			IVertexBuilder builder = bufferIn.getBuffer(RenderType.getBeaconBeam(texture, true));
+			
+			CommonUtil.addQuadSide(builder, matrixStackIn, -0.5f, -0.5f, 0f, 0.5f, 0.5f, 0f, 0, 0, 1, 1, r, g,b, a, 240, 0);
+
 			matrixStackIn.pop();
 			super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
 		}
 
-		private static void vertex(IVertexBuilder bufferIn, Matrix4f matrixIn, Matrix3f matrixNormalIn, float x, float y, int red, int green,
-				int blue, int alpha, float texU, float texV, int packedLight) {
-			bufferIn.pos(matrixIn, x, y, 0.0F).color(red, green, blue, alpha).tex(texU, texV).overlay(OverlayTexture.NO_OVERLAY).lightmap(240, 0)
-					.normal(matrixNormalIn, 0.0F, 1.0F, 0.0F).endVertex();
-		}
 
 		@Override
 		public ResourceLocation getEntityTexture(CustomEntity entity) {

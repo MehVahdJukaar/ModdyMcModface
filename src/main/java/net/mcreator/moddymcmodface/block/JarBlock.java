@@ -79,6 +79,7 @@ import net.minecraft.block.Block;
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 import net.mcreator.moddymcmodface.Customrender;
 import net.mcreator.moddymcmodface.Network;
+import net.mcreator.moddymcmodface.CommonUtil;
 
 import javax.annotation.Nullable;
 
@@ -377,7 +378,6 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		private NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, ItemStack.EMPTY);
 		public int color = 0xffffff;
 		public float liquidLevel = 0;
-		public int rand = (new Random()).nextInt(360);
 		private JarContentType liquidType = JarContentType.EMPTY;
 		protected CustomTileEntity() {
 			super(tileEntityType);
@@ -891,9 +891,9 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 						TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture);
 						IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
 				
-						matrixStackIn.translate(0.25, 0.0625, 0.25);
+						matrixStackIn.translate(0.5, 0.0625, 0.5);
 						
-						addCube(builder, matrixStackIn, 0.5f, height, sprite, combinedLightIn, color, opacity, combinedOverlayIn, false);
+						CommonUtil.addCube(builder, matrixStackIn, 0.5f, height, sprite, combinedLightIn, color, opacity, combinedOverlayIn, true, true, false, true);
 						
 						matrixStackIn.pop();
 					}
@@ -915,7 +915,9 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
 			float height = entityIn.liquidLevel;
-			Random rand = new Random(entityIn.rand);
+			long r = entityIn.getPos().toLong();
+			Random rand = new Random(r);
+			
 			if(entityIn.liquidType==JarContentType.COOKIES){
 				matrixStackIn.push();
 				matrixStackIn.translate(0.5, 0.5, 0.5);
@@ -942,7 +944,6 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 					
 					IVertexBuilder builder1 = bufferIn.getBuffer(RenderType.getCutout());
 		
-		            int r = entityIn.rand;
 					long time = System.currentTimeMillis();
 					float angle = ((time / 80)+r) % 360;
 					float angle2 = ((time / 3)+r) % 360;
@@ -974,9 +975,9 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 					//TODO:remove breaking animation
 					IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
 		
-					matrixStackIn.translate(0.25, 0.0625, 0.25);
+					matrixStackIn.translate(0.5, 0.0625, 0.5);
 					
-					addCube(builder, matrixStackIn, 0.5f, height, sprite, combinedLightIn, color, opacity, combinedOverlayIn, true);
+					CommonUtil.addCube(builder, matrixStackIn, 0.5f, height, sprite, combinedLightIn, color, opacity, combinedOverlayIn, true, true, true, true);
 					
 					matrixStackIn.pop();
 				}
@@ -1003,102 +1004,20 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 		float maxv = sprite.getMinV() + atlasscaleV*fishType*h;
 		float maxu = atlasscaleU * w + minu;
 		float minv = atlasscaleV * h + maxv;
-		float temp=0;
 		for(int j =0; j<2; j++){
-			addVert(builder, matrixStackIn, hw-Math.abs(wo/2), -hh+ho, +wo, minu, minv, 1, 1, 1, 1, lu, lv);
-			addVert(builder, matrixStackIn, -hw+Math.abs(wo/2), -hh+ho, -wo, maxu, minv, 1, 1, 1, 1, lu, lv);
-			addVert(builder, matrixStackIn, -hw+Math.abs(wo/2), hh+ho, -wo, maxu, maxv, 1, 1, 1, 1, lu, lv);
-			addVert(builder, matrixStackIn, hw-Math.abs(wo/2), hh+ho, +wo, minu, maxv, 1, 1, 1, 1, lu, lv);
+			CommonUtil.addVert(builder, matrixStackIn, hw-Math.abs(wo/2), -hh+ho, +wo, minu, minv, 1, 1, 1, 1, lu, lv);
+			CommonUtil.addVert(builder, matrixStackIn, -hw+Math.abs(wo/2), -hh+ho, -wo, maxu, minv, 1, 1, 1, 1, lu, lv);
+			CommonUtil.addVert(builder, matrixStackIn, -hw+Math.abs(wo/2), hh+ho, -wo, maxu, maxv, 1, 1, 1, 1, lu, lv);
+			CommonUtil.addVert(builder, matrixStackIn, hw-Math.abs(wo/2), hh+ho, +wo, minu, maxv, 1, 1, 1, 1, lu, lv);
 			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180));
-			temp=maxu;
-			maxu=minu;
-			minu=temp;
+
+			float temp = minu;
+			minu = maxu;
+			maxu = temp;	
+		
 		}							
 	}
 
-	// shaded rectangle with wx = wz with texture flipped vertically. starts from
-	// block 0,0,0
-	private static void addCube(IVertexBuilder builder, MatrixStack matrixStackIn, float w, float h, TextureAtlasSprite sprite, int combinedLightIn,
-			int color, float a, int combinedOverlayIn, boolean fakeshading) {
-		int lu = combinedLightIn & '\uffff';
-		int lv = combinedLightIn >> 16 & '\uffff'; // ok
-		float atlasscaleU = sprite.getMaxU() - sprite.getMinU();
-		float atlasscaleV = sprite.getMaxV() - sprite.getMinV();
-		float minu = sprite.getMinU();
-		float minv = sprite.getMinV();
-		float maxu = atlasscaleU * w + minu;
-		float maxv = atlasscaleV * h + minv;
-		float maxv2 = atlasscaleV * w + minv;
-		float r = (float) ((color >> 16 & 255)) / 255.0F;
-		float g = (float) ((color >> 8 & 255)) / 255.0F;
-		float b = (float) ((color >> 0 & 255)) / 255.0F;
-		// float a = 1f;// ((color >> 24) & 0xFF) / 255f;
-		// shading:
-		float r8 = r;
-		float g8 = g;
-		float b8 = b;
-		float r6 = r;
-		float g6 = g;
-		float b6 = b;
-		float r5 = r;
-		float g5 = g;
-		float b5 = b;
-
-		if(fakeshading){
-			// 80%: s,n
-			r8 *= 0.8f;
-			g8 *= 0.8f;
-			b8 *= 0.8f;
-			// 60%: e,w
-			r6 *= 0.6f;
-			g6 *= 0.6f;
-			b6 *= 0.6f;
-			// 50%: d
-			r5 *= 0.5f;
-			g5 *= 0.5f;
-			b5 *= 0.5f;
-		}
-
-		
-		// r6=r;r8=r;r5=r;g6=g;g8=g;g5=g;b8=b;b6=b;b5=b;
-		// south z+
-		// x y z u v r g b a lu lv
-		addVert(builder, matrixStackIn, 0, 0, w, minu, minv, r8, g8, b8, a, lu, lv);
-		addVert(builder, matrixStackIn, w, 0, w, maxu, minv, r8, g8, b8, a, lu, lv);
-		addVert(builder, matrixStackIn, w, h, w, maxu, maxv, r8, g8, b8, a, lu, lv);
-		addVert(builder, matrixStackIn, 0, h, w, minu, maxv, r8, g8, b8, a, lu, lv);
-		// west
-		addVert(builder, matrixStackIn, 0, 0, 0, minu, minv, r6, g6, b6, a, lu, lv);
-		addVert(builder, matrixStackIn, 0, 0, w, maxu, minv, r6, g6, b6, a, lu, lv);
-		addVert(builder, matrixStackIn, 0, h, w, maxu, maxv, r6, g6, b6, a, lu, lv);
-		addVert(builder, matrixStackIn, 0, h, 0, minu, maxv, r6, g6, b6, a, lu, lv);
-		// north
-		addVert(builder, matrixStackIn, w, 0, 0, minu, minv, r8, g8, b8, a, lu, lv);
-		addVert(builder, matrixStackIn, 0, 0, 0, maxu, minv, r8, g8, b8, a, lu, lv);
-		addVert(builder, matrixStackIn, 0, h, 0, maxu, maxv, r8, g8, b8, a, lu, lv);
-		addVert(builder, matrixStackIn, w, h, 0, minu, maxv, r8, g8, b8, a, lu, lv);
-		// east
-		addVert(builder, matrixStackIn, w, 0, w, minu, minv, r6, g6, b6, a, lu, lv);
-		addVert(builder, matrixStackIn, w, 0, 0, maxu, minv, r6, g6, b6, a, lu, lv);
-		addVert(builder, matrixStackIn, w, h, 0, maxu, maxv, r6, g6, b6, a, lu, lv);
-		addVert(builder, matrixStackIn, w, h, w, minu, maxv, r6, g6, b6, a, lu, lv);
-		// down
-		addVert(builder, matrixStackIn, 0, 0, 0, minu, minv, r5, g5, b5, a, lu, lv);
-		addVert(builder, matrixStackIn, w, 0, 0, maxu, minv, r5, g5, b5, a, lu, lv);
-		addVert(builder, matrixStackIn, w, 0, w, maxu, maxv2, r5, g5, b5, a, lu, lv);
-		addVert(builder, matrixStackIn, 0, 0, w, minu, maxv2, r5, g5, b5, a, lu, lv);
-		// up
-		addVert(builder, matrixStackIn, 0, h, w, minu, minv, r, g, b, a, lu, lv);
-		addVert(builder, matrixStackIn, w, h, w, maxu, minv, r, g, b, a, lu, lv);
-		addVert(builder, matrixStackIn, w, h, 0, maxu, maxv2, r, g, b, a, lu, lv);
-		addVert(builder, matrixStackIn, 0, h, 0, minu, maxv2, r, g, b, a, lu, lv);
-	}
-
-	private static void addVert(IVertexBuilder builder, MatrixStack matrixStackIn, float x, float y, float z, float u, float v, float r, float g,
-			float b, float a, int lu, int lv) {
-		builder.pos(matrixStackIn.getLast().getMatrix(), x, y, z).color(r, g, b, a).tex(u, v).overlay(OverlayTexture.NO_OVERLAY).lightmap(lu, lv)
-				.normal(matrixStackIn.getLast().getNormal(), 0, 1, 0).endVertex();
-	}
 
 	public static enum JarContentType{
 		//color is handles separatelly. here it's just for default case

@@ -3,7 +3,7 @@
   "textures": {
     "down": "moddymcmodface:blocks/jar_fishes",
     "up": "moddymcmodface:blocks/jar_fishes",
-    "north": "moddymcmodface:blocks/jar_fishes",
+    "north": "moddymcmodface:blocks/laser_beam",
     "east": "moddymcmodface:blocks/jar_fishes",
     "south": "moddymcmodface:blocks/jar_fishes",
     "west": "moddymcmodface:blocks/jar_fishes",

@@ -38,10 +38,6 @@ import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 
 import java.util.List;
 import java.util.Collections;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.block.BushBlock;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class PlanterBlock extends ModdymcmodfaceModElements.ModElement {
@@ -79,44 +75,15 @@ public class PlanterBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void neighborChanged(BlockState state, World world, BlockPos pos, Block neighborBlock, BlockPos fromPos, boolean moving) {
 			super.neighborChanged(state, world, pos, neighborBlock, fromPos, moving);
-			BlockPos up =pos.up();
-			Block _bk = world.getBlockState(up).getBlock();
-
-/*
-			if(world.getBlockState(up).isAir(world,up)){
-				List<Entity> list1 = world.getEntitiesWithinAABBExcludingEntity(null,new AxisAlignedBB(up).grow(0.1,1,0.1));
-				if (!list1.isEmpty()) {
-					for (Entity entity : list1) {
-						if (entity instanceof ItemEntity) {
-							Item it= ((ItemEntity)entity).getItem().getItem();
-							if (it instanceof BlockItem) {
-								BlockState i_bs =((BlockItem) it).getBlock().getDefaultState();
-								Block i_bk =i_bs.getBlock();
-								if (i_bk instanceof BushBlock){
-									world.setBlockState(up, i_bs);
-							
-									if (!world.isRemote){
-										entity.remove();
-									}
-									break;
-								}		
-							}
-						}	
-					}
+			if (!world.isRemote()) {
+				BlockPos up = pos.up();
+				Block _bk = world.getBlockState(up).getBlock();
+				boolean flag = true;
+				if ((_bk instanceof AirBlock) || (_bk instanceof StemBlock) || (_bk instanceof CropsBlock)) {
+					flag = false;
 				}
-			}*/
-
-			boolean flag = true;
-			if ((_bk instanceof AirBlock) || (_bk instanceof StemBlock) || (_bk instanceof CropsBlock)) {
-				flag = false;
+				world.setBlockState(pos, state.with(EXTENDED, flag), 2);
 			}
-			world.setBlockState(pos, state.with(EXTENDED, flag), 2);
-
-
-
-
-
-					
 		}
 
 		@Override
@@ -148,7 +115,6 @@ public class PlanterBlock extends ModdymcmodfaceModElements.ModElement {
 		public MaterialColor getMaterialColor(BlockState state, IBlockReader blockAccess, BlockPos pos) {
 			return MaterialColor.RED_TERRACOTTA;
 		}
-
 
 		@Override
 		public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {

@@ -5,7 +5,7 @@
     "texture": "jar_fishes",
     "textureTop": "",
     "textureLeft": "",
-    "textureFront": "",
+    "textureFront": "laser_beam",
     "textureRight": "",
     "textureBack": "",
     "renderType": 10,

@@ -1,48 +1,48 @@
 {
   "variants": {
-    "facing=north,extended=true": {
+    "facing=north,short=false": {
       "model": "moddymcmodface:block/piston_launcher_head"
     },
-    "facing=north,extended=false": {
+    "facing=north,short=true": {
       "model": "moddymcmodface:block/piston_launcher_head_small"
     },
-    "facing=east,extended=true": {
+    "facing=east,short=false": {
       "model": "moddymcmodface:block/piston_launcher_head",
       "y": 90
     },
-    "facing=east,extended=false": {
+    "facing=east,short=true": {
       "model": "moddymcmodface:block/piston_launcher_head_small",
       "y": 90
     },
-    "facing=south,extended=true": {
+    "facing=south,short=false": {
       "model": "moddymcmodface:block/piston_launcher_head",
       "y": 180
     },
-    "facing=south,extended=false": {
+    "facing=south,short=true": {
       "model": "moddymcmodface:block/piston_launcher_head_small",
       "y": 180
     },
-    "facing=west,extended=true": {
+    "facing=west,short=false": {
       "model": "moddymcmodface:block/piston_launcher_head",
       "y": 270
     },
-    "facing=west,extended=false": {
+    "facing=west,short=true": {
       "model": "moddymcmodface:block/piston_launcher_head_small",
       "y": 270
     },
-    "facing=up,extended=true": {
+    "facing=up,short=false": {
       "model": "moddymcmodface:block/piston_launcher_head",
       "x": 270
     },
-    "facing=up,extended=false": {
+    "facing=up,short=true": {
       "model": "moddymcmodface:block/piston_launcher_head_small",
       "x": 270
     },
-    "facing=down,extended=true": {
+    "facing=down,short=false": {
       "model": "moddymcmodface:block/piston_launcher_head",
       "x": 90
     },
-    "facing=down,extended=false": {
+    "facing=down,short=true": {
       "model": "moddymcmodface:block/piston_launcher_head_small",
       "x": 90
     }

@@ -28,7 +28,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Item;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.BlockItem;
-import net.minecraft.fluid.IFluidState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.RenderType;
@@ -45,9 +44,6 @@ import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 
 import java.util.List;
 import java.util.Collections;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class PistonLauncherHeadBlock extends ModdymcmodfaceModElements.ModElement {
@@ -70,12 +66,12 @@ public class PistonLauncherHeadBlock extends ModdymcmodfaceModElements.ModElemen
 	}
 	public static class CustomBlock extends DirectionalBlock {
 		public static final DirectionProperty FACING = DirectionalBlock.FACING;
-		public static final BooleanProperty EXTENDED = BlockStateProperties.EXTENDED; // is not small? (only used for
+		public static final BooleanProperty SHORT = BlockStateProperties.SHORT; // is not small? (only used for
 																						// tile entity, leave true
 		public CustomBlock() {
 			super(Block.Properties.create(Material.IRON).sound(SoundType.METAL).hardnessAndResistance(1f, 20f).lightValue(0).harvestLevel(1)
 					.harvestTool(ToolType.PICKAXE));
-			this.setDefaultState(this.stateContainer.getBaseState().with(EXTENDED, true).with(FACING, Direction.NORTH));
+			this.setDefaultState(this.stateContainer.getBaseState().with(SHORT, false).with(FACING, Direction.NORTH));
 			setRegistryName("piston_launcher_head");
 		}
 
@@ -121,7 +117,7 @@ public class PistonLauncherHeadBlock extends ModdymcmodfaceModElements.ModElemen
 		@Override
 		protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
 			builder.add(FACING);
-			builder.add(EXTENDED);
+			builder.add(SHORT);
 		}
 
 		public BlockState rotate(BlockState state, Rotation rot) {
@@ -160,46 +156,38 @@ public class PistonLauncherHeadBlock extends ModdymcmodfaceModElements.ModElemen
 			return Collections.singletonList(new ItemStack(PistonLauncherBlock.block, (int) (0)));
 		}
 
-
 		// piston code
+		/**
+		 * Called before the Block is set to air in the world. Called regardless of if
+		 * the player's tool can actually collect this block
+		 */
+		@Override
+		public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player) {
+			if (!worldIn.isRemote && player.abilities.isCreativeMode) {
+				BlockPos blockpos = pos.offset(state.get(FACING).getOpposite());
+				Block block = worldIn.getBlockState(blockpos).getBlock();
+				if (block == PistonLauncherBlock.block) {
+					worldIn.removeBlock(blockpos, false);
+				}
+			}
+			super.onBlockHarvested(worldIn, pos, state, player);
+		}
 
+		@Override
+		public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+			BlockState comp = PistonLauncherArmTileBlock.block.getDefaultState().with(PistonLauncherArmTileBlock.CustomBlock.EXTENDING, false).with(FACING, state.get(FACING));
+			if ((state.getBlock() != newState.getBlock()) && (newState != comp)) {
+				super.onReplaced(state, worldIn, pos, newState, isMoving);
+				Direction direction = state.get(FACING).getOpposite();
+				pos = pos.offset(direction);
+				BlockState blockstate = worldIn.getBlockState(pos);
+				if ((blockstate.getBlock() == PistonLauncherBlock.block) && blockstate.get(BlockStateProperties.EXTENDED)) {
+					spawnDrops(blockstate, worldIn, pos);
+					worldIn.removeBlock(pos, false);
+				}
+			}
+		}
 
-
-	   /**
-	    * Called before the Block is set to air in the world. Called regardless of if the player's tool can actually collect
-	    * this block
-	    */
-	   public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player) {
-	      if (!worldIn.isRemote && player.abilities.isCreativeMode) {
-	         BlockPos blockpos = pos.offset(state.get(FACING).getOpposite());
-	         Block block = worldIn.getBlockState(blockpos).getBlock();
-
-	         if (block == PistonLauncherBlock.block) {
-	            worldIn.removeBlock(blockpos, false);
-	         }
-	      }
-	
-	      super.onBlockHarvested(worldIn, pos, state, player);
-	   }
-	
-	   public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-	     	BlockState comp = PistonLauncherArmTileBlock.block.getDefaultState().with(EXTENDED, false).with(FACING, state.get(FACING));
-	      if ((state.getBlock() != newState.getBlock()) &&
-			 (newState != comp)) {
-	         super.onReplaced(state, worldIn, pos, newState, isMoving);
-	         Direction direction = state.get(FACING).getOpposite();
-	         pos = pos.offset(direction);
-	         BlockState blockstate = worldIn.getBlockState(pos);
-	         if ((blockstate.getBlock() == PistonLauncherBlock.block ) && blockstate.get(BlockStateProperties.EXTENDED)) {
-	            spawnDrops(blockstate, worldIn, pos);
-	            worldIn.removeBlock(pos, false);
-	         }
-	
-	      }
-	   }
-
-
-		
 		/**
 		 * Update the provided state given the provided neighbor facing and neighbor
 		 * state, returning a new state. For example, fences make their connections to
@@ -207,6 +195,7 @@ public class PistonLauncherHeadBlock extends ModdymcmodfaceModElements.ModElemen
 		 * its solidified counterpart. Note that this method should ideally consider
 		 * only the specific face passed in.
 		 */
+		@Override
 		public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos,
 				BlockPos facingPos) {
 			return facing.getOpposite() == stateIn.get(FACING) && !stateIn.isValidPosition(worldIn, currentPos)
@@ -216,12 +205,12 @@ public class PistonLauncherHeadBlock extends ModdymcmodfaceModElements.ModElemen
 
 		public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos) {
 			BlockState bs = worldIn.getBlockState(pos.offset(state.get(FACING).getOpposite()));
-			if(bs == PistonLauncherBlock.block.getDefaultState().with(EXTENDED, true).with(FACING, state.get(FACING))){
+			if (bs == PistonLauncherBlock.block.getDefaultState().with(BlockStateProperties.EXTENDED, true).with(FACING, state.get(FACING))) {
 				return true;
 			}
 			return false;
-			
-			//return bs == PistonLauncherBlock.block || block == PistonLauncherArmTileBlock.block;
+			// return bs == PistonLauncherBlock.block || block ==
+			// PistonLauncherArmTileBlock.block;
 		}
 
 		public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
@@ -229,7 +218,6 @@ public class PistonLauncherHeadBlock extends ModdymcmodfaceModElements.ModElemen
 				BlockPos blockpos = pos.offset(state.get(FACING).getOpposite());
 				worldIn.getBlockState(blockpos).neighborChanged(worldIn, blockpos, blockIn, fromPos, false);
 			}
-			
 		}
 	}
 }

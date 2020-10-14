@@ -136,9 +136,6 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 			builder.add(UP,DOWN);
 		}
 
-
-
-
 		@Override
 		public void neighborChanged(BlockState state, World world, BlockPos pos, Block neighborBlock, BlockPos fromPos, boolean moving) {
 			super.neighborChanged(state, world, pos, neighborBlock, fromPos, moving);

@@ -19,6 +19,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Direction;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.DirectionProperty;
@@ -32,6 +33,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.block.material.PushReaction;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.SoundType;
@@ -40,14 +42,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Block;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
+import net.mcreator.moddymcmodface.CommonUtil;
 
 import java.util.List;
 import java.util.Collections;
-import net.minecraft.block.material.PushReaction;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class PistonLauncherBlock extends ModdymcmodfaceModElements.ModElement {
@@ -94,8 +92,7 @@ public class PistonLauncherBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-			builder.add(FACING);
-			builder.add(EXTENDED);
+			builder.add(FACING, EXTENDED);
 		}
 
 		public BlockState rotate(BlockState state, Rotation rot) {
@@ -167,51 +164,51 @@ public class PistonLauncherBlock extends ModdymcmodfaceModElements.ModElement {
 				return dropsOriginal;
 			return Collections.singletonList(new ItemStack(this, 1));
 		}
-		@Override
+
+		@Override
 		public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
 			this.checkForMove(state, worldIn, pos);
 		}
 
 		public void checkForMove(BlockState state, World world, BlockPos pos) {
-			boolean flag = this.shouldBeExtended(world, pos, state.get(FACING));
-			BlockPos _bp = pos.add(state.get(FACING).getDirectionVec());
-			if (flag && !state.get(EXTENDED)) {
-				boolean flag2 = false;
-				BlockState targetblock =world.getBlockState(_bp);
-				if (targetblock.getPushReaction()==PushReaction.DESTROY || targetblock.isAir()) { 
-            		TileEntity tileentity = targetblock.hasTileEntity() ? world.getTileEntity(_bp) : null;
-					spawnDrops(targetblock, world, _bp, tileentity);
-
-					flag2 = true;
-				}
-				/*
-				 * else if (targetblock.getBlock() instanceof FallingBlock &&
-				 * world.getBlockState(_bp.add(state.get(FACING).getDirectionVec())).isAir(
-				 * world, _bp)){ FallingBlockEntity fallingblockentity = new
-				 * FallingBlockEntity(world, (double)_bp.getX() + 0.5D, (double)_bp.getY() ,
-				 * (double)_bp.getZ() + 0.5D, world.getBlockState(_bp));
-				 * 
-				 * world.addEntity(fallingblockentity); flag2=true; }
-				 */
-				if (flag2) {
-					world.setBlockState(_bp, PistonLauncherArmTileBlock.block.getDefaultState().with(EXTENDED, true).with(FACING, state.get(FACING)),
-							3);
-					world.setBlockState(pos, state.with(EXTENDED, true));
-					world.playSound((PlayerEntity) null, pos, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.BLOCKS, 0.53F,
-							world.rand.nextFloat() * 0.25F + 0.45F);
-				}
-			} else if (!flag && state.get(EXTENDED)) {
-				BlockState bs = world.getBlockState(_bp);
-				if (bs.getBlock() == PistonLauncherHeadBlock.block.getDefaultState().getBlock() && state.get(FACING) == bs.get(FACING)) {
-					// world.setBlockState(_bp, Blocks.AIR.getDefaultState(), 3);
-					world.setBlockState(_bp, PistonLauncherArmTileBlock.block.getDefaultState().with(EXTENDED, false).with(FACING, state.get(FACING)),
-							 3); 
-					
-					world.playSound((PlayerEntity) null, pos, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.BLOCKS, 0.53F,
-							world.rand.nextFloat() * 0.15F + 0.45F);
-				} else if (bs.getBlock() == PistonLauncherArmTileBlock.block.getDefaultState().getBlock() && state.get(FACING) == bs.get(FACING)) {
-					if (world.getTileEntity(_bp) instanceof PistonLauncherArmTileBlock.CustomTileEntity) {
-						world.getPendingBlockTicks().scheduleTick(pos, world.getBlockState(pos).getBlock(), 1);
+			if (!world.isRemote()) {
+				boolean flag = this.shouldBeExtended(world, pos, state.get(FACING));
+				BlockPos _bp = pos.add(state.get(FACING).getDirectionVec());
+				if (flag && !state.get(EXTENDED)) {
+					boolean flag2 = false;
+					BlockState targetblock = world.getBlockState(_bp);
+					if (targetblock.getPushReaction() == PushReaction.DESTROY || targetblock.isAir()) {
+						TileEntity tileentity = targetblock.hasTileEntity() ? world.getTileEntity(_bp) : null;
+						spawnDrops(targetblock, world, _bp, tileentity);
+						flag2 = true;
+					}
+					/*
+					 * else if (targetblock.getBlock() instanceof FallingBlock &&
+					 * world.getBlockState(_bp.add(state.get(FACING).getDirectionVec())).isAir(
+					 * world, _bp)){ FallingBlockEntity fallingblockentity = new
+					 * FallingBlockEntity(world, (double)_bp.getX() + 0.5D, (double)_bp.getY() ,
+					 * (double)_bp.getZ() + 0.5D, world.getBlockState(_bp));
+					 * 
+					 * world.addEntity(fallingblockentity); flag2=true; }
+					 */
+					if (flag2) {
+						world.setBlockState(_bp,
+								PistonLauncherArmTileBlock.block.getDefaultState().with(CommonUtil.EXTENDING, true).with(FACING, state.get(FACING)),3);
+						world.setBlockState(pos, state.with(EXTENDED, true));
+						world.playSound((PlayerEntity) null, pos, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.BLOCKS, 0.53F, world.rand.nextFloat() * 0.25F + 0.45F);
+					}
+				} else if (!flag && state.get(EXTENDED)) {
+					BlockState bs = world.getBlockState(_bp);
+					if (bs.getBlock() == PistonLauncherHeadBlock.block.getDefaultState().getBlock() && state.get(FACING) == bs.get(FACING)) {
+						// world.setBlockState(_bp, Blocks.AIR.getDefaultState(), 3);
+						world.setBlockState(_bp,PistonLauncherArmTileBlock.block.getDefaultState().with(CommonUtil.EXTENDING, false).with(FACING, state.get(FACING)),3);
+						world.playSound((PlayerEntity) null, pos, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.BLOCKS, 0.53F,
+								world.rand.nextFloat() * 0.15F + 0.45F);
+					} else if (bs.getBlock() == PistonLauncherArmTileBlock.block.getDefaultState().getBlock()
+							&& state.get(FACING) == bs.get(FACING)) {
+						if (world.getTileEntity(_bp) instanceof PistonLauncherArmTileBlock.CustomTileEntity) {
+							world.getPendingBlockTicks().scheduleTick(pos, world.getBlockState(pos).getBlock(), 1);
+						}
 					}
 				}
 			}

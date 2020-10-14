@@ -100,9 +100,6 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 			this.setDefaultState(this.stateContainer.getBaseState().with(INVERTED, false).with(POWER, Integer.valueOf(0)));
 		}
 
-		public static int getPower(BlockState blockstate) {
-			return blockstate.get(POWER);
-		}
 
 		public static void updatePower(BlockState bs, World world, BlockPos pos) {
 			int weather = 0;
@@ -132,8 +129,7 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-			builder.add(POWER);
-			builder.add(INVERTED);
+			builder.add(POWER, INVERTED);
 		}
 
 		@Override
@@ -187,7 +183,6 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 	public static class CustomTileEntity extends TileEntity implements ITickableTileEntity {
 		private float yaw = 0;
 		private float prevYaw = 0;
-		private float power = 0;
 		protected CustomTileEntity() {
 			super(tileEntityType);
 		}
@@ -238,15 +233,17 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 						CustomBlock.updatePower(blockstate, this.world, this.pos);
 					}
 				} else {
-					float p = CustomBlock.getPower(blockstate);
-					this.power = p;
-				}
-			}
-			float i = this.getWorld().getGameTime();
-			float b = this.power * 2;
+					power = this.getBlockState().get(CustomBlock.POWER);
+			
+			//TODO:cache some of this maybe?
+			float hightoffset = (this.pos.getY()-64)/192f;
+			float offset = 3*(MathHelper.sin(this.pos.getX())+MathHelper.sin(this.pos.getZ()));
+			float i = this.getWorld().getDayTime() + offset;
+			float b = (this.power + hightoffset)* 2;
 			float newyaw = 30 * MathHelper.sin(i * (1 + b) / 60) + 10 * MathHelper.sin(i * (1 + b) / 20);
 			this.yaw = MathHelper.clamp(newyaw, currentyaw - 8, currentyaw + 8);
-		};
+		}
+		}
 	}
 
 	public static class CustomRender extends TileEntityRenderer<CustomTileEntity> {
@@ -261,7 +258,7 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 
 			matrixStackIn.push();
 			matrixStackIn.translate(0.5, 0.5, 0.5);
-			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, entityIn.getPrevYaw(), entityIn.getYaw())));
+			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(90+MathHelper.lerp(partialTicks, entityIn.getPrevYaw(), entityIn.getYaw())));
 			matrixStackIn.translate(-0.5, -0.5, -0.5);
 			BlockRendererDispatcher blockRenderer = Minecraft.getInstance().getBlockRendererDispatcher();
 
@@ -274,11 +271,4 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 			return texture;
 		}
 	}
-
-
-
-
-
-
-
 }

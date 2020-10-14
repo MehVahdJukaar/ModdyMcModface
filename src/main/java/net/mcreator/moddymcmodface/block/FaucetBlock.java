@@ -62,7 +62,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 import net.mcreator.moddymcmodface.block.JarBlock;
-
+import net.mcreator.moddymcmodface.CommonUtil;
 
 import java.util.stream.IntStream;
 import java.util.Random;
@@ -463,91 +463,13 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 				float opacity =0.75f;
 				float height = 1;
 				matrixStackIn.push();
-				matrixStackIn.translate(0.5, 0.5, 0.5);
-				matrixStackIn.rotate(Vector3f.XP.rotationDegrees(180));
-				matrixStackIn.translate(-0.125, 0.1875, -0.125);
+				matrixStackIn.translate(0.5, -0.5 -0.1875, 0.5);
 				if (height != 0) {
-					addCube(builder, matrixStackIn, 0.25f, height, sprite, combinedLightIn, color, opacity, combinedOverlayIn, true);
+					CommonUtil.addCube(builder, matrixStackIn, 0.25f, height, sprite, combinedLightIn, color, opacity, combinedOverlayIn, false, false, true, false);
 				}
 				matrixStackIn.pop();
 			}
 		}
-	}
-
-
-
-
-
-
-
-	private static void addCube(IVertexBuilder builder, MatrixStack matrixStackIn, float w, float h, TextureAtlasSprite sprite, int combinedLightIn,
-			int color, float a, int combinedOverlayIn, boolean fakeshading) {
-		int lu = combinedLightIn & '\uffff';
-		int lv = combinedLightIn >> 16 & '\uffff'; // ok
-		float minu = sprite.getMinU();
-		float minv = sprite.getMinV();
-		float maxu = (sprite.getMaxU() - minu) * w + minu;
-		float maxv = (sprite.getMaxV() - minv) * h + minv;
-		float maxv2 = (sprite.getMaxV() - minv) * w + minv;
-		float r = (float) ((color >> 16 & 255)) / 255.0F;
-		float g = (float) ((color >> 8 & 255)) / 255.0F;
-		float b = (float) ((color >> 0 & 255)) / 255.0F;
-		// float a = 1f;// ((color >> 24) & 0xFF) / 255f;
-		// shading:
-		float r8 = r;
-		float g8 = g;
-		float b8 = b;
-		float r6 = r;
-		float g6 = g;
-		float b6 = b;
-		float r5 = r;
-		float g5 = g;
-		float b5 = b;
-
-		if(fakeshading){
-			// 80%: s,n
-			r8 *= 0.8f;
-			g8 *= 0.8f;
-			b8 *= 0.8f;
-			// 60%: e,w
-			r6 *= 0.6f;
-			g6 *= 0.6f;
-			b6 *= 0.6f;
-			// 50%: d
-			r5 *= 0.5f;
-			g5 *= 0.5f;
-			b5 *= 0.5f;
-		}
-
-		
-		// r6=r;r8=r;r5=r;g6=g;g8=g;g5=g;b8=b;b6=b;b5=b;
-		// south z+
-		// x y z u v r g b a lu lv
-		addVert(builder, matrixStackIn, 0, 0, w, minu, minv, r8, g8, b8, a, lu, lv, 0, 0, 1);
-		addVert(builder, matrixStackIn, w, 0, w, maxu, minv, r8, g8, b8, a, lu, lv, 0, 0, 1);
-		addVert(builder, matrixStackIn, w, h, w, maxu, maxv, r8, g8, b8, a, lu, lv, 0, 0, 1);
-		addVert(builder, matrixStackIn, 0, h, w, minu, maxv, r8, g8, b8, a, lu, lv, 0, 0, 1);
-		// west
-		addVert(builder, matrixStackIn, 0, 0, 0, minu, minv, r6, g6, b6, a, lu, lv, -1, 0, 0);
-		addVert(builder, matrixStackIn, 0, 0, w, maxu, minv, r6, g6, b6, a, lu, lv, -1, 0, 0);
-		addVert(builder, matrixStackIn, 0, h, w, maxu, maxv, r6, g6, b6, a, lu, lv, -1, 0, 0);
-		addVert(builder, matrixStackIn, 0, h, 0, minu, maxv, r6, g6, b6, a, lu, lv, -1, 0, 0);
-		// north
-		addVert(builder, matrixStackIn, w, 0, 0, minu, minv, r8, g8, b8, a, lu, lv, 0, 0, -1);
-		addVert(builder, matrixStackIn, 0, 0, 0, maxu, minv, r8, g8, b8, a, lu, lv, 0, 0, -1);
-		addVert(builder, matrixStackIn, 0, h, 0, maxu, maxv, r8, g8, b8, a, lu, lv, 0, 0, -1);
-		addVert(builder, matrixStackIn, w, h, 0, minu, maxv, r8, g8, b8, a, lu, lv, 0, 0, -1);
-		// east
-		addVert(builder, matrixStackIn, w, 0, w, minu, minv, r6, g6, b6, a, lu, lv, 1, 0, 0);
-		addVert(builder, matrixStackIn, w, 0, 0, maxu, minv, r6, g6, b6, a, lu, lv, 1, 0, 0);
-		addVert(builder, matrixStackIn, w, h, 0, maxu, maxv, r6, g6, b6, a, lu, lv, 1, 0, 0);
-		addVert(builder, matrixStackIn, w, h, w, minu, maxv, r6, g6, b6, a, lu, lv, 1, 0, 0);
-	}
-
-	private static void addVert(IVertexBuilder builder, MatrixStack matrixStackIn, float x, float y, float z, float u, float v, float r, float g,
-			float b, float a, int lu, int lv, float dx, float dy, float dz) {
-		builder.pos(matrixStackIn.getLast().getMatrix(), x, y, z).color(r, g, b, a).tex(u, v).overlay(OverlayTexture.NO_OVERLAY).lightmap(lu, lv)
-				.normal(matrixStackIn.getLast().getNormal(), 0, 1, 0).endVertex();
 	}
 
 

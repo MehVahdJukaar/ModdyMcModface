@@ -97,6 +97,8 @@ import io.netty.buffer.Unpooled;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraftforge.common.util.Constants;
+import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
+import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
@@ -244,6 +246,19 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 			return new CustomTileEntity();
 		}
 
+
+		@Override
+		public void neighborChanged(BlockState state, World world, BlockPos pos, Block neighborBlock, BlockPos fromPos, boolean moving) {
+			
+			TileEntity te = world.getTileEntity(pos);
+			if (te instanceof CustomTileEntity) {
+				((CustomTileEntity)te).updateTextVisibility(state, world, pos, fromPos);
+
+			}
+			super.neighborChanged(state, world, pos, neighborBlock, fromPos, moving);
+
+		}
+
 		@Override
 		public boolean eventReceived(BlockState state, World world, BlockPos pos, int eventID, int eventParam) {
 			super.eventReceived(state, world, pos, eventID, eventParam);
@@ -286,6 +301,7 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		private List<ITextComponent> cachedPageLines = Collections.emptyList();
 		private boolean inventoryChanged = true; //used to tell renderer when it has to slit new line(have to do it there cause i need fontrenderer function)
 		// private int packedFrontLight =0;
+		private boolean textVisible = true;
 		protected CustomTileEntity() {
 			super(tileEntityType);
 		}
@@ -293,6 +309,10 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 
 		public DyeColor getTextColor() {
 			return this.textColor;
+		}
+
+		public boolean isTextVisible(){
+			return this.textVisible;
 		}
 
 		public boolean setTextColor(DyeColor newColor) {
@@ -307,6 +327,7 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
   
 		//update blockstate and plays sound
 		public void updateBoardBlock(boolean b) {
+		
 			BlockState _bs = this.world.getBlockState(this.pos);
 			if(_bs.get(BlockStateProperties.HAS_BOOK)!=b){
 				this.world.setBlockState(this.pos, _bs.with(BlockStateProperties.HAS_BOOK,b), 2);
@@ -348,33 +369,46 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 		}
 
+
+		private void updateTextVisibility(BlockState state,World world, BlockPos pos, BlockPos fromPos){
+			Direction dir = state.get(CustomBlock.FACING);
+			if(fromPos.toLong()==pos.offset(dir).toLong()){
+				BlockState frontstate = world.getBlockState(fromPos);
+
+				this.textVisible = !frontstate.isSolidSide(world, fromPos, dir.getOpposite());
+				this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), Constants.BlockFlags.BLOCK_UPDATE);
+			}
+		}
  
 		public void updateTile() {
-		    ItemStack itemstack = getStackInSlot(0);
-			String s = null;
-			this.inventoryChanged = true;
-			this.cachedPageLines = Collections.emptyList();
-			if (this.isItemValidForSlot(0, itemstack)) {
-				
-				CompoundNBT com = itemstack.getTag();
-
-				if(com != null){
-					ListNBT listnbt = com.getList("pages", 8).copy();
-					s = listnbt.getString(0);
+			//updateTextVisibility();
+			if(!this.world.isRemote()){
+			    ItemStack itemstack = getStackInSlot(0);
+				String s = null;
+				this.inventoryChanged = true;
+				this.cachedPageLines = Collections.emptyList();
+				if (this.isItemValidForSlot(0, itemstack)) {
+					
+					CompoundNBT com = itemstack.getTag();
+	
+					if(com != null){
+						ListNBT listnbt = com.getList("pages", 8).copy();
+						s = listnbt.getString(0);
+					}
+					if (s != this.txt) {
+	
+						//this.inventoryChanged = true;
+	
+						this.txt = s;
+					}
+					this.updateBoardBlock(true);
+				} else {
+					if (this.txt != null) {
+						//this.inventoryChanged = true;
+						this.txt = null;
+					}
+					this.updateBoardBlock(false);
 				}
-				if (s != this.txt) {
-
-					//this.inventoryChanged = true;
-
-					this.txt = s;
-				}
-				this.updateBoardBlock(true);
-			} else {
-				if (this.txt != null) {
-					//this.inventoryChanged = true;
-					this.txt = null;
-				}
-				this.updateBoardBlock(false);
 			}
 		}
 
@@ -417,7 +451,8 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 			this.txt = compound.getString("txt");
 			this.fontScale = compound.getInt("fontscale");
 			this.inventoryChanged = compound.getBoolean("invchanged");
-			this.textColor = DyeColor.byTranslationKey(compound.getString("Color"), DyeColor.BLACK);
+			this.textColor = DyeColor.byTranslationKey(compound.getString("color"), DyeColor.BLACK);
+			this.textVisible = compound.getBoolean("textvisible");
 			// this.packedFrontLight = compound.getInt("light");
 
 		}
@@ -433,7 +468,8 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 			compound.putInt("fontscale", this.fontScale);
 			compound.putBoolean("invchanged", this.inventoryChanged);
-			compound.putString("Color", this.textColor.getTranslationKey());
+			compound.putString("color", this.textColor.getTranslationKey());
+			compound.putBoolean("textvisible", this.textVisible);
 			// compound.putInt("light", this.packedFrontLight);
 			return compound;
 		}
@@ -451,6 +487,7 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
 			this.read(pkt.getNbtCompound());
+			
 		}
 
 		@Override
@@ -530,12 +567,17 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 				handler.invalidate();
 		}
 
+		
+		public Direction getDirection(){
+			return this.getBlockState().get(CustomBlock.FACING);
+		}
+
 		public float getYaw() {
-			return -this.getBlockState().get(CustomBlock.FACING).getHorizontalAngle();
+			return -this.getDirection().getHorizontalAngle();
 		}
 
 		public boolean getAxis() {
-			Direction d = this.getBlockState().get(CustomBlock.FACING);
+			Direction d = this.getDirection();
 			if (d == Direction.NORTH || d == Direction.SOUTH) {
 				return true;
 			} else {
@@ -543,22 +585,12 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 		}
 
-		//TODO:make this work
-		public boolean isTextVisible(){
-			return true;
-			/*
-			BlockState state = this.getBlockState();
-			Direction dir = state.get(CustomBlock.FACING);
-			BlockPos frontpos = this.pos.offset(dir);
-			return state.getBlock().shouldSideBeRendered(state, this.world, frontpos, dir);
-			*/
-		}
 
 		public int getFrontLight() {
 			World world = this.getWorld();
 			IWorldLightListener block = world.getLightManager().getLightEngine(LightType.BLOCK);
 			IWorldLightListener sky = world.getLightManager().getLightEngine(LightType.SKY);
-			BlockPos newpos = this.getPos().add(this.getBlockState().get(CustomBlock.FACING).getDirectionVec());
+			BlockPos newpos = this.getPos().add(this.getDirection().getDirectionVec());
 			int u = block.getLightFor(newpos) * 16;
 			int v = sky.getLightFor(newpos) * 16;
 			return ((v << 16) | (int) (u));

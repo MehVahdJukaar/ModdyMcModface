@@ -90,6 +90,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Block;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
+import net.mcreator.moddymcmodface.CommonUtil;
 
 import javax.annotation.Nullable;
 
@@ -227,7 +228,8 @@ import java.util.List;
 import java.util.Collections;
 import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
 import net.minecraft.util.math.AxisAlignedBB;
-/*
+import net.minecraft.entity.LivingEntity;
+
 @ModdymcmodfaceModElements.ModElement.Tag
 public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 	@ObjectHolder("moddymcmodface:laser")
@@ -265,14 +267,34 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 	public static class CustomBlock extends Block {
 		public static final DirectionProperty FACING = DirectionalBlock.FACING;
 		public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
-		public static final BooleanProperty RECEIVING =  BooleanProperty.create("laser_receiving"); //it's dececting incoming laser
+		public static final IntegerProperty RECEIVING =  IntegerProperty.create("laser_receiving", 0, 15); //it's dececting incoming laser
 
 		
 		public CustomBlock() {
 			super(Block.Properties.create(Material.ROCK).sound(SoundType.STONE).hardnessAndResistance(3.5f, 3.5f).lightValue(0).notSolid());
-			this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH).with(RECEIVING, false).with(POWERED,false));
+			this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH).with(RECEIVING, 0).with(POWERED,false));
 			setRegistryName("laser");
 		}
+
+
+
+		@Override
+		public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+			this.updatePower(state, worldIn, pos);
+		}
+		
+		@Override
+		public void neighborChanged(BlockState state, World world, BlockPos pos, Block neighborBlock, BlockPos fromPos, boolean moving) {
+			super.neighborChanged(state, world, pos, neighborBlock, fromPos, moving);
+			this.updatePower(state, world, pos);
+		}
+
+		public void updatePower(BlockState state, World world, BlockPos pos){
+			boolean powered = world.getRedstonePowerFromNeighbors(pos)>0;
+			if(powered != state.get(POWERED))
+				world.setBlockState(pos,state.with(POWERED, powered), 2);	
+		}
+
 
 		@Override
 		public boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos) {
@@ -324,38 +346,63 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 			TileEntity tileentity = world.getTileEntity(pos);
 			return tileentity == null ? false : tileentity.receiveClientEvent(eventID, eventParam);
 		}
+
+
+		@Override
+	   public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player) {
+
+	      super.onBlockHarvested(worldIn, pos, state, player);
+	   }
+	@Override
+	   public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+			super.onReplaced(state, worldIn, pos, newState, isMoving);
+	   }
+
+
+
+		
 	}
 
 	public static class CustomTileEntity extends TileEntity implements ITickableTileEntity {
 		public BlockPos endpos; //block that the laser is touching
 		public int lenght = 0;
-		public Direction dir = Direction.NORTH;
 		protected CustomTileEntity() {
 			super(tileEntityType);
 		}
 
 		//TODO:cache the blockposition on a list for faster accsssing
 		public void updateBeam(){
-			int maxrange =6;
-			BlockPos p =this.pos;
-			this.dir = this.getBlockState().get(CustomBlock.FACING);
-			int i=0;
-			for(i=0; i<=maxrange; i++){
-				p = this.pos.offset(this.dir,i+1);
-				BlockState state = this.world.getBlockState(p);
-				if(state.getOpacity(this.world, p) < 15) continue;
-				if(state.isSolidSide(world, p, this.dir.getOpposite()))break;
+			if(this.canEmit()){
+				int maxrange =16;
+				BlockPos p =this.pos;
+				Direction dir = this.getDirection();
+				int i=0;
+				for(i=0; i<=maxrange; i++){
+					p = this.pos.offset(dir,i+1);
+					BlockState state = this.world.getBlockState(p);
+					if(state.getOpacity(this.world, p) < 15) continue;
+					if(state.isSolidSide(world, p, dir.getOpposite()))break;
+				}
+				this.lenght = i;
+				
+				this.world.getBlockState(p);
 			}
-			this.lenght = i;
 			
-			this.world.setBlockState(p, Blocks.DIAMOND_ORE.getDefaultState(),3);
+		}
 
-			
+		public boolean canEmit(){
+			return this.isPowered() && !this.isReceiving();
+		}
+		public boolean isReceiving(){
+			return this.getBlockState().get(CustomBlock.RECEIVING)>0;
+		}		
+		public boolean isPowered(){
+			return this.getBlockState().get(CustomBlock.POWERED);
 		}
 
 		@Override
 		public AxisAlignedBB getRenderBoundingBox(){
-			return new AxisAlignedBB(getPos(), getPos().offset(this.dir,this.lenght+2).add(1,1,1));
+			return new AxisAlignedBB(getPos(), getPos().offset(this.getDirection(),this.lenght+2).add(1,1,1));
 		}
 
 
@@ -425,94 +472,44 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
-			ResourceLocation texture = new ResourceLocation("moddymcmodface:blocks/blaze_block");
-			TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture);
-			//IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
-			IVertexBuilder builder = bufferIn.getBuffer(RenderType.getBeaconBeam(texture, true));
-			// IVertexBuilder builder
-			// =bufferIn.getBuffer(Customrender.CustomRenderTypes.TRANSLUCENT_CUSTOM);
-			int color =0xff0000;
-			float opacity = 0.4f;
-			float height = 1;
-
-			int lenght = entityIn.lenght;
-
-			Direction dir = entityIn.getDirection();
-			float yaw = dir.getHorizontalAngle();
-			float pitch =0;
-			if (dir==Direction.UP) pitch=90f;
-			else if (dir==Direction.DOWN) pitch=-90f;
-		
-			matrixStackIn.push();
-			matrixStackIn.translate(0.5, 0.5, 0.5);
-			matrixStackIn.rotate(dir.getRotation());
-			matrixStackIn.translate(-0.5, -0.5, -0.5);
+			if(entityIn.canEmit()){
+				ResourceLocation texture = new ResourceLocation("moddymcmodface:blocks/laser_beam");
+				TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture);
+						//IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
+				IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
+				// IVertexBuilder builder
+				// =bufferIn.getBuffer(Customrender.CustomRenderTypes.TRANSLUCENT_CUSTOM);
+				int color =0xff0000;
+	
+				int lenght = entityIn.lenght;
+	
+				Direction dir = entityIn.getDirection();
+				float yaw = dir.getHorizontalAngle();
+				float pitch =0;
+				if (dir==Direction.UP) pitch=90f;
+				else if (dir==Direction.DOWN) pitch=-90f;
 			
-			matrixStackIn.translate(0.25, 0, 0.25);
-
-			//matrixStackIn.translate(0, 1, 0);
-			for(int i=0; i<lenght; i++){
-				matrixStackIn.translate(0, 1, 0);
-				addCube(builder, matrixStackIn, 0.5f, height, sprite, combinedLightIn, color, opacity, combinedOverlayIn, i==lenght-1);
+				matrixStackIn.push();
+				matrixStackIn.translate(0.5, 0.5, 0.5);
+				matrixStackIn.rotate(dir.getRotation());
+				matrixStackIn.translate(0, -0.5, 0);
+			
+	
+				int j = 240;
+				int k = combinedLightIn >> 16 & 255;
+				combinedLightIn =  j | k << 16;
+		      
+				//matrixStackIn.translate(0, 1, 0);
+				for(int i=0; i<lenght; i++){
+					matrixStackIn.translate(0, 1, 0);
+					CommonUtil.addCube(builder, matrixStackIn, 0.125f, 1f, sprite, combinedLightIn, 0xFF0000, 0.5f, combinedOverlayIn, i==lenght-1,false,false, false);
+					CommonUtil.addCube(builder, matrixStackIn, 0.0625f, 1f, sprite, combinedLightIn, 0xFFFFFF, 0.75f, combinedOverlayIn, i==lenght-1,false,false, false);
+				}
+				
+				matrixStackIn.pop();
 			}
-			
-			matrixStackIn.pop();
 		}
 	}
-
-
-
-
-
-	private static void addCube(IVertexBuilder builder, MatrixStack matrixStackIn, float w, float h, TextureAtlasSprite sprite, int combinedLightIn,
-			int color, float a, int combinedOverlayIn, boolean end) {
-		int lu = combinedLightIn & '\uffff';
-		int lv = combinedLightIn >> 16 & '\uffff'; // ok
-		float minu = sprite.getMinU();
-		float minv = sprite.getMinV();
-		float maxu = (sprite.getMaxU() - minu) * w + minu;
-		float maxv = (sprite.getMaxV() - minv) * h + minv;
-		float maxv2 = (sprite.getMaxV() - minv) * w + minv;
-		float r = (float) ((color >> 16 & 255)) / 255.0F;
-		float g = (float) ((color >> 8 & 255)) / 255.0F;
-		float b = (float) ((color >> 0 & 255)) / 255.0F;
-		// float a = 1f;// ((color >> 24) & 0xFF) / 255f;
-	
-		// south z+
-		// x y z u v r g b a lu lv
-		addVert(builder, matrixStackIn, 0, 0, w, minu, minv, r, g, b, a, lu, lv, 0, 0, 1);
-		addVert(builder, matrixStackIn, w, 0, w, maxu, minv, r, g, b, a, lu, lv, 0, 0, 1);
-		addVert(builder, matrixStackIn, w, h, w, maxu, maxv, r, g, b, a, lu, lv, 0, 0, 1);
-		addVert(builder, matrixStackIn, 0, h, w, minu, maxv, r, g, b, a, lu, lv, 0, 0, 1);
-		// west
-		addVert(builder, matrixStackIn, 0, 0, 0, minu, minv, r, g, b, a, lu, lv, -1, 0, 0);
-		addVert(builder, matrixStackIn, 0, 0, w, maxu, minv, r, g, b, a, lu, lv, -1, 0, 0);
-		addVert(builder, matrixStackIn, 0, h, w, maxu, maxv, r, g, b, a, lu, lv, -1, 0, 0);
-		addVert(builder, matrixStackIn, 0, h, 0, minu, maxv, r, g, b, a, lu, lv, -1, 0, 0);
-		// north
-		addVert(builder, matrixStackIn, w, 0, 0, minu, minv, r, g, b, a, lu, lv, 0, 0, -1);
-		addVert(builder, matrixStackIn, 0, 0, 0, maxu, minv, r, g, b, a, lu, lv, 0, 0, -1);
-		addVert(builder, matrixStackIn, 0, h, 0, maxu, maxv, r, g, b, a, lu, lv, 0, 0, -1);
-		addVert(builder, matrixStackIn, w, h, 0, minu, maxv, r, g, b, a, lu, lv, 0, 0, -1);
-		// east
-		addVert(builder, matrixStackIn, w, 0, w, minu, minv, r, g, b, a, lu, lv, 1, 0, 0);
-		addVert(builder, matrixStackIn, w, 0, 0, maxu, minv, r, g, b, a, lu, lv, 1, 0, 0);
-		addVert(builder, matrixStackIn, w, h, 0, maxu, maxv, r, g, b, a, lu, lv, 1, 0, 0);
-		addVert(builder, matrixStackIn, w, h, w, minu, maxv, r, g, b, a, lu, lv, 1, 0, 0);
-		if(end){
-			// up
-			addVert(builder, matrixStackIn, 0, h, w, minu, minv, r, g, b, a, lu, lv, 0, 1, 0);
-			addVert(builder, matrixStackIn, w, h, w, maxu, minv, r, g, b, a, lu, lv, 0, 1, 0);
-			addVert(builder, matrixStackIn, w, h, 0, maxu, maxv2, r, g, b, a, lu, lv, 0, 1, 0);
-			addVert(builder, matrixStackIn, 0, h, 0, minu, maxv2, r, g, b, a, lu, lv, 0, 1, 0);
-		}
-	}
-
-	private static void addVert(IVertexBuilder builder, MatrixStack matrixStackIn, float x, float y, float z, float u, float v, float r, float g,
-			float b, float a, int lu, int lv, float dx, float dy, float dz) {
-		builder.pos(matrixStackIn.getLast().getMatrix(), x, y, z).color(r, g, b, a).tex(u, v).overlay(OverlayTexture.NO_OVERLAY).lightmap(lu, lv)
-				.normal(matrixStackIn.getLast().getNormal(), 0, 1, 0).endVertex();
-	}	
 			
 	
-}*/
+}

@@ -68,6 +68,7 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.Block;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
+import net.mcreator.moddymcmodface.CommonUtil;
 
 import java.util.Random;
 import java.util.List;
@@ -108,11 +109,11 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 	}
 	public static class CustomBlock extends Block {
 		public static final DirectionProperty FACING = DirectionalBlock.FACING;
-		public static final BooleanProperty EXTENDED = BlockStateProperties.EXTENDED; // is it extending?
+		public static final BooleanProperty EXTENDING = CommonUtil.EXTENDING;// is it extending?
 		public CustomBlock() {
 			super(Block.Properties.create(Material.IRON).sound(SoundType.METAL).hardnessAndResistance(100f, 10f).lightValue(0).doesNotBlockMovement()
 					.notSolid());
-			this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH).with(EXTENDED, true));
+			this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH).with(EXTENDING, true));
 			setRegistryName("piston_launcher_arm_tile");
 		}
 
@@ -145,8 +146,7 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 
 		@Override
 		protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-			builder.add(FACING);
-			builder.add(EXTENDED);
+			builder.add(FACING, EXTENDING);
 		}
 
 		public BlockState rotate(BlockState state, Rotation rot) {
@@ -187,7 +187,7 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 
 		@Override
 		public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-			return new CustomTileEntity(state.get(FACING).getIndex(), state.get(EXTENDED));
+			return new CustomTileEntity(state.get(EXTENDING), state.get(FACING));
 		}
 
 		@Override
@@ -199,78 +199,69 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 	}
 
 	public static class CustomTileEntity extends TileEntity implements ITickableTileEntity {
-		private int dir = Direction.NORTH.getIndex();
 		private int age = 0;
-		private boolean extending = false;
 		private double increment = 0;
 		private double offset = 0;
 		private double prevOffset = 0;
 		private int dx = 0;
 		private int dy = 0;
 		private int dz = 0;
-		private float yaw = 0;
-		private float pitch = 0;
 		protected final Random rand = new Random();
 		protected CustomTileEntity() {
 			super(tileEntityType);
-
 		}
-
-		protected CustomTileEntity(int dir, boolean ext) {
-			super(tileEntityType);
-			this.dir = dir;
-			this.extending = ext;
-			this.setParameters();
+		protected CustomTileEntity(boolean extending, Direction dir){
+			this();
+			this.setParameters(extending, dir);
 		}
 
 		public AxisAlignedBB getAdjustedBoundingBox() {
 			return new AxisAlignedBB(pos).offset(this.dx * this.offset, this.dy * this.offset, this.dz * this.offset);
 		}
 
-		public Direction getFacing() {
-			return Direction.byIndex(this.dir);
-		}
-
 		public void tick() {
-			if (this.extending) {
-				double x = this.pos.getX() + 0.5 + this.dx * this.offset;
-				double y = this.pos.getY() + this.dy * this.offset;
-				double z = this.pos.getZ() + 0.5 + this.dz * this.offset;
-				Random random = this.rand;
-				for (int l = 0; l < 2; ++l) {
-					double d0 = (x + random.nextFloat() - 0.5D);
-					double d1 = (y + random.nextFloat() + 0.5D);
-					double d2 = (z + random.nextFloat() - 0.5D);
-					int i1 = random.nextInt(2) * 2 - 1;
-					double d3 = (random.nextFloat() - 0.5D) * 0.05D;
-					double d4 = (random.nextFloat() - 0.5D) * 0.05D;
-					double d5 = (random.nextFloat() - 0.5D) * 0.05D;
-					//world.addParticle(ParticleTypes.POOF, d0, d1, d2, d3, d4, d5);
-					world.addParticle(ParticleTypes.CLOUD, d0, d1, d2, d3, d4, d5);
-
+			
+			
+		
+			if(this.world.isRemote()){
+				if (this.getExtending()) {
+					double x = this.pos.getX() + 0.5 + this.dx * this.offset;
+					double y = this.pos.getY() + this.dy * this.offset;
+					double z = this.pos.getZ() + 0.5 + this.dz * this.offset;
+					Random random = this.rand;
+					for (int l = 0; l < 2; ++l) {
+						double d0 = (x + random.nextFloat() - 0.5D);
+						double d1 = (y + random.nextFloat() + 0.5D);
+						double d2 = (z + random.nextFloat() - 0.5D);
+						double d3 = (random.nextFloat() - 0.5D) * 0.05D;
+						double d4 = (random.nextFloat() - 0.5D) * 0.05D;
+						double d5 = (random.nextFloat() - 0.5D) * 0.05D;
+						//world.addParticle(ParticleTypes.POOF, d0, d1, d2, d3, d4, d5);
+						this.world.addParticle(ParticleTypes.CLOUD, d0, d1, d2, d3, d4, d5);
+					}
 				}
 			}
-			if (this.age == 2) {
+
+			if (this.age > 1) {
 				this.prevOffset = this.offset;
-				if (this.extending) {
-					BlockState _bs = PistonLauncherHeadBlock.block.getDefaultState();
-					world.setBlockState(pos,
-							_bs.with((DirectionProperty) _bs.getBlock().getStateContainer().getProperty("facing"), Direction.byIndex(this.dir)), 3);
-				} else {
-					BlockState _bs = PistonLauncherBlock.block.getDefaultState();
-					BlockPos _bp = pos.add((int) -this.dx, (int) -this.dy, (int) -this.dz);
-					if (PistonLauncherBlock.block.getDefaultState().getBlock() == world.getBlockState(_bp).getBlock()) {
-						world.setBlockState(_bp,
-								_bs.with((DirectionProperty) _bs.getBlock().getStateContainer().getProperty("facing"), Direction.byIndex(this.dir)),
-								3);
+				if(!this.world.isRemote()){
+					if (this.getExtending()) {
+						BlockState _bs = PistonLauncherHeadBlock.block.getDefaultState();
+						world.setBlockState(pos, _bs.with(CustomBlock.FACING, this.getDirection()), 3);
+					} else {
+						BlockState _bs = PistonLauncherBlock.block.getDefaultState();
+						BlockPos _bp = pos.offset(this.getDirection().getOpposite());
+						if (PistonLauncherBlock.block.getDefaultState().getBlock() == world.getBlockState(_bp).getBlock()) {
+							world.setBlockState(_bp, _bs.with(CustomBlock.FACING, this.getDirection()), 3);
+						}
+						world.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
 					}
-					world.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
 				}
 			} else {
 				this.age = this.age + 1;
 				this.prevOffset = this.offset;
 				this.offset += this.increment;
-				if (this.extending) {
+				if (this.getExtending()) {
 					AxisAlignedBB p_bb = this.getAdjustedBoundingBox();
 					
 					List<Entity> list1 = this.world.getEntitiesWithinAABBExcludingEntity(null,p_bb);
@@ -282,9 +273,6 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 								double d2 = vec3d.y;
 								double d3 = vec3d.z;
 								double speed = 1.5;
-
-
-								
 								if (dx != 0) {
 									d1 = this.dx * speed;
 								}
@@ -302,15 +290,16 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 						}
 					}
 				}
+				
 			}
 		}
 
-		public void moveCollidedEntity(Entity entity, AxisAlignedBB p_bb) {
+		private void moveCollidedEntity(Entity entity, AxisAlignedBB p_bb) {
 			AxisAlignedBB e_bb = entity.getBoundingBox();
 			double dx = 0;
 			double dy = 0;
 			double dz = 0;
-			switch ((Direction) Direction.byIndex(this.dir)) {
+			switch ((Direction) this.getDirection()) {
 				default :
 					dy = 0;
 					break;
@@ -336,9 +325,9 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 			entity.move(MoverType.PISTON, new Vec3d(dx, dy, dz));
 		}
 
-		public void setParameters() {
+		private void setParameters(boolean extending, Direction dir) {
 			this.age = 0;
-			if (this.extending) {
+			if (extending) {
 				this.increment = 0.5;
 				this.offset = -1;
 				this.prevOffset = -1;
@@ -347,12 +336,11 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 				this.offset = 0;
 				this.prevOffset = 0;
 			}
-
-			Vec3i v = ((Direction) Direction.byIndex(this.dir)).getDirectionVec();
+			
+			Vec3i v = dir.getDirectionVec();
 			this.dx=v.getX();
 			this.dy=v.getY();
 			this.dz=v.getZ();
-		
 		}
 
 		public Direction getDirection(){
@@ -360,7 +348,7 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 		}
 		
 		public boolean getExtending() {
-			return this.extending;
+			return  this.getBlockState().get(CustomBlock.EXTENDING);
 		}
 
 		public int getAge() {
@@ -378,9 +366,7 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 		@Override
 		public void read(CompoundNBT compound) {
 			super.read(compound);
-			this.dir = compound.getInt("dir");
 			this.age = compound.getInt("age");
-			this.extending = compound.getBoolean("extending");
 			this.increment = compound.getDouble("increment");
 			this.offset = compound.getDouble("offset");
 			this.prevOffset = compound.getDouble("prevOffset");
@@ -393,9 +379,7 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 		@Override
 		public CompoundNBT write(CompoundNBT compound) {
 			super.write(compound);
-			compound.putInt("dir", this.dir);
 			compound.putInt("age", this.age);
-			compound.putBoolean("extending", this.extending);
 			compound.putDouble("increment", this.increment);
 			compound.putDouble("offset", this.offset);
 			compound.putDouble("prevOffset", this.prevOffset);
@@ -433,41 +417,17 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 				int combinedOverlayIn) {
 			matrixStackIn.push();
 			matrixStackIn.translate(0.5, 0.5, 0.5);
-
-			matrixStackIn.rotate(entityIn.getDirection().getRotation());
+			matrixStackIn.rotate(entityIn.getDirection().getOpposite().getRotation());
+			matrixStackIn.rotate(Vector3f.XP.rotationDegrees(180.0F));
 			matrixStackIn.translate(-0.5, -0.5, -0.5);
 
 			matrixStackIn.translate(0, MathHelper.lerp(partialTicks, entityIn.getPrevOffset(), entityIn.getOffset()), 0);
 			BlockRendererDispatcher blockRenderer = Minecraft.getInstance().getBlockRendererDispatcher();
-			boolean flag1 = false;
-			int a = entityIn.getAge();
-			if (entityIn.getExtending()) {
-				if (a == 2) {
-					flag1 = true;
-				} else {
-					flag1 = false;
-				}
-			} else {
-				if (a == 1 || a == 0) {
-					flag1 = true;
-				} else {
-					flag1 = false;
-				}
-			}
-			BlockState state = PistonLauncherHeadBlock.block.getDefaultState().with(CustomBlock.FACING, Direction.UP).with(BlockStateProperties.EXTENDED, flag1);
+
+			boolean flag1 = !(entityIn.getExtending() ^ entityIn.getAge() < 2);
+			
+			BlockState state = PistonLauncherHeadBlock.block.getDefaultState().with(CustomBlock.FACING, Direction.UP).with(BlockStateProperties.SHORT, flag1);
 			blockRenderer.renderBlock(state, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);
-    
-      		/*
-     		 net.minecraft.client.renderer.RenderType.getBlockRenderTypes().stream().filter(t -> RenderTypeLookup.canRenderInLayer(state, t)).forEach(rendertype -> {
-     		 net.minecraftforge.client.ForgeHooksClient.setRenderLayer(rendertype);
-      
-			IVertexBuilder ivertexbuilder = bufferIn.getBuffer(rendertype);
-			blockRenderer.getBlockModelRenderer().renderModel(entityIn.getWorld(), blockRenderer.getModelForState(state), state, new BlockPos(0,0,0), matrixStackIn, ivertexbuilder, false, new Random(), 0, combinedLightIn);
-			});
-     		 net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
-			*/
-
-
       
 			matrixStackIn.pop();
 		}
