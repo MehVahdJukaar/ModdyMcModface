@@ -229,9 +229,14 @@ import java.util.Collections;
 import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.entity.LivingEntity;
+import org.apache.logging.log4j.core.pattern.MaxLengthConverter;
+import net.minecraftforge.common.util.Constants;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
+	public static final ResourceLocation texture = new ResourceLocation("moddymcmodface:blocks/laser_beam");
+	public static final ResourceLocation texture1 = new ResourceLocation("moddymcmodface:blocks/laser_beam_end");
+	public static final int MAXLENGHT = 15;
 	@ObjectHolder("moddymcmodface:laser")
 	public static final Block block = null;
 	@ObjectHolder("moddymcmodface:laser")
@@ -244,7 +249,9 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 	@Override
 	public void initElements() {
 		elements.blocks.add(() -> new CustomBlock());
-		elements.items.add(() -> new BlockItem(block, new Item.Properties().group(ItemGroup.REDSTONE)).setRegistryName(block.getRegistryName()));
+		//elements.items.add(() -> new BlockItem(block, new Item.Properties().group(ItemGroup.REDSTONE)).setRegistryName(block.getRegistryName()));
+		elements.items.add(() -> new BlockItem(block, new Item.Properties().group(null)).setRegistryName(block.getRegistryName()));
+
 	}
 
 	@SubscribeEvent
@@ -271,12 +278,26 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 
 		
 		public CustomBlock() {
-			super(Block.Properties.create(Material.ROCK).sound(SoundType.STONE).hardnessAndResistance(3.5f, 3.5f).lightValue(0).notSolid());
+			super(Block.Properties.create(Material.ROCK).sound(SoundType.STONE).hardnessAndResistance(3.5f, 3.5f).lightValue(0));
 			this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH).with(RECEIVING, 0).with(POWERED,false));
 			setRegistryName("laser");
 		}
 
+		@Override
+		public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
+			return state.get(POWERED)? 12 : 0;
+		}
 
+
+		@Override
+		public boolean hasComparatorInputOverride(BlockState state) {
+			return true;
+		}
+
+		@Override
+		public int getComparatorInputOverride(BlockState blockState, World world, BlockPos pos) {
+            return blockState.get(RECEIVING);
+		}
 
 		@Override
 		public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
@@ -290,15 +311,19 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 
 		public void updatePower(BlockState state, World world, BlockPos pos){
-			boolean powered = world.getRedstonePowerFromNeighbors(pos)>0;
-			if(powered != state.get(POWERED))
-				world.setBlockState(pos,state.with(POWERED, powered), 2);	
+			if(!world.isRemote()){
+				boolean powered = world.getRedstonePowerFromNeighbors(pos)>0;
+				if(powered != state.get(POWERED))
+					world.setBlockState(pos,state.with(POWERED, powered),2);
+					TileEntity tileentity = world.getTileEntity(pos);
+					if(tileentity instanceof CustomTileEntity)
+						((CustomTileEntity) tileentity).updateReceivingLaser();
+		    }
 		}
-
 
 		@Override
 		public boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos) {
-			return false;
+			return true;
 		}
 
 
@@ -353,7 +378,7 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 
 	      super.onBlockHarvested(worldIn, pos, state, player);
 	   }
-	@Override
+		@Override
 	   public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
 			super.onReplaced(state, worldIn, pos, newState, isMoving);
 	   }
@@ -364,32 +389,63 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 	}
 
 	public static class CustomTileEntity extends TileEntity implements ITickableTileEntity {
-		public BlockPos endpos; //block that the laser is touching
+		public BlockPos endpos = null; //block that the laser is touching
 		public int lenght = 0;
 		protected CustomTileEntity() {
 			super(tileEntityType);
 		}
 
 		//TODO:cache the blockposition on a list for faster accsssing
+		//this is already server only
 		public void updateBeam(){
 			if(this.canEmit()){
-				int maxrange =16;
 				BlockPos p =this.pos;
 				Direction dir = this.getDirection();
 				int i=0;
-				for(i=0; i<=maxrange; i++){
+				boolean noblockfound = false;
+				for(i=0; i<=MAXLENGHT; i++){
 					p = this.pos.offset(dir,i+1);
 					BlockState state = this.world.getBlockState(p);
 					if(state.getOpacity(this.world, p) < 15) continue;
-					if(state.isSolidSide(world, p, dir.getOpposite()))break;
+					if(state.isSolidSide(world, p, dir.getOpposite())){
+						noblockfound = false;
+						break;
+					}
+				}				if(this.lenght!=i){
+					this.lenght = i;
+					this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), Constants.BlockFlags.BLOCK_UPDATE);
 				}
-				this.lenght = i;
+				if(noblockfound){
+					this.endpos = null;
+					i=MAXLENGHT+1;
+				}
+				else{
+					this.endpos = p;
+					this.updateReceivingLaser();
+				}
 				
-				this.world.getBlockState(p);
+
 			}
-			
 		}
 
+		public void updateReceivingLaser(){
+			if(endpos!=null){
+			BlockState state = this.world.getBlockState(this.endpos); 
+			if(state.getBlock() instanceof CustomBlock && state.get(CustomBlock.RECEIVING)!= MathHelper.clamp(MAXLENGHT+1-this.lenght, 0, 15) && state.get(CustomBlock.FACING)==this.getBlockState().get(CustomBlock.FACING).getOpposite()){
+				this.world.setBlockState(this.endpos, state.with(CustomBlock.RECEIVING, MathHelper.clamp(MAXLENGHT+1-this.lenght, 0, 15)),3);
+			}
+			}
+		}//TODO:o check if null
+
+		public void turnOffReceivingLaser(){
+			if(endpos!=null){
+			BlockState state = this.world.getBlockState(this.endpos); 
+			if(state.getBlock() instanceof CustomBlock && state.get(CustomBlock.RECEIVING)!= 0 && state.get(CustomBlock.FACING)==this.getBlockState().get(CustomBlock.FACING).getOpposite()){
+				this.world.setBlockState(this.endpos, state.with(CustomBlock.RECEIVING, 0),3);
+			}
+			}
+		}
+		
 		public boolean canEmit(){
 			return this.isPowered() && !this.isReceiving();
 		}
@@ -409,7 +465,7 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 		
 		@Override
 		public void tick(){
-			if (this.world != null && this.world.getGameTime() % 20L == 0L) {
+			if (this.world != null && !this.world.isRemote() && this.world.getGameTime() % 20L == 0L) {
 				this.updateBeam();
 			}
 		}
@@ -417,11 +473,13 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void read(CompoundNBT compound) {
 			super.read(compound);
+			this.lenght=compound.getInt("lenght");
 		}
 
 		@Override
 		public CompoundNBT write(CompoundNBT compound) {
 			super.write(compound);
+			compound.putInt("lenght", this.lenght);
 			return compound;
 		}
 
@@ -473,10 +531,11 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
 			if(entityIn.canEmit()){
-				ResourceLocation texture = new ResourceLocation("moddymcmodface:blocks/laser_beam");
+				
 				TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture);
 						//IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
 				IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
+				IVertexBuilder builder1 = bufferIn.getBuffer(RenderType.getLightning());
 				// IVertexBuilder builder
 				// =bufferIn.getBuffer(Customrender.CustomRenderTypes.TRANSLUCENT_CUSTOM);
 				int color =0xff0000;
@@ -500,10 +559,17 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 				combinedLightIn =  j | k << 16;
 		      
 				//matrixStackIn.translate(0, 1, 0);
-				for(int i=0; i<lenght; i++){
+				int l = Math.min(lenght, MAXLENGHT);
+				for(int i=0; i<l; i++){
 					matrixStackIn.translate(0, 1, 0);
-					CommonUtil.addCube(builder, matrixStackIn, 0.125f, 1f, sprite, combinedLightIn, 0xFF0000, 0.5f, combinedOverlayIn, i==lenght-1,false,false, false);
-					CommonUtil.addCube(builder, matrixStackIn, 0.0625f, 1f, sprite, combinedLightIn, 0xFFFFFF, 0.75f, combinedOverlayIn, i==lenght-1,false,false, false);
+					CommonUtil.addCube(builder, matrixStackIn, 0.125f, 1f, sprite, combinedLightIn, 0xFF0000, 0.7f, combinedOverlayIn, false,false,false, false);
+					CommonUtil.addCube(builder1, matrixStackIn, 0.0625f, 1f, sprite, combinedLightIn, 0xFFFFFF, 0.6f, combinedOverlayIn,false,false,false, false);
+				}
+				if(lenght==MAXLENGHT+1){
+					matrixStackIn.translate(0, 1, 0);
+					TextureAtlasSprite sprite1 = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture1);
+					CommonUtil.addCube(builder, matrixStackIn, 0.125f, 1f, sprite1, combinedLightIn, 0xFF0000, 0.7f, combinedOverlayIn, false,false,false, true);
+					CommonUtil.addCube(builder1, matrixStackIn, 0.0625f, 1f, sprite1, combinedLightIn, 0xFFFFFF, 0.6f, combinedOverlayIn, false,false,false, true);
 				}
 				
 				matrixStackIn.pop();

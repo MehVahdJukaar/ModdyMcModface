@@ -195,14 +195,24 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 
 			BlockPos backpos = pos.offset(state.get(FACING), -1);
 			BlockState backblock = world.getBlockState(backpos);
-						
-			boolean flag2 = (world.getFluidState(backpos).isTagged(FluidTags.WATER)
+			
+			boolean flag4 = backblock.getBlock() == JarBlock.block;		
+			boolean flag2 = (world.getFluidState(backpos).isTagged(FluidTags.WATER)|| flag4
 					|| ((backblock.getBlock() instanceof CauldronBlock) && backblock.getComparatorInputOverride(world, backpos) > 0));
 
 			boolean flag3 = world.getBlockState(pos.down()).getBlock() == JarBlock.block;
+
+			boolean flag5 = false;
 			//if update blockstate with powered, haswater and enabled
 			if (flag != state.get(POWERED) || flag2 != state.get(HAS_WATER) || flag3 !=state.get(HAS_JAR)|| toggle) {
 				world.setBlockState(pos, state.with(POWERED, flag).with(HAS_WATER, flag2).with(HAS_JAR, flag3).with(ENABLED, toggle ^ state.get(ENABLED)), 2);
+				flag5 = true;
+			}
+			if(flag4||flag5){
+				TileEntity tileentity = world.getTileEntity(pos);
+				if(tileentity instanceof CustomTileEntity){
+					((CustomTileEntity)tileentity).updateColor();
+				}
 			}
 		}
 
@@ -295,6 +305,18 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			
 		}
 
+		public void updateColor(){
+			BlockPos backpos = this.pos.offset(this.getBlockState().get(CustomBlock.FACING), -1);
+			BlockState backblock = this.world.getBlockState(backpos);
+			TileEntity tileentity = this.world.getTileEntity(backpos);
+			if(tileentity instanceof JarBlock.CustomTileEntity){
+				this.watercolor = ((JarBlock.CustomTileEntity)tileentity).color;
+			}
+			else{			
+				this.watercolor = BiomeColors.getWaterColor(this.world, this.pos);
+			}
+
+		}
 
 		@Override
 		public AxisAlignedBB getRenderBoundingBox(){
@@ -417,7 +439,6 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public CompoundNBT write(CompoundNBT compound) {
 			super.write(compound);
-			this.watercolor = BiomeColors.getWaterColor(this.world, this.pos);
 			compound.putInt("watercolor",this.watercolor);
 			return compound;
 		}

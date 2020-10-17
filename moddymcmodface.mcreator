@@ -408,6 +408,15 @@
       "metadata": {
         "dependencies": []
       }
+    },
+    {
+      "name": "Bellows",
+      "type": "block",
+      "sortid": 167,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "bellows"
     }
   ],
   "variable_elements": [],
@@ -434,6 +443,7 @@
       "block.lightupmyenvironment.blaze_block": "Blaze Block",
       "block.lightupmyenvironment.tiki": "Tiki",
       "block.lightupmyenvironment.firefly_jar": "Firefly Jar",
+      "block.moddymcmodface.bellows": "Bellows",
       "block.lightupmyenvironment.wind_vane": "Wind Vane",
       "block.lightupmyenvironment.clock": "Clock",
       "block.lightupmyenvironment.clover": "Clover",
@@ -461,7 +471,7 @@
   "workspaceSettings": {
     "modid": "moddymcmodface",
     "modName": "Supplementaries",
-    "version": "alpha 0.4. WIP",
+    "version": "alpha 0.5. WIP",
     "description": "Random blocks that I wanted to add to vanilla minecraft. Enjoy",
     "author": "Meh-Vah\u0027d Jukaar, MCreator",
     "websiteURL": "https://mcreator.net",

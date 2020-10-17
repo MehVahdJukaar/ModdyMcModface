@@ -2,8 +2,7 @@
   "mappings": {
     "default": {
       "map": {
-        "0": "pedestal_top",
-        "2": "pedestal_full"
+        "missing": "notice_board_top"
       },
       "name": "default"
     }

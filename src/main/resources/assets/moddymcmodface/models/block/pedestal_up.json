@@ -4,6 +4,7 @@
     "0": "moddymcmodface:blocks/pedestal_top",
     "1": "moddymcmodface:blocks/pedestal_side",
     "2": "moddymcmodface:blocks/pedestal_bottom",
+	"3": "moddymcmodface:blocks/pedestal_full",
     "particle": "moddymcmodface:blocks/pedestal_side"
 
   }

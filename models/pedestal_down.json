@@ -1,10 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "lightupmyenvironment:blocks/pedestal_top",
-		"1": "lightupmyenvironment:blocks/pedestal_side",
-		"2": "lightupmyenvironment:blocks/pedestal_bottom",
-		"particle": "lightupmyenvironment:blocks/pedestal_top"
+		"3": "Desktop/pedestal_full",
+		"particle": "Desktop/pedestal_full"
 	},
 	"elements": [
 		{
@@ -25,10 +23,11 @@
 			"to": [13, 13, 13],
 			"rotation": {"angle": 0, "axis": "y", "origin": [12, 10, 12]},
 			"faces": {
-				"north": {"uv": [3, 3, 13, 16], "texture": "#1"},
-				"east": {"uv": [3, 3, 13, 16], "texture": "#1"},
-				"south": {"uv": [3, 3, 13, 16], "texture": "#1"},
-				"west": {"uv": [3, 3, 13, 16], "texture": "#1"},
+				"north": {"uv": [3, 3, 13, 16], "texture": "#3"},
+				"east": {"uv": [3, 3, 13, 16], "texture": "#3"},
+				"south": {"uv": [3, 3, 13, 16], "texture": "#3"},
+				"west": {"uv": [3, 3, 13, 16], "texture": "#3"},
+				"up": {"uv": [0, 0, 0, 0], "texture": "#3"},
 				"down": {"uv": [3, 3, 13, 13], "texture": "#0"}
 			}
 		}

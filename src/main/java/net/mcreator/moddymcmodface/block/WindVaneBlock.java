@@ -225,24 +225,26 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 		public void tick() {
 			float currentyaw = this.yaw;
 			this.prevYaw = currentyaw;
-			if (this.world != null && this.world.getGameTime() % 20L == 0L) {
-				BlockState blockstate = this.getBlockState();
-				if (!this.world.isRemote) {
+			if(!this.world.isRemote()){
+				if (this.world != null && this.world.getGameTime() % 20L == 0L) {
+					BlockState blockstate = this.getBlockState();
 					Block block = blockstate.getBlock();
 					if (block instanceof WindVaneBlock.CustomBlock) {
 						CustomBlock.updatePower(blockstate, this.world, this.pos);
 					}
-				} else {
-					power = this.getBlockState().get(CustomBlock.POWER);
-			
-			//TODO:cache some of this maybe?
-			float hightoffset = (this.pos.getY()-64)/192f;
-			float offset = 3*(MathHelper.sin(this.pos.getX())+MathHelper.sin(this.pos.getZ()));
-			float i = this.getWorld().getDayTime() + offset;
-			float b = (this.power + hightoffset)* 2;
-			float newyaw = 30 * MathHelper.sin(i * (1 + b) / 60) + 10 * MathHelper.sin(i * (1 + b) / 20);
-			this.yaw = MathHelper.clamp(newyaw, currentyaw - 8, currentyaw + 8);
-		}
+				} 
+			}
+			else{
+				int power = this.getBlockState().get(CustomBlock.POWER);
+		
+				//TODO:cache some of this maybe?
+				float hightoffset = 0;//(this.pos.getY()-64)/192f;
+				float offset = 3f*(MathHelper.sin(this.pos.getX())+MathHelper.sin(this.pos.getZ()));
+				float i = this.getWorld().getDayTime() +offset;
+				float b = (power + hightoffset)* 2f;
+				float newyaw = 30f * MathHelper.sin(i * (1f + b) / 60f) + 10f * MathHelper.sin(i * (1f + b) / 20f);			
+				this.yaw = MathHelper.clamp(newyaw, currentyaw - 8, currentyaw + 8);
+			}
 		}
 	}
 

@@ -184,6 +184,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 				if(te.isEmpty())return null;
 				//TODO:cookies . delegate this to te
 				int color = te.color;
+				if(color == 0x000000)return null;
 				float r = (float) ((color >> 16 & 255)) / 255.0F;
 				float g = (float) ((color >> 8 & 255)) / 255.0F;
 				float b = (float) ((color >> 0 & 255)) / 255.0F;
@@ -420,8 +421,11 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			
 			this.liquidLevel = (float) this.getStackInSlot(0).getCount() / 16f;
 
+			boolean getdefaultcolor = true;
+			this.color = 0xFFFFFF;
 			
 			if (it instanceof PotionItem) {
+				getdefaultcolor = false;
 				if(PotionUtils.getPotionFromItem(stack) == Potions.WATER){
 					this.color = BiomeColors.getWaterColor(this.world, this.pos); 
 					this.liquidType = JarContentType.WATER;
@@ -432,6 +436,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 				}
 			}
 			else if (it instanceof FishBucketItem){
+				getdefaultcolor = false;
 				this.color = BiomeColors.getWaterColor(this.world, this.pos); 
 				this.liquidLevel = 0.625f;
 				if(it == new ItemStack(Items.COD_BUCKET).getItem()){
@@ -450,34 +455,31 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			} 
 			else if (it == new ItemStack(Items.LAVA_BUCKET).getItem()) {
 				this.liquidType = JarContentType.LAVA;
-				this.color = this.liquidType.color;
 				haslava=true;
 			} 
 			else if (it instanceof HoneyBottleItem) {
 				this.liquidType = JarContentType.HONEY;
-				this.color = this.liquidType.color;
 			} 
 			else if (it instanceof MilkBucketItem) {
 				this.liquidType = JarContentType.MILK;
-				this.color = this.liquidType.color;
 			} 
 			else if (it == new ItemStack(Items.DRAGON_BREATH).getItem()) {
 				this.liquidType = JarContentType.DRAGON_BREATH;
-				this.color = this.liquidType.color;
 			} 
 			else if (it instanceof ExperienceBottleItem){
 				this.liquidType = JarContentType.XP;
-				this.color = this.liquidType.color;
 			}
 			else if (it == new ItemStack(Items.COOKIE).getItem()){
 				this.liquidType = JarContentType.COOKIES;
-				this.color = this.liquidType.color;
 			}
 			else{
 				this.liquidType = JarContentType.EMPTY;
 			}
-			
-			
+
+            if(getdefaultcolor){
+				this.color =  this.liquidType.color;
+            }
+            
 			BlockState bs = this.world.getBlockState(this.pos);	
 			if(bs.get(CustomBlock.HAS_LAVA) != haslava){
 				this.world.setBlockState(this.pos, bs.with(CustomBlock.HAS_LAVA, haslava), 2);
@@ -836,7 +838,6 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 	        CompoundNBT compound = stack.getTag();
 	        if(compound !=null && !compound.isEmpty() && compound.contains("BlockEntityTag")){
 	        	compound = compound.getCompound("BlockEntityTag");
-	        	int fishtype=-1;
 	        	if(compound.contains("liquidType")){
 	        		lt = JarContentType.values()[compound.getInt("liquidType")];
 	        		t=lt.texture;
@@ -844,9 +845,9 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 	        	}
 	        	if(compound.contains("liquidLevel"))
 	        	height = compound.getFloat("liquidLevel");
-			    if(compound.contains("liquidColor"))
-	        	color = compound.getInt("liquidColor");
-	        	
+			    if(compound.contains("liquidColor") && lt.applycolor){
+	        		color = compound.getInt("liquidColor");
+			    }
 				Random rand = new Random(420);
 				if(lt==JarContentType.COOKIES){
 					matrixStackIn.push();
@@ -879,7 +880,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 						
 						//matrixStackIn.scale(0.6f, 0.6f, 0.6f);
 			
-						renderFish(builder1, matrixStackIn, 0, 0, fishtype, combinedLightIn, combinedOverlayIn);
+						renderFish(builder1, matrixStackIn, 0, 0, lt.fishtype, combinedLightIn, combinedOverlayIn);
 						
 						matrixStackIn.pop();
 					}
@@ -966,7 +967,7 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 				if (height != 0) {
 					matrixStackIn.push();
 					
-					int color = entityIn.color;
+					int color = entityIn.liquidType.applycolor ? entityIn.color : 0xFFFFFF;
 					float opacity = entityIn.liquidType.opacity;
 				
 					ResourceLocation texture = new ResourceLocation(entityIn.liquidType.texture);
@@ -1021,28 +1022,30 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 
 	public static enum JarContentType{
 		//color is handles separatelly. here it's just for default case
-		WATER("minecraft:block/water_still",0x3F76E4,1f,true,true,-1),
-		LAVA("minecraft:block/lava_still",0xFFFFFF,1f,false,true,-1),
-		MILK("moddymcmodface:blocks/milk_liquid",0xFFFFFF,1f,false,true,-1),
-		POTION("moddymcmodface:blocks/potion_liquid",0x3F76E4,0.88f,true,false,-1),
-		HONEY("moddymcmodface:blocks/honey_liquid",0xFFFFFF,0.85f,true,false,-1),
-		DRAGON_BREATH("moddymcmodface:blocks/dragon_breath_liquid",0x9900FF,0.8f,true,false,-1),
-		XP("moddymcmodface:blocks/xp_liquid",0xFFFFFF,0.95f,true,false,-1),
-		TROPICAL_FISH("minecraft:block/water_still",0x3F76E4,1f,false,true,0),
-		SALMON("minecraft:block/water_still",0x3F76E4,1f,false,true,1),
-		COD("minecraft:block/water_still",0x3F76E4,1f,false,true,2),
-		PUFFERFISH("minecraft:block/water_still",0x3F76E4,1f,false,true,3),
-		COOKIES("",0x000000,1f,false,false,-1),
-		EMPTY("",0x000000,1f,false,false,-1);
+		WATER("minecraft:block/water_still",0x3F76E4,true,1f,true,true,-1),
+		LAVA("minecraft:block/lava_still",0xFF6600,false,1f,false,true,-1),
+		MILK("moddymcmodface:blocks/milk_liquid",0xFFFFFF,false,1f,false,true,-1),
+		POTION("moddymcmodface:blocks/potion_liquid",0x3F76E4,true,0.88f,true,false,-1),
+		HONEY("moddymcmodface:blocks/honey_liquid",0xFAAC1C,false,0.85f,true,false,-1),
+		DRAGON_BREATH("moddymcmodface:blocks/dragon_breath_liquid",0xFF33FF,true,0.8f,true,false,-1),
+		XP("moddymcmodface:blocks/xp_liquid",0x33FF33,false,0.95f,true,false,-1),
+		TROPICAL_FISH("minecraft:block/water_still",0x3F76E4,true,1f,false,true,0),
+		SALMON("minecraft:block/water_still",0x3F76E4,true,1f,false,true,1),
+		COD("minecraft:block/water_still",0x3F76E4,true,1f,false,true,2),
+		PUFFERFISH("minecraft:block/water_still",0x3F76E4,true,1f,false,true,3),
+		COOKIES("",0x000000,false,1f,false,false,-1),
+		EMPTY("",0x000000,false,1f,false,false,-1);
 		public final String texture;
 		public final float opacity;
 		public final int color;
+		public final boolean applycolor;
 		public final boolean bucket; 
 		public final boolean bottle;
 		public final int fishtype;
-		private JarContentType(String texture, int color, float opacity, boolean bottle, boolean bucket, int fishtype){
+		private JarContentType(String texture, int color, boolean applycolor, float opacity, boolean bottle, boolean bucket, int fishtype){
 			this.texture=texture;
-			this.color=color;
+			this.color=color; //beacon color. this will also be texture color if applycolor is true
+			this.applycolor=applycolor; //is texture grayscale and needs to be colored?
 			this.opacity=opacity;
 			this.bottle=bottle;
 			this.bucket=bucket;

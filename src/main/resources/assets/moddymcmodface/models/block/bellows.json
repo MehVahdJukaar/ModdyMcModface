@@ -1,0 +1,8 @@
+{
+  "parent": "moddymcmodface:custom/bellows",
+  "textures": {
+    "all": "moddymcmodface:blocks/notice_board_top",
+    "particle": "moddymcmodface:blocks/notice_board_top",
+    "missing": "moddymcmodface:blocks/notice_board_top"
+  }
+}
