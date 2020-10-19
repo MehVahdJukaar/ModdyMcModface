@@ -181,10 +181,9 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			TileEntity tileentity = world.getTileEntity(pos);
 			if (tileentity instanceof CustomTileEntity) {
 				CustomTileEntity te = (CustomTileEntity) tileentity;
-				if(te.isEmpty())return null;
-				//TODO:cookies . delegate this to te
 				int color = te.color;
-				if(color == 0x000000)return null;
+				if(te.isEmpty() || color == 0x000000)return null;
+
 				float r = (float) ((color >> 16 & 255)) / 255.0F;
 				float g = (float) ((color >> 8 & 255)) / 255.0F;
 				float b = (float) ((color >> 0 & 255)) / 255.0F;
@@ -192,7 +191,6 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 			return null;
 		}
-
 
 
 		@Override

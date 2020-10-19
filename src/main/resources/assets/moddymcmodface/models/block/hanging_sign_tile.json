@@ -1,0 +1,10 @@
+{
+  "parent": "moddymcmodface:custom/hanging_sing",
+  "textures": {
+    "all": "moddymcmodface:blocks/hanging_sign_front",
+    "particle": "moddymcmodface:blocks/hanging_sign_front",
+	"0": "moddymcmodface:blocks/hanging_sign_front",
+    "1": "moddymcmodface:blocks/hanging_sign_details"
+
+  }
+}

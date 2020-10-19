@@ -2,8 +2,11 @@ package net.mcreator.moddymcmodface.procedures;
 
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
+import net.minecraft.world.IWorld;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.block.Blocks;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 
@@ -16,10 +19,31 @@ public class SsssProcedure extends ModdymcmodfaceModElements.ModElement {
 	}
 
 	public static void executeProcedure(Map<String, Object> dependencies) {
+		if (dependencies.get("x") == null) {
+			System.err.println("Failed to load dependency x for procedure Ssss!");
+			return;
+		}
+		if (dependencies.get("y") == null) {
+			System.err.println("Failed to load dependency y for procedure Ssss!");
+			return;
+		}
+		if (dependencies.get("z") == null) {
+			System.err.println("Failed to load dependency z for procedure Ssss!");
+			return;
+		}
+		if (dependencies.get("world") == null) {
+			System.err.println("Failed to load dependency world for procedure Ssss!");
+			return;
+		}
+		double x = dependencies.get("x") instanceof Integer ? (int) dependencies.get("x") : (double) dependencies.get("x");
+		double y = dependencies.get("y") instanceof Integer ? (int) dependencies.get("y") : (double) dependencies.get("y");
+		double z = dependencies.get("z") instanceof Integer ? (int) dependencies.get("z") : (double) dependencies.get("z");
+		IWorld world = (IWorld) dependencies.get("world");
 		{
 			MinecraftServer mcserv = ServerLifecycleHooks.getCurrentServer();
 			if (mcserv != null)
 				mcserv.getPlayerList().sendMessage(new StringTextComponent("Message"));
 		}
+		world.setBlockState(new BlockPos((int) (x + 1), (int) y, (int) z), Blocks.REDSTONE_ORE.getDefaultState(), 3);
 	}
 }

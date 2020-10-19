@@ -149,7 +149,7 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
   		public BlockState getStateForPlacement(BlockItemUseContext context) {
   			BlockPos blockpos = context.getPos();
-  			IBlockReader world= context.getWorld();
+  			IBlockReader world = context.getWorld();
 			boolean up = world.getBlockState(blockpos.up()).getBlock() instanceof CustomBlock;
 			boolean down =false;
 			if(world.getBlockState(blockpos.down()).getBlock() instanceof CustomBlock){
@@ -186,10 +186,9 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 			if (tileentity instanceof CustomTileEntity) {
 				CustomTileEntity te = (CustomTileEntity) tileentity;
 				ItemStack itemstack = player.getHeldItem(handIn);
-				boolean flag2 = (te.isEmpty() && !itemstack.isEmpty() && (te.canInsertItem(0, itemstack, null)));
-				boolean flag3 = (player.isSneaking() && !te.isEmpty());
-				boolean flag1 = (itemstack.isEmpty() && !te.isEmpty());
-				if (flag2) {
+				boolean flag1 = (te.isEmpty() && !itemstack.isEmpty() && (te.canInsertItem(0, itemstack, null)));
+				boolean flag2 = (itemstack.isEmpty() && !te.isEmpty());
+				if (flag1) {
 					ItemStack it = (ItemStack) itemstack.copy();
 					it.setCount((int) 1);
 					NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, it);
@@ -197,26 +196,21 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 					if (!player.isCreative()) {
 						itemstack.shrink(1);
 					}
-					worldIn.playSound((PlayerEntity) null, pos,SoundEvents.ENTITY_ITEM_FRAME_ADD_ITEM,SoundCategory.BLOCKS, 1.0F, worldIn.rand.nextFloat() * 0.10F + 0.95F);
-				
-					te.markDirty();
+					if(!worldIn.isRemote()){
+					    worldIn.playSound((PlayerEntity) null, pos,SoundEvents.ENTITY_ITEM_FRAME_ADD_ITEM,SoundCategory.BLOCKS, 1.0F, worldIn.rand.nextFloat() * 0.10F + 0.95F);
+						te.markDirty();
+					}
 					return ActionResultType.SUCCESS;
-				} else if (flag1) {
+				} 
+				else if (flag2) {
 					ItemStack it = te.removeStackFromSlot(0);
 					player.setHeldItem(handIn, it);
-					te.markDirty();
+					if(!worldIn.isRemote()){
+						te.markDirty();
+					}
 					return ActionResultType.SUCCESS;
-				} else if (flag3) {
-					ItemStack it = te.removeStackFromSlot(0);
-					BlockPos newpos = pos.up();
-					ItemEntity drop = new ItemEntity(worldIn, newpos.getX() + 0.5, newpos.getY() + 0.5, newpos.getZ() + 0.5, it);
-					worldIn.addEntity(drop);
-					te.markDirty();
-					return ActionResultType.SUCCESS;
-				}
-			} else {
-				return ActionResultType.PASS;
-			}
+				} 
+			} 
 			return ActionResultType.PASS;
 		}
 
@@ -536,7 +530,6 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 	}
 
 	public static class CustomRender extends TileEntityRenderer<CustomTileEntity> {
-		private static final ResourceLocation texture = new ResourceLocation("moddymcmodface:textures/pistonlauncherentity.png");
 		public CustomRender(TileEntityRendererDispatcher rendererDispatcherIn) {
 			super(rendererDispatcherIn);
 		}
@@ -544,7 +537,7 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
-			matrixStackIn.push();
+
 			/*
 					long time = System.currentTimeMillis();
 					float angle = (time / 40) % 360;
@@ -554,26 +547,13 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 					//matrixStackIn.translate(2*0.015625, 0, 0);
 					matrixStackIn.rotate(rotation);
 					matrixStackIn.translate(0.09375/1.25, 0, 0);
-				*/
 
-			long time = System.currentTimeMillis();
-			float angle = (time / 40) % 360;
-			Quaternion rotation = Vector3f.YP.rotationDegrees(angle);
-
-			//matrixStackIn.translate(0.5, 1.1875, 0.5);
-			matrixStackIn.translate(0.5, 1.125, 0.5);
-			matrixStackIn.rotate(rotation);
-
-					
-					
-
-	
-/*
 			switch((int)entityIn.getItemType()){
 				case 1:
 					long time = System.currentTimeMillis();
 					float angle = (time / 40) % 360;
-					Quaternion rotation = Vector3f.YP.rotationDegrees(angle);	
+					Quaternion rotation = Vector3f.YP.rotationDegrees(angle);
+	
 					//matrixStackIn.translate(0.5, 1.1875, 0.5);
 					matrixStackIn.translate(0.5, 1.125, 0.5);
 
@@ -596,12 +576,33 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 				
 				
 			}*/
-			ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-			ItemStack stack = entityIn.getStackInSlot(0);
-			IBakedModel ibakedmodel = itemRenderer.getItemModelWithOverrides(stack, entityIn.getWorld(), null);
-			itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.GROUND, true, matrixStackIn, bufferIn, combinedLightIn,
-					combinedOverlayIn, ibakedmodel);
-			matrixStackIn.pop();
+
+			if(!entityIn.isEmpty()){
+				
+				matrixStackIn.push();
+				
+				matrixStackIn.translate(0.5, 1.125, 0.5);
+	
+				if(!Minecraft.getInstance().isGamePaused()){
+					BlockPos blockpos = entityIn.getPos(); 
+					long blockoffset = (long)(blockpos.getX()*7 + blockpos.getY()*9 + blockpos.getZ()*13);
+		
+					long time = System.currentTimeMillis();
+					long t = blockoffset + time;
+					float angle = (t / 40) % 360;
+					Quaternion rotation = Vector3f.YP.rotationDegrees(angle);
+		
+					matrixStackIn.rotate(rotation);
+				}
+				
+				ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+				ItemStack stack = entityIn.getStackInSlot(0);
+				IBakedModel ibakedmodel = itemRenderer.getItemModelWithOverrides(stack, entityIn.getWorld(), null);
+				itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.GROUND, true, matrixStackIn, bufferIn, combinedLightIn,
+						combinedOverlayIn, ibakedmodel);
+						
+				matrixStackIn.pop();
+			}
 		}
 	}
 }

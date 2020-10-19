@@ -239,7 +239,7 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 		
 				//TODO:cache some of this maybe?
 				float hightoffset = 0;//(this.pos.getY()-64)/192f;
-				float offset = 3f*(MathHelper.sin(this.pos.getX())+MathHelper.sin(this.pos.getZ()));
+				float offset = 3f*(MathHelper.sin(this.pos.getX())+MathHelper.sin(this.pos.getZ())+MathHelper.sin(this.pos.getY()));
 				float i = this.getWorld().getDayTime() +offset;
 				float b = (power + hightoffset)* 2f;
 				float newyaw = 30f * MathHelper.sin(i * (1f + b) / 60f) + 10f * MathHelper.sin(i * (1f + b) / 20f);			
@@ -249,7 +249,6 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 	}
 
 	public static class CustomRender extends TileEntityRenderer<CustomTileEntity> {
-		private static final ResourceLocation texture = new ResourceLocation("moddymcmodface:textures/pistonlauncherentity.png");
 		public CustomRender(TileEntityRendererDispatcher rendererDispatcherIn) {
 			super(rendererDispatcherIn);
 		}
@@ -269,8 +268,6 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 			matrixStackIn.pop();
 		}
 
-		public ResourceLocation getEntityTexture(CustomTileEntity entity) {
-			return texture;
-		}
+
 	}
 }

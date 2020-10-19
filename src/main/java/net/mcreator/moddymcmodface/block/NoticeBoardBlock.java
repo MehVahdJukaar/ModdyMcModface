@@ -180,16 +180,22 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 				boolean flag2 = (te.isEmpty() && (te.canInsertItem(0, itemstack, null)));
 				boolean flag3 = (player.isSneaking() && !te.isEmpty());
 
+				boolean server = !worldIn.isRemote();
+
 				//insert Item
 				if (flag2) {
-					ItemStack it = (ItemStack) itemstack.copy();
-					it.setCount((int) 1);
-					NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, it);
-					te.setItems(stacks);
+					if(server){
+						ItemStack it = (ItemStack) itemstack.copy();
+						it.setCount((int) 1);
+						NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, it);
+						te.setItems(stacks);
+						te.markDirty();
+
+					}
 					if (!player.isCreative()) {
 						itemstack.shrink(1);
 					}
-					te.markDirty();
+					
 					return ActionResultType.SUCCESS;
 				} 
 				// change color
@@ -198,19 +204,25 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 						if (!player.isCreative()) {
 							itemstack.shrink(1);
 						}
-						te.markDirty();
+						if(server){
+							te.markDirty();
+						}
 						return ActionResultType.SUCCESS;
 					}
 				}
 				//pop item
 				else if (flag3) {
-					ItemStack it = te.removeStackFromSlot(0);
-					BlockPos newpos = pos.add(state.get(FACING).getDirectionVec());
-					ItemEntity drop = new ItemEntity(worldIn, newpos.getX() + 0.5, newpos.getY() + 0.5, newpos.getZ() + 0.5, it);
-					worldIn.addEntity(drop);
-					te.markDirty();
+					if(server){
+						ItemStack it = te.removeStackFromSlot(0);
+						BlockPos newpos = pos.add(state.get(FACING).getDirectionVec());
+						ItemEntity drop = new ItemEntity(worldIn, newpos.getX() + 0.5, newpos.getY() + 0.5, newpos.getZ() + 0.5, it);
+						worldIn.addEntity(drop);
+						te.markDirty();
+					}
 					return ActionResultType.SUCCESS;
-				} else if (player instanceof ServerPlayerEntity) {
+				} 
+				//open gui
+				else if (player instanceof ServerPlayerEntity) {
 					NetworkHooks.openGui((ServerPlayerEntity) player, new INamedContainerProvider() {
 						@Override
 						public ITextComponent getDisplayName() {
@@ -301,7 +313,7 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		private List<ITextComponent> cachedPageLines = Collections.emptyList();
 		private boolean inventoryChanged = true; //used to tell renderer when it has to slit new line(have to do it there cause i need fontrenderer function)
 		// private int packedFrontLight =0;
-		private boolean textVisible = true;
+		private boolean textVisible = true; //for culling
 		protected CustomTileEntity() {
 			super(tileEntityType);
 		}

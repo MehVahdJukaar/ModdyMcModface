@@ -1,0 +1,11 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "hanging_sign_front",
+        "1": "hanging_sign_details"
+      },
+      "name": "default"
+    }
+  }
+}

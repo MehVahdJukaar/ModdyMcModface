@@ -406,7 +406,24 @@
       "ids": {},
       "registry_name": "ssss",
       "metadata": {
-        "dependencies": []
+        "dependencies": [
+          {
+            "name": "x",
+            "type": "number"
+          },
+          {
+            "name": "y",
+            "type": "number"
+          },
+          {
+            "name": "z",
+            "type": "number"
+          },
+          {
+            "name": "world",
+            "type": "world"
+          }
+        ]
       }
     },
     {
@@ -417,6 +434,24 @@
       "locked_code": true,
       "ids": {},
       "registry_name": "bellows"
+    },
+    {
+      "name": "HangingSign",
+      "type": "block",
+      "sortid": 168,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "hanging_sign"
+    },
+    {
+      "name": "EditHangingSign",
+      "type": "gui",
+      "sortid": 169,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "edit_hanging_sign"
     }
   ],
   "variable_elements": [],
@@ -436,6 +471,7 @@
     "en_us": {
       "block.lightupmyenvironment.texture_loader": "Texture Loader",
       "block.lightupmyenvironment.faucet": "Faucet",
+      "block.moddymcmodface.hanging_sign": "Hanging Sign",
       "block.moddymcmodface.tiki": "Tiki",
       "block.moddymcmodface.fancy_lamp": "Fancy Lamp",
       "block.lightupmyenvironment.planter": "Planter",

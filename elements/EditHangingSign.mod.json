@@ -1,0 +1,81 @@
+{
+  "_fv": 10,
+  "_type": "gui",
+  "definition": {
+    "type": 0,
+    "width": 352,
+    "height": 332,
+    "renderBgLayer": false,
+    "doesPauseGame": true,
+    "components": [
+      {
+        "type": "label",
+        "data": {
+          "text": "Edit sign message",
+          "color": {
+            "value": -1,
+            "falpha": 0.0
+          },
+          "name": "Edit sign message",
+          "x": 336,
+          "y": 78
+        }
+      },
+      {
+        "type": "textfield",
+        "data": {
+          "placeholder": "line1",
+          "width": 240,
+          "height": 40,
+          "name": "Line1",
+          "x": 300,
+          "y": 132
+        }
+      },
+      {
+        "type": "textfield",
+        "data": {
+          "placeholder": "line2",
+          "width": 240,
+          "height": 40,
+          "name": "Line2",
+          "x": 300,
+          "y": 168
+        }
+      },
+      {
+        "type": "textfield",
+        "data": {
+          "placeholder": "line3",
+          "width": 240,
+          "height": 40,
+          "name": "Line3",
+          "x": 300,
+          "y": 204
+        }
+      },
+      {
+        "type": "textfield",
+        "data": {
+          "placeholder": "line4",
+          "width": 240,
+          "height": 40,
+          "name": "Line4",
+          "x": 300,
+          "y": 240
+        }
+      },
+      {
+        "type": "button",
+        "data": {
+          "text": "Done",
+          "width": 80,
+          "height": 40,
+          "name": "Done",
+          "x": 300,
+          "y": 348
+        }
+      }
+    ]
+  }
+}

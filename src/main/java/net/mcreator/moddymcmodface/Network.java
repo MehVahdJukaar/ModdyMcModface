@@ -41,10 +41,14 @@ import net.minecraft.client.Minecraft;
 import net.mcreator.moddymcmodface.block.NoticeBoardBlock;
 import net.mcreator.moddymcmodface.block.PedestalBlock;
 import net.mcreator.moddymcmodface.block.JarBlock;
+import net.mcreator.moddymcmodface.block.HangingSignBlock;
 
 import java.util.function.Supplier;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.block.Blocks;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class Network extends ModdymcmodfaceModElements.ModElement {
@@ -72,6 +76,80 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 
 
 	public abstract static class myMessage {}
+
+
+	public static class PackedUpdateServerHangingSign extends myMessage {
+		private BlockPos pos;
+		private ITextComponent t0;
+		private ITextComponent t1;
+		private ITextComponent t2;
+		private ITextComponent t3;
+		private ITextComponent t4;
+		public PackedUpdateServerHangingSign(PacketBuffer buf) {
+			this.pos = buf.readBlockPos();
+
+			String s = buf.readString();
+			ITextComponent itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
+			this.t0 = itextcomponent;
+			s = buf.readString();
+			itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
+			this.t1 = itextcomponent;
+			s = buf.readString();
+			itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
+			this.t2 = itextcomponent;
+			s = buf.readString();
+			itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
+			this.t3 = itextcomponent;
+			s = buf.readString();
+			itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
+			this.t4 = itextcomponent;			
+		}
+		public PackedUpdateServerHangingSign(BlockPos pos, ITextComponent t0, ITextComponent t1, ITextComponent t2, ITextComponent t3, ITextComponent t4) {
+			this.pos = pos;
+			this.t0 = t0;
+			this.t1 = t1;
+			this.t2 = t2;
+			this.t3 = t3;
+			this.t4 = t4;
+
+		}
+		public void toBytes(PacketBuffer buf) {
+			buf.writeBlockPos(this.pos);
+
+			String s = ITextComponent.Serializer.toJson(this.t0);
+			buf.writeString(s);
+			s = ITextComponent.Serializer.toJson(this.t1);
+			buf.writeString(s);
+			s = ITextComponent.Serializer.toJson(this.t2);
+			buf.writeString(s);
+			s = ITextComponent.Serializer.toJson(this.t3);
+			buf.writeString(s);
+			s = ITextComponent.Serializer.toJson(this.t4);
+			buf.writeString(s);
+			
+		}
+		public void handle(Supplier<NetworkEvent.Context> ctx) {
+			//server world
+			World world = ctx.get().getSender().world;
+
+			ctx.get().enqueueWork(() -> {
+
+
+				if (world != null) {
+					TileEntity tileentity = world.getTileEntity(pos);
+					if (tileentity instanceof HangingSignBlock.CustomTileEntity) {
+						HangingSignBlock.CustomTileEntity sign = (HangingSignBlock.CustomTileEntity) tileentity;
+						sign.setText(0, this.t0);
+						sign.setText(1, this.t1);
+						sign.setText(2, this.t2);
+						sign.setText(3, this.t3);
+						sign.setText(3, this.t4);
+					}
+				}
+			});
+			ctx.get().setPacketHandled(true);
+		}
+	}
 
 
 	public static class PacketUpdateNoticeBoard extends myMessage {
@@ -172,12 +250,18 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 	public static class Networking {
 		public static SimpleChannel INSTANCE;
 		private static int ID = 0;
+		private static final String PROTOCOL_VERSION = "1";
 		public static int nextID() {
 			return ID++;
 		}
 
 		public static void registerMessages() {
-			INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation("moddymcmodface:mychannel"), () -> "1.0", s -> true, s -> true);
+			
+
+			INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation("moddymcmodface:mychannel"),
+			() -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
+
+			//INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation("moddymcmodface:mychannel"), () -> "1.0", s -> true, s -> true);
 			INSTANCE.registerMessage(nextID(), 
 					PacketUpdateNoticeBoard.class, 
 					PacketUpdateNoticeBoard::toBytes, 
@@ -193,6 +277,11 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 					PacketUpdateJar::toBytes, 
 					PacketUpdateJar::new,
 					PacketUpdateJar::handle);
+			INSTANCE.registerMessage(nextID(), 
+					PackedUpdateServerHangingSign.class, 
+					PackedUpdateServerHangingSign::toBytes, 
+					PackedUpdateServerHangingSign::new,
+					PackedUpdateServerHangingSign::handle);
 
 		}
 	}
@@ -213,6 +302,10 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 		((ServerWorld)world).getChunkProvider().sendToAllTracking(entityIn, Networking.INSTANCE.toVanillaPacket(message, NetworkDirection.PLAY_TO_CLIENT));
 		}
 
+	}
+
+	public static void sendToServer(myMessage message){
+		Networking.INSTANCE.sendToServer(message);
 	}
 	
 	
