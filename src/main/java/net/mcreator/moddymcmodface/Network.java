@@ -143,7 +143,7 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 						sign.setText(1, this.t1);
 						sign.setText(2, this.t2);
 						sign.setText(3, this.t3);
-						sign.setText(3, this.t4);
+						sign.setText(4, this.t4);
 					}
 				}
 			});

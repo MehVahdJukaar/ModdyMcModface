@@ -229,7 +229,7 @@ public class TurnTableBlock extends ModdymcmodfaceModElements.ModElement {
 							world.setBlockState(targetpos, _bs.with(BlockStateProperties.AXIS, targetaxis == Axis.Y ? Axis.X : Axis.Y), 3);
 							return true;
 						}
-					}
+					} //TODO:add sign post support
 				}
 			} catch (Exception e) {
 				mcserv.getPlayerList().sendMessage(new StringTextComponent("error rotating block: "+e.toString()));

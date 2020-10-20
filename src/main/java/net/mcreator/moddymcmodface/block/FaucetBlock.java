@@ -86,6 +86,11 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.world.biome.BiomeColors;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.block.BeehiveBlock;
+import net.minecraft.item.HoneyBottleItem;
+import net.minecraft.item.Items;
+import net.minecraft.potion.PotionUtils;
+import net.minecraft.potion.Potions;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
@@ -191,27 +196,40 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 
 		public void updateBlock(BlockState state, World world, BlockPos pos, boolean toggle) {
-			boolean flag = world.getRedstonePowerFromNeighbors(pos) > 0;
-
 			BlockPos backpos = pos.offset(state.get(FACING), -1);
 			BlockState backblock = world.getBlockState(backpos);
+			//checks backblock
+			boolean ispowered = world.getRedstonePowerFromNeighbors(pos) > 0;
+
+			boolean ishoney = backblock.getBlock() instanceof BeehiveBlock && backblock.get(BlockStateProperties.HONEY_LEVEL)>0;
 			
-			boolean flag4 = backblock.getBlock() == JarBlock.block;		
-			boolean flag2 = (world.getFluidState(backpos).isTagged(FluidTags.WATER)|| flag4
+			boolean isjarliquid = (backblock.getBlock() == JarBlock.block && ((JarBlock.CustomBlock)backblock.getBlock()).getBeaconColorMultiplier(backblock, world, backpos, backpos)!=null);
+
+			boolean iswater = (world.getFluidState(backpos).isTagged(FluidTags.WATER)
 					|| ((backblock.getBlock() instanceof CauldronBlock) && backblock.getComparatorInputOverride(world, backpos) > 0));
 
-			boolean flag3 = world.getBlockState(pos.down()).getBlock() == JarBlock.block;
+			boolean hasjar = world.getBlockState(pos.down()).getBlock() == JarBlock.block;
 
-			boolean flag5 = false;
-			//if update blockstate with powered, haswater and enabled
-			if (flag != state.get(POWERED) || flag2 != state.get(HAS_WATER) || flag3 !=state.get(HAS_JAR)|| toggle) {
-				world.setBlockState(pos, state.with(POWERED, flag).with(HAS_WATER, flag2).with(HAS_JAR, flag3).with(ENABLED, toggle ^ state.get(ENABLED)), 2);
-				flag5 = true;
+			boolean haswater = ishoney || iswater || isjarliquid;
+
+			if (ispowered != state.get(POWERED) || haswater != state.get(HAS_WATER) || hasjar !=state.get(HAS_JAR) || toggle) {
+				world.setBlockState(pos, state.with(POWERED, ispowered).with(HAS_WATER, haswater).with(HAS_JAR, hasjar).with(ENABLED, toggle ^ state.get(ENABLED)), 2);
 			}
-			if(flag4||flag5){
+
+			int newcolor = -1;
+			if(ishoney) newcolor = JarBlock.JarContentType.HONEY.color;
+			else if(isjarliquid){
+				TileEntity tileentity = world.getTileEntity(backpos);
+				if(tileentity instanceof JarBlock.CustomTileEntity){
+					newcolor = ((JarBlock.CustomTileEntity)tileentity).color;
+				}
+			}
+			else if(iswater) newcolor = BiomeColors.getWaterColor(world, pos);
+
+			if(newcolor!=-1){
 				TileEntity tileentity = world.getTileEntity(pos);
 				if(tileentity instanceof CustomTileEntity){
-					((CustomTileEntity)tileentity).updateColor();
+					((CustomTileEntity)tileentity).watercolor = newcolor;
 				}
 			}
 		}
@@ -262,7 +280,7 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void animateTick(BlockState state, World world, BlockPos pos, Random random) {
 			super.animateTick(state, world, pos, random);
-			if (this.isOpen(state) && state.get(HAS_WATER)) {
+			if (this.isOpen(state) && state.get(HAS_WATER) && !state.get(HAS_JAR)) {
 				int x = pos.getX();
 				int y = pos.getY();
 				int z = pos.getZ();
@@ -305,18 +323,6 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			
 		}
 
-		public void updateColor(){
-			BlockPos backpos = this.pos.offset(this.getBlockState().get(CustomBlock.FACING), -1);
-			BlockState backblock = this.world.getBlockState(backpos);
-			TileEntity tileentity = this.world.getTileEntity(backpos);
-			if(tileentity instanceof JarBlock.CustomTileEntity){
-				this.watercolor = ((JarBlock.CustomTileEntity)tileentity).color;
-			}
-			else{			
-				this.watercolor = BiomeColors.getWaterColor(this.world, this.pos);
-			}
-
-		}
 
 		@Override
 		public AxisAlignedBB getRenderBoundingBox(){
@@ -333,7 +339,7 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 				if (this.isOnTransferCooldown()) {
 					this.transferCooldown--;
 				} else if (this.isOpen()) {
-					boolean flag = pullItems();
+					boolean flag = this.tryExtract();
 					if (flag) {
 						this.transferCooldown = 20;
 					}
@@ -341,6 +347,35 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 		}
 
+		private boolean tryExtract(){
+			BlockPos behind = this.pos.offset(this.getBlockState().get(CustomBlock.FACING), -1);
+			BlockState backstate = this.world.getBlockState(behind);
+			//empty beehive
+			if(backstate.getBlock() instanceof BeehiveBlock && backstate.get(BlockStateProperties.HONEY_LEVEL)>0){
+				if(this.hasJar()){
+					if(this.addItemToJar(new ItemStack(Items.HONEY_BOTTLE))){
+						this.world.setBlockState(behind, backstate.with(BlockStateProperties.HONEY_LEVEL, backstate.get(BlockStateProperties.HONEY_LEVEL) -1), 3);
+						return true;
+					}
+				}
+				
+				return false;
+			}
+			//empty cauldron
+			else if(backstate.getBlock() instanceof CauldronBlock && backstate.get(BlockStateProperties.LEVEL_0_3)>0){
+				if(this.hasJar()){
+					if(this.addItemToJar(PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION), Potions.WATER))){
+						this.world.setBlockState(behind, backstate.with(BlockStateProperties.LEVEL_0_3, backstate.get(BlockStateProperties.LEVEL_0_3) -1), 3);
+						return true;
+					}
+				}
+				
+				return false;
+			}
+			return this.pullItems();
+
+			
+		}
 
 		public boolean isOpen() {
 			return (this.getBlockState().get(BlockStateProperties.POWERED) ^ this.getBlockState().get(BlockStateProperties.ENABLED));
@@ -359,27 +394,37 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			return !(inventoryIn instanceof ISidedInventory) || ((ISidedInventory) inventoryIn).canExtractItem(index, stack, side);
 		}
 
+		private boolean addItemToJar(ItemStack itemstack){	
+			TileEntity tileentity = world.getTileEntity(this.pos.down());
+			if(tileentity instanceof JarBlock.CustomTileEntity){
+				JarBlock.CustomTileEntity jartileentity = (JarBlock.CustomTileEntity) tileentity;
+				if (jartileentity.isItemValidForSlot(0, itemstack)){
+					ItemStack it = (ItemStack) itemstack.copy();
+					itemstack.shrink(1);
+					
+					jartileentity.addItem(it,1);
+					jartileentity.markDirty();
+					return true;
+				}
+			}
+			return false;
+		}
+
 		private boolean pullItemFromSlot(IInventory inventoryIn, int index, Direction direction) {
 			ItemStack itemstack = inventoryIn.getStackInSlot(index);
 			BlockPos backpos =this.pos.offset(this.getBlockState().get(HorizontalBlock.HORIZONTAL_FACING), -1);
 
 			//special case for jars. has to be done to prevent other hoppers frominteracting with them cause canextractitems is always false
-			if(world.getBlockState(backpos).getBlock() == JarBlock.block.getDefaultState().getBlock()&&!itemstack.isEmpty() && this.hasJar()){
-				TileEntity tileentity = world.getTileEntity(this.pos.down());
-				if(tileentity instanceof JarBlock.CustomTileEntity){
-					JarBlock.CustomTileEntity jartileentity = (JarBlock.CustomTileEntity) tileentity;
-					if (jartileentity.isItemValidForSlot(0, itemstack)){
-						ItemStack it = (ItemStack) itemstack.copy();
-						itemstack.shrink(1);
+			if(this.hasJar()){
+				//can only transfer from jar to jar
+				if(world.getBlockState(backpos).getBlock() == JarBlock.block&& ! itemstack.isEmpty()){
+					if(this.addItemToJar(itemstack)){
 						inventoryIn.markDirty();
-						
-						jartileentity.addItem(it,1);
-						jartileentity.markDirty();
-						
 						return true;
 					}
 				}
 				return false;
+
 			}
 			else if (!itemstack.isEmpty() && canExtractItemFromSlot(inventoryIn, itemstack, index, direction)) {
 	

@@ -408,6 +408,10 @@
       "metadata": {
         "dependencies": [
           {
+            "name": "itemstack",
+            "type": "itemstack"
+          },
+          {
             "name": "x",
             "type": "number"
           },
@@ -452,6 +456,24 @@
       "locked_code": true,
       "ids": {},
       "registry_name": "edit_hanging_sign"
+    },
+    {
+      "name": "SpruceHangingSign",
+      "type": "recipe",
+      "sortid": 170,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "spruce_hanging_sign"
+    },
+    {
+      "name": "SignPost",
+      "type": "block",
+      "sortid": 171,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "sign_post"
     }
   ],
   "variable_elements": [],
@@ -498,6 +520,7 @@
       "block.lightupmyenvironment.turn_table": "Turn Table",
       "block.lightupmyenvironment.redstone_illuminator": "Redstone Illuminator",
       "block.lightupmyenvironment.skull_lantern_down": "Skull Lantern Down",
+      "block.moddymcmodface.sign_post": "Sign Post",
       "block.lightupmyenvironment.torch_2": "Torch 2",
       "block.moddymcmodface.wall_glass_pane": "Wall Glass Pane",
       "block.lightupmyenvironment.notice_board": "Notice Board",
@@ -507,7 +530,7 @@
   "workspaceSettings": {
     "modid": "moddymcmodface",
     "modName": "Supplementaries",
-    "version": "alpha 0.5. WIP",
+    "version": "alpha 0.6. WIP",
     "description": "Random blocks that I wanted to add to vanilla minecraft. Enjoy",
     "author": "Meh-Vah\u0027d Jukaar, MCreator",
     "websiteURL": "https://mcreator.net",

@@ -60,7 +60,8 @@ public class CommonUtil extends ModdymcmodfaceModElements.ModElement {
 	//blockstate properties
 	public static final BooleanProperty EXTENDING = BooleanProperty.create("extending");
 	public static final IntegerProperty HOUR = IntegerProperty.create("hour", 0, 23);
-
+	public static final IntegerProperty EXTENSION = IntegerProperty.create("extension", 0, 2);
+	public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 15); //multiply *22.5 to get yaw
 
 	//renderer
 

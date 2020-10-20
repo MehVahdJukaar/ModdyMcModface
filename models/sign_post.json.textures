@@ -1,0 +1,10 @@
+{
+  "mappings": {
+    "default": {
+      "map": {
+        "0": "sing_post"
+      },
+      "name": "default"
+    }
+  }
+}

@@ -254,10 +254,6 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 		}
 
-		@Override
-		public PushReaction getPushReaction(BlockState state) {
-			return PushReaction.BLOCK;
-		}
 
 		@Override
 		public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {

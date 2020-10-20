@@ -124,6 +124,8 @@ import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
 import net.minecraftforge.common.util.Constants;
+import net.minecraft.entity.MobEntity;
+import net.minecraft.pathfinding.PathNodeType;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class JarBlock extends ModdymcmodfaceModElements.ModElement {
@@ -192,6 +194,10 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			return null;
 		}
 
+		@Override
+		public PathNodeType getAiPathNodeType(BlockState state, IBlockReader world, BlockPos pos, MobEntity entity) {
+			return PathNodeType.BLOCKED;
+		}
 
 		@Override
 		public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,

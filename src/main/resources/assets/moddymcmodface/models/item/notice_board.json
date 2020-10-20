@@ -1,5 +1,5 @@
 {
-  "parent": "moddymcmodface:block/notice_board",
+  "parent": "moddymcmodface:block/notice_board_full",
 
   "display": {
     "thirdperson": {
