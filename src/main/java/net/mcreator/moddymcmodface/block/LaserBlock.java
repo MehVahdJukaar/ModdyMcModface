@@ -231,6 +231,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.entity.LivingEntity;
 import org.apache.logging.log4j.core.pattern.MaxLengthConverter;
 import net.minecraftforge.common.util.Constants;
+import java.util.Random;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
@@ -391,8 +392,12 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 	public static class CustomTileEntity extends TileEntity implements ITickableTileEntity {
 		public BlockPos endpos = null; //block that the laser is touching
 		public int lenght = 0;
+		public float offset = -1; 
+		public float prevWidth = 0;
+		public float width = 0;
 		protected CustomTileEntity() {
-			super(tileEntityType);
+			super(tileEntityType); 
+			
 		}
 
 		//TODO:cache the blockposition on a list for faster accsssing
@@ -458,15 +463,40 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		public AxisAlignedBB getRenderBoundingBox(){
-			return new AxisAlignedBB(getPos(), getPos().offset(this.getDirection(),this.lenght+2).add(1,1,1));
+			Direction dir = this.getDirection();
+			switch ((Direction) dir) {
+					case SOUTH :
+					case EAST :
+					case UP :
+					default :
+						return new AxisAlignedBB(getPos().add(-1,-1,-1), getPos().add(2,2,2).offset(dir,this.lenght));
+					case NORTH:
+					case WEST:
+					case DOWN:
+						return new AxisAlignedBB(getPos().add(-1,-1,-1).offset(dir,this.lenght), getPos().add(2,2,2) );
+
+			}
+
 		}
 
 
 		
 		@Override
 		public void tick(){
-			if (this.world != null && !this.world.isRemote() && this.world.getGameTime() % 20L == 0L) {
+
+
+			if (this.world.isRemote()){
+				if(this.offset==-1)this.offset = (new Random(this.getPos().toLong())).nextFloat()*(float)Math.PI*2f;
+				this.prevWidth = this.width;
+				float angle = this.offset + (this.getWorld().getDayTime())/50f;
+				this.width = MathHelper.sin(angle%(float)Math.PI*2f);
+			}
+			else if (this.world != null && this.world.getGameTime() % 20L == 0L) {
 				this.updateBeam();
+											MinecraftServer mcserv = ServerLifecycleHooks.getCurrentServer();
+			if (mcserv != null)
+				mcserv.getPlayerList().sendMessage(new StringTextComponent("Message"+this.getRenderBoundingBox().toString()));
+			
 			}
 		}
 
@@ -531,6 +561,8 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
 			if(entityIn.canEmit()){
+				int lenght = entityIn.lenght;
+				if(lenght == 0)return;
 				
 				TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture);
 						//IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
@@ -538,9 +570,9 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 				IVertexBuilder builder1 = bufferIn.getBuffer(RenderType.getLightning());
 				// IVertexBuilder builder
 				// =bufferIn.getBuffer(Customrender.CustomRenderTypes.TRANSLUCENT_CUSTOM);
-				int color =0xff0000;
+				int color =0xff00ff;
 	
-				int lenght = entityIn.lenght;
+				
 	
 				Direction dir = entityIn.getDirection();
 				float yaw = dir.getHorizontalAngle();
@@ -557,19 +589,27 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 				int j = 240;
 				int k = combinedLightIn >> 16 & 255;
 				combinedLightIn =  j | k << 16;
+
+				float w2 = 0.0625f -0.015625f;
+				float w = 0.125f;
+				if(!Minecraft.getInstance().isGamePaused()){
+					float d = 0.015625f*MathHelper.lerp(partialTicks, entityIn.prevWidth, entityIn.width);
+					w += d/2;
+					w2 += d/1.5;
+				} 
 		      
 				//matrixStackIn.translate(0, 1, 0);
 				int l = Math.min(lenght, MAXLENGHT);
 				for(int i=0; i<l; i++){
 					matrixStackIn.translate(0, 1, 0);
-					CommonUtil.addCube(builder, matrixStackIn, 0.125f, 1f, sprite, combinedLightIn, 0xFF0000, 0.7f, combinedOverlayIn, false,false,false, false);
-					CommonUtil.addCube(builder1, matrixStackIn, 0.0625f, 1f, sprite, combinedLightIn, 0xFFFFFF, 0.6f, combinedOverlayIn,false,false,false, false);
+					CommonUtil.addCube(builder, matrixStackIn, w, 1f, sprite, combinedLightIn, color, 0.7f, combinedOverlayIn, false,false,false, false);
+					CommonUtil.addCube(builder1, matrixStackIn, w2, 1f, sprite, combinedLightIn, 0xFFFFFF, 0.6f, combinedOverlayIn,false,false,false, false);
 				}
 				if(lenght==MAXLENGHT+1){
 					matrixStackIn.translate(0, 1, 0);
 					TextureAtlasSprite sprite1 = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture1);
-					CommonUtil.addCube(builder, matrixStackIn, 0.125f, 1f, sprite1, combinedLightIn, 0xFF0000, 0.7f, combinedOverlayIn, false,false,false, true);
-					CommonUtil.addCube(builder1, matrixStackIn, 0.0625f, 1f, sprite1, combinedLightIn, 0xFFFFFF, 0.6f, combinedOverlayIn, false,false,false, true);
+					CommonUtil.addCube(builder, matrixStackIn, w, 1f, sprite1, combinedLightIn, color, 0.7f, combinedOverlayIn, false,false,false, true);
+					CommonUtil.addCube(builder1, matrixStackIn, w2, 1f, sprite1, combinedLightIn, 0xFFFFFF, 0.6f, combinedOverlayIn, false,false,false, true);
 				}
 				
 				matrixStackIn.pop();

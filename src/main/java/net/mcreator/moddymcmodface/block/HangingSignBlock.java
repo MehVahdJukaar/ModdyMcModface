@@ -106,6 +106,8 @@ import net.minecraft.block.FenceBlock;
 import net.minecraft.block.WallBlock;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.item.DyeItem;
+import net.minecraft.world.storage.MapData;
+import net.minecraft.item.FilledMapItem;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class HangingSignBlock extends ModdymcmodfaceModElements.ModElement {
@@ -618,14 +620,29 @@ public class HangingSignBlock extends ModdymcmodfaceModElements.ModElement {
 				ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 				ItemStack stack = entityIn.getStackInSlot(0);
 				IBakedModel ibakedmodel = itemRenderer.getItemModelWithOverrides(stack, entityIn.getWorld(), null);
+
+				MapData mapdata = FilledMapItem.getMapData(stack, entityIn.getWorld());
 				for (int v = 0; v < 2; v++) {
 					matrixStackIn.push();
-					matrixStackIn.translate(0, 0, 0.078125);
-					matrixStackIn.scale(0.5f, 0.5f, 0.5f);
-					itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.FIXED, true, matrixStackIn, bufferIn, combinedLightIn,
-							combinedOverlayIn, ibakedmodel);
+					//render map
+					if(mapdata != null){
+						matrixStackIn.translate(0, 0, -0.0625 - 0.005);
+						matrixStackIn.scale(.0068359375F, .0068359375F, .0068359375F);
+            			matrixStackIn.translate(-64.0D, -64.0D, 0.0D);
+            			//matrixStackIn.translate(0.0D, 0.0D, -1.0D);
+              			Minecraft.getInstance().gameRenderer.getMapItemRenderer().renderMap(matrixStackIn, bufferIn, mapdata, true, combinedLightIn);
+					}
+					//render item
+					else{
+						matrixStackIn.translate(0, 0, 0.078125);
+						matrixStackIn.scale(0.5f, 0.5f, 0.5f);
+						itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.FIXED, true, matrixStackIn, bufferIn, combinedLightIn,
+								combinedOverlayIn, ibakedmodel);
+					}
 					matrixStackIn.pop();
+
 					matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180));
+
 				}
 			}
 			// render text

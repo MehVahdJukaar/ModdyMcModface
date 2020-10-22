@@ -99,6 +99,10 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraftforge.common.util.Constants;
 import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
 import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
+import net.minecraft.item.MapItem;
+import net.minecraft.item.FilledMapItem;
+import net.minecraft.world.storage.MapData;
+import net.minecraft.client.Minecraft;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
@@ -373,14 +377,6 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 
 		
-		private void updateServerAndClient() {
-			if (this.world instanceof World && !this.world.isRemote()) {
-				Network.sendToAllNear(this.pos.getX(), this.pos.getY(), this.pos.getZ(), 128, this.world.getDimension().getType(),
-							new Network.PacketUpdateNoticeBoard(this.pos, this.getStackInSlot(0)));
-				this.updateTile();
-			}
-		}
-
 
 		private void updateTextVisibility(BlockState state,World world, BlockPos pos, BlockPos fromPos){
 			Direction dir = state.get(CustomBlock.FACING);
@@ -547,7 +543,7 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		public boolean isItemValidForSlot(int index, ItemStack stack) {
-			return (stack.getItem() == Items.WRITTEN_BOOK || stack.getItem() == Items.WRITABLE_BOOK);
+			return (stack.getItem() == Items.WRITTEN_BOOK || stack.getItem() == Items.WRITABLE_BOOK || stack.getItem() instanceof FilledMapItem);
 		}
 
 		@Override
@@ -641,7 +637,32 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
+				
+
+
+
+				
 			if(entityIn.isTextVisible()){
+
+				int newl = entityIn.getFrontLight();
+				
+				ItemStack stack = entityIn.getStackInSlot(0);
+				//render map
+				MapData mapdata = FilledMapItem.getMapData(stack, entityIn.getWorld());
+				if(mapdata != null){
+					matrixStackIn.push();
+	
+					matrixStackIn.translate(0.5, 0.5, 0.5);
+					matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entityIn.getYaw()+180));
+					matrixStackIn.translate(0, 0, -0.5 - 0.005);
+           			matrixStackIn.scale(0.0078125F, 0.0078125F, 0.0078125F);
+	    			matrixStackIn.translate(-64.0D, -64.0D, 0.0D);
+	    
+	      			Minecraft.getInstance().gameRenderer.getMapItemRenderer().renderMap(matrixStackIn, bufferIn, mapdata, true, newl);
+					matrixStackIn.pop();
+					return;
+				}
+				//render item
 			    String page = entityIn.getText();
 	        	if (page == null || page == "") {
 					return;
@@ -650,8 +671,7 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		
 				matrixStackIn.push();		
 	
-				int newl = entityIn.getFrontLight();
-	
+				
 				float d0 = 0f;
 				if (entityIn.getAxis()) {
 					d0 = 0.8f*0.7f; //0.54
@@ -661,6 +681,7 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 	
 				matrixStackIn.translate(0.5, 0.5, 0.5);
 				matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entityIn.getYaw()));
+
 				matrixStackIn.translate(0, 0.5, 0.5005);
 				int i = entityIn.getTextColor().getTextColor();
 				int r = (int) ((double) NativeImage.getRed(i) * d0);

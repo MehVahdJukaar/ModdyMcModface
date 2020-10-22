@@ -42,6 +42,7 @@ import net.mcreator.moddymcmodface.block.NoticeBoardBlock;
 import java.util.function.Supplier;
 import java.util.Map;
 import java.util.HashMap;
+import net.minecraft.item.FilledMapItem;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class NoticeBoardGuiGui extends ModdymcmodfaceModElements.ModElement {
@@ -130,7 +131,7 @@ public class NoticeBoardGuiGui extends ModdymcmodfaceModElements.ModElement {
 
 				@Override
 				public boolean isItemValid(ItemStack stack) {
-					return (Items.WRITTEN_BOOK == stack.getItem()||Items.WRITABLE_BOOK == stack.getItem());
+					return (stack.getItem() == Items.WRITTEN_BOOK || stack.getItem() == Items.WRITABLE_BOOK || stack.getItem() instanceof FilledMapItem);
 				}
 			}));
 			int si;

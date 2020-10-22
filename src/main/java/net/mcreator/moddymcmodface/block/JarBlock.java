@@ -400,22 +400,6 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 			super.markDirty();
 		}
 
-		
-		private void updateServerAndClient() {
-			if (this.world instanceof World && !this.world.isRemote()) {
-				Network.sendToAllNear(this.pos.getX(), this.pos.getY(), this.pos.getZ(), 128, this.world.getDimension().getType(),
-							new Network.PacketUpdateJar(this.pos, this.getStackInSlot(0)));
-				this.updateTile();
-			}
-		}
-
-		//receive new inv from server, then update tile
-		public void updateInventoryFromServer(ItemStack stack){
-			ItemStack newstack = stack.copy();
-			NonNullList<ItemStack> stacks = NonNullList.<ItemStack>withSize(1, newstack);
-			this.setItems(stacks);
-			this.updateTile();
-		}
 
 		//I love hardcoding
 		public void updateTile() {

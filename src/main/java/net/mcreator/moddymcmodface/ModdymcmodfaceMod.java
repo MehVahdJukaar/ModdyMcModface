@@ -16,6 +16,7 @@
  *
  */
 package net.mcreator.moddymcmodface;
+import net.mcreator.moddymcmodface.Particles;
 
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -50,6 +51,8 @@ public class ModdymcmodfaceMod {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 		MinecraftForge.EVENT_BUS.register(this);
+
+		//Particles.ParticleList.PARTICLES.register(FMLJavaModLoadingContext.get().getModEventBus());
 	}
 
 	private void init(FMLCommonSetupEvent event) {

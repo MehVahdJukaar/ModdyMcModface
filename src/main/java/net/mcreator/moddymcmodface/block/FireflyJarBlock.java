@@ -194,7 +194,7 @@ public class FireflyJarBlock extends ModdymcmodfaceModElements.ModElement {
 						double d0 = (x + 0.5 + (this.rand.nextFloat() - 0.5) * (0.625D - pr));
 						double d1 = (y + 0.5 - 0.0625 + (this.rand.nextFloat() - 0.5) * (0.875D - pr));
 						double d2 = (z + 0.5 + (this.rand.nextFloat() - 0.5) * (0.625D - pr));
-						world.addParticle(Particles.ParticleList.FIREFLY_GLOW.get(), d0, d1, d2, 0, 0, 0);
+						//world.addParticle(Particles.ParticleList.FIREFLY_GLOW.get(), d0, d1, d2, 0, 0, 0);
 					}
 				}
 			}

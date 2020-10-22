@@ -94,6 +94,13 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.client.gui.RenderComponentsUtil;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.block.FenceBlock;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.nbt.NBTUtil;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
@@ -101,6 +108,9 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 	public static final Block block = null;
 	@ObjectHolder("moddymcmodface:sign_post")
 	public static final TileEntityType<CustomTileEntity> tileEntityType = null;
+	@ObjectHolder("moddymcmodface:sign_post")
+	public static final Item item = null;
+
 	public SignPostBlock(ModdymcmodfaceModElements instance) {
 		super(instance, 171);
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
@@ -109,7 +119,7 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 	@Override
 	public void initElements() {
 		elements.blocks.add(() -> new CustomBlock());
-		elements.items.add(() -> new BlockItem(block, new Item.Properties().group(null)).setRegistryName(block.getRegistryName())); //ItemGroup.DECORATIONS
+		elements.items.add(() -> new ItemCustom());
 	}
 
 	@SubscribeEvent
@@ -123,12 +133,100 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 		RenderTypeLookup.setRenderLayer(block, RenderType.getCutout());
 		ClientRegistry.bindTileEntityRenderer(tileEntityType, CustomRender::new);
 	}
+
+
+	public static class ItemCustom extends Item {
+		public ItemCustom() {
+			super( new Item.Properties().group(ItemGroup.DECORATIONS).maxStackSize(64));
+			setRegistryName("sign_post");
+		}
+		
+		@Override
+		public int getUseDuration(ItemStack itemstack) {
+			return 0;
+		}
+		@Override 
+		public ActionResultType onItemUse(ItemUseContext context) {
+			//if (!context.canPlace()) return ActionResultType.FAIL;
+			
+			PlayerEntity playerentity = context.getPlayer();
+			BlockPos blockpos = context.getPos();
+			World world = context.getWorld();
+			ItemStack itemstack = context.getItem();
+
+			Block targetblock = world.getBlockState(blockpos).getBlock();
+
+			boolean isfence = targetblock instanceof FenceBlock;
+			boolean issignpost = targetblock instanceof CustomBlock;
+			if(isfence || issignpost){
+				
+				world.setBlockState(blockpos, block.getDefaultState());
+
+				boolean flag = false;
+
+				TileEntity tileentity = world.getTileEntity(blockpos);
+				if(tileentity instanceof CustomTileEntity){
+					CustomTileEntity signtile = ((CustomTileEntity) tileentity);
+
+				
+					int r = Integer.valueOf(MathHelper.floor((double)((180.0F + context.getPlacementYaw()) * 16.0F / 360.0F) + 0.5D) & 15);
+				
+					double y = context.getHitVec().y;
+					
+					
+					boolean up = y%((int)y) > 0.5d;
+
+
+					if(up){
+						if(signtile.up != up){
+							signtile.up = true;
+							signtile.yawUp = 90 + r*-22.5f;
+							flag = true;
+						}
+					}
+					else if(signtile.down != !up){
+						signtile.down = true;
+						signtile.yawDown = 90 + r*-22.5f;
+						flag = true; 
+					}
+					if(flag && isfence)signtile.fenceblock = targetblock.getDefaultState();
+
+				}
+
+				if(flag){
+					if(world.isRemote()){
+						BlockState newstate = world.getBlockState(blockpos);
+						SoundType soundtype = newstate.getSoundType(world, blockpos, playerentity);
+						world.playSound(playerentity, blockpos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+					}
+					if(!context.getPlayer().isCreative()) itemstack.shrink(1);
+					return ActionResultType.SUCCESS;
+				}
+				
+
+			}
+		
+
+
+
+
+
+
+			return ActionResultType.PASS;
+		}
+
+
+	}
+
+
+
+
+	
 	public static class CustomBlock extends Block {
-		public static final IntegerProperty ROTATION = CommonUtil.ROTATION;
 		public static final BooleanProperty INVERTED = BlockStateProperties.INVERTED;
 		public CustomBlock() {
 			super(Block.Properties.create(Material.WOOD).sound(SoundType.WOOD).hardnessAndResistance(2f, 3f).lightValue(0).notSolid());
-			this.setDefaultState(this.stateContainer.getBaseState().with(ROTATION, 0).with(INVERTED, false));
+			this.setDefaultState(this.stateContainer.getBaseState().with(INVERTED, false));
 			setRegistryName("sign_post");
 		}
 
@@ -148,28 +246,20 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 
 		@Override
-		protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-			builder.add(ROTATION, INVERTED);
+		public BlockRenderType getRenderType(BlockState state){
+			return state.get(INVERTED) ? super.getRenderType(state) : BlockRenderType.INVISIBLE;
 		}
-
-		public BlockState rotate(BlockState state, Rotation rot) {
-			return state.with(ROTATION, ((state.get(ROTATION) + 4) % 16) -1 );
-		}
-
+		
 		@Override
-		public BlockState getStateForPlacement(BlockItemUseContext context) {
-			float f = (float) MathHelper.floor((MathHelper.wrapDegrees(context.getPlacementYaw() - 180.0F) + 11.25) / 22.5F) * 22.5F;
-			float b = f < 0 ? 360 + f : f;
-			int a = MathHelper.clamp((int)(b/22.5f), 0, 15);
-
-			return this.getDefaultState().with(ROTATION, a);
+		protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+			builder.add(INVERTED);
 		}
 
 		@Override
 		public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
 			List<ItemStack> dropsOriginal = super.getDrops(state, builder);
 			if (!dropsOriginal.isEmpty())
-				return dropsOriginal;
+				return dropsOriginal; //TODO:add drops
 			return Collections.singletonList(new ItemStack(this, 1));
 		}
 
@@ -195,7 +285,8 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 			TileEntity tileentity = world.getTileEntity(pos);
 			return tileentity == null ? false : tileentity.receiveClientEvent(eventID, eventParam);
 		}
-	}
+	} 
+	
 
 	public static class CustomTileEntity extends TileEntity {
 		public ITextComponent signText;
@@ -203,12 +294,20 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 		private PlayerEntity player;
 		private String renderText = null;
 		private DyeColor textColor = DyeColor.BLACK;
-
+		
+		public BlockState fenceblock = Blocks.OAK_FENCE.getDefaultState();
+		public float yawUp = 0;
+		public float yawDown = 0;
+		public boolean leftUp = true;
+		public boolean leftDown = true;
+		public boolean up = false;
+		public boolean down = false;
+		
 		protected CustomTileEntity() {
 			super(tileEntityType);
 		}
 		
-
+		
 		@Override
 		public void read(CompoundNBT compound) {
 			super.read(compound);
@@ -229,6 +328,14 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 				this.signText = itextcomponent;
 			}
 			this.renderText = null;
+
+			this.fenceblock = NBTUtil.readBlockState(compound.getCompound("Fence"));
+			this.yawUp = compound.getFloat("Yaw_up");
+			this.yawDown = compound.getFloat("Yaw_down");
+			this.leftUp = compound.getBoolean("Left_up");
+			this.leftDown = compound.getBoolean("Left_down");
+			this.up = compound.getBoolean("Up");
+			this.down = compound.getBoolean("Down");
 			
 		}
 
@@ -240,6 +347,13 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 			compound.putString("Text", s);
 			
 			compound.putString("Color", this.textColor.getTranslationKey());
+			compound.put("Fence", NBTUtil.writeBlockState(fenceblock));
+			compound.putFloat("Yaw_up",this.yawUp);
+			compound.putFloat("Yaw_down",this.yawDown);
+			compound.putBoolean("Left_up",this.leftUp);
+			compound.putBoolean("Left_down",this.leftDown);
+			compound.putBoolean("Up", this.up);
+			compound.putBoolean("Down", this.down);
 			return compound;
 		}
 
@@ -346,11 +460,6 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 			this.read(pkt.getNbtCompound());
 		}
 
-		public float getYaw(){
-			return this.getBlockState().get(CustomBlock.ROTATION)*-22.5f;
-			
-		}
-
 		
 	}
 
@@ -363,46 +472,89 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
-			matrixStackIn.push();
-			//rotate towards direction
-			matrixStackIn.translate(0.5, 0.5, 0.5);
-			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entityIn.getYaw()));
-			matrixStackIn.translate(-0.5, -0.5, -0.5);
-			//render block
+			
 			BlockRendererDispatcher blockRenderer = Minecraft.getInstance().getBlockRendererDispatcher();
-			BlockState state = block.getDefaultState().with(BlockStateProperties.INVERTED, true);
-			blockRenderer.renderBlock(state, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);
-			matrixStackIn.translate(0.5, 0.5, 0.5);
-			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-90));
-			// render item
 			
-			// render text
+			BlockState fence = entityIn.fenceblock;
+			blockRenderer.renderBlock(fence, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);	
 
-			// sign code
-			FontRenderer fontrenderer = this.renderDispatcher.getFontRenderer();
-			int i = entityIn.getTextColor().getTextColor();
-			double d0 = 0.4D;
-			int j = (int) ((double) NativeImage.getRed(i) * 0.4D);
-			int k = (int) ((double) NativeImage.getGreen(i) * 0.4D);
-			int l = (int) ((double) NativeImage.getBlue(i) * 0.4D);
-			int i1 = NativeImage.getCombined(0, l, k, j);
+			boolean up = entityIn.up;
+			boolean down = entityIn.down;
+			//render signs
+			if(up||down){
 
+				BlockState state = block.getDefaultState().with(BlockStateProperties.INVERTED, true);
 
-			matrixStackIn.translate(-0.0625, 0.15625, 0.1875 + 0.005);
-			matrixStackIn.scale(0.010416667F, -0.010416667F, 0.010416667F);
-			matrixStackIn.translate(0, 1, 0);
-			
-			String s = entityIn.getRenderText((p_212491_1_) -> {
-				List<ITextComponent> list = RenderComponentsUtil.splitText(p_212491_1_, 75, fontrenderer, false, true);
-				return list.isEmpty() ? "" : list.get(0).getFormattedText();
-			});
-			if (s != null) {
-				float f3 = (float) (-fontrenderer.getStringWidth(s) / 2);
-				fontrenderer.renderString(s, f3, (float) (- 5), i1, false,
-						matrixStackIn.getLast().getMatrix(), bufferIn, false, 0, combinedLightIn);
+				// sign code
+				FontRenderer fontrenderer = this.renderDispatcher.getFontRenderer();
+				int i = entityIn.getTextColor().getTextColor();
+				double d0 = 0.4D;
+				int j = (int) ((double) NativeImage.getRed(i) * 0.4D);
+				int k = (int) ((double) NativeImage.getGreen(i) * 0.4D);
+				int l = (int) ((double) NativeImage.getBlue(i) * 0.4D);
+				int i1 = NativeImage.getCombined(0, l, k, j);
+
+				matrixStackIn.push();
+				matrixStackIn.translate(0.5, 0.5, 0.5);
+				if(up){
+					matrixStackIn.push();
+					
+					matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entityIn.yawUp));
+					matrixStackIn.translate(-0.5, -0.5, -0.5);
+					blockRenderer.renderBlock(state, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);
+					
+					//text up
+					matrixStackIn.translate(0.5, 0.5, 0.5);
+					matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-90));
+					matrixStackIn.translate(-0.0625, 0.28125, 0.1875 + 0.005);
+					matrixStackIn.scale(0.010416667F, -0.010416667F, 0.010416667F);
+					matrixStackIn.translate(0, 1, 0);
+					
+					String s = entityIn.getRenderText((p_212491_1_) -> {
+						List<ITextComponent> list = RenderComponentsUtil.splitText(p_212491_1_, 75, fontrenderer, false, true);
+						return list.isEmpty() ? "" : list.get(0).getFormattedText();
+					});
+					if (s != null) {
+						float f3 = (float) (-fontrenderer.getStringWidth(s) / 2);
+						fontrenderer.renderString(s, f3, (float) (- 5), i1, false, matrixStackIn.getLast().getMatrix(), bufferIn, false, 0, combinedLightIn);
+					}
+					
+					
+					
+					matrixStackIn.pop();
+				}
+				if(down){
+					matrixStackIn.push();
+					
+					matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entityIn.yawDown));
+					matrixStackIn.translate(-0.5, -1, -0.5);
+					blockRenderer.renderBlock(state, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);
+					
+					
+					//text down
+					matrixStackIn.translate(0.5, 0.5, 0.5);
+					matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-90));
+					matrixStackIn.translate(-0.0625, 0.28125, 0.1875 + 0.005);
+					matrixStackIn.scale(0.010416667F, -0.010416667F, 0.010416667F);
+					matrixStackIn.translate(0, 1, 0);
+					
+					String s = entityIn.getRenderText((p_212491_1_) -> {
+						List<ITextComponent> list = RenderComponentsUtil.splitText(p_212491_1_, 75, fontrenderer, false, true);
+						return list.isEmpty() ? "" : list.get(0).getFormattedText();
+					});
+					if (s != null) {
+						float f3 = (float) (-fontrenderer.getStringWidth(s) / 2);
+						fontrenderer.renderString(s, f3, (float) (- 5), i1, false, matrixStackIn.getLast().getMatrix(), bufferIn, false, 0, combinedLightIn);
+					}
+					
+					
+					
+					matrixStackIn.pop();
+				}
+		
+
+					
 			}
-				
-
 			
 			
 			matrixStackIn.pop();

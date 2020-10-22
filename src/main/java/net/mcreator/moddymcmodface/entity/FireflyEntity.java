@@ -101,6 +101,8 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 	@Override
 	public void init(FMLCommonSetupEvent event) {
 		RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new CustomRender(renderManager));
+		
+
 		for (Biome biome : ForgeRegistries.BIOMES.getValues()) {
 			boolean biomeCriteria = false;
 			if (ForgeRegistries.BIOMES.getKey(biome).equals(new ResourceLocation("plains")))
@@ -120,6 +122,7 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 		//TODO:adjust this so they can spawn on more blocks but not underground
 		EntitySpawnPlacementRegistry.register(entity, EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS,
 				Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, AnimalEntity::canAnimalSpawn);
+	
 	}
 
 	public static class CustomEntity extends CreatureEntity implements IFlyingAnimal {

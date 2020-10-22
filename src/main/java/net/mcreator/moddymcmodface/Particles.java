@@ -64,23 +64,21 @@ public class Particles extends ModdymcmodfaceModElements.ModElement {
 
 	@Override
 	public void initElements() {
-	
-		final IEventBus meb= FMLJavaModLoadingContext.get().getModEventBus();
 
-		ParticleList.PARTICLES.register(meb);
-	
 	}
 
 	@Override
 	public void init(FMLCommonSetupEvent event) {
+	
 	}
 
 	@Override
 	public void serverLoad(FMLServerStartingEvent event) {
+
 	}
 
 	
-
+/*
 
 	public static class ParticleList{
 		public static final DeferredRegister<ParticleType<?>> PARTICLES = new DeferredRegister<>(ForgeRegistries.PARTICLE_TYPES, "moddymcmodface");
@@ -180,7 +178,7 @@ public class Particles extends ModdymcmodfaceModElements.ModElement {
 			
 		}	
 	}
-
+*/
 
 	
 

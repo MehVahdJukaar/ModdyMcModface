@@ -330,13 +330,6 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 			super.markDirty();
 		}
 
-		private void updateServerAndClient() {
-			if (this.world instanceof World && !this.world.isRemote()) {
-				Network.sendToAllNear(this.pos.getX(), this.pos.getY(), this.pos.getZ(), 128, this.world.getDimension().getType(),
-							new Network.PacketUpdatePedestal(this.pos, this.getStackInSlot(0)));
-				this.updateTile();
-			}
-		}
 
 		//receive new inv from server, then update tile
 		public void updateInventoryFromServer(ItemStack stack){

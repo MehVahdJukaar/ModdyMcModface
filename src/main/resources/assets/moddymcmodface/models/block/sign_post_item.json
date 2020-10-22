@@ -1,0 +1,8 @@
+{
+  "parent": "moddymcmodface:custom/sign_post_item",
+  "textures": {
+    "all": "moddymcmodface:blocks/notice_board_front",
+    "particle": "moddymcmodface:blocks/notice_board_front",
+    "0": "moddymcmodface:blocks/sing_post"
+  }
+}

@@ -134,7 +134,6 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 
 			ctx.get().enqueueWork(() -> {
 
-
 				if (world != null) {
 					TileEntity tileentity = world.getTileEntity(pos);
 					if (tileentity instanceof HangingSignBlock.CustomTileEntity) {
@@ -152,101 +151,6 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 	}
 
 
-	public static class PacketUpdateNoticeBoard extends myMessage {
-		private BlockPos pos;
-		private ItemStack stack;
-		public PacketUpdateNoticeBoard(PacketBuffer buf) {
-			this.pos = buf.readBlockPos();
-			this.stack = buf.readItemStack();
-		}
-		public PacketUpdateNoticeBoard(BlockPos pos, ItemStack stack) {
-			this.pos = pos;
-			this.stack = stack;
-		}
-		public void toBytes(PacketBuffer buf) {
-			buf.writeBlockPos(this.pos);
-			buf.writeItemStack(this.stack);
-		}
-		public void handle(Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> {
-				World world = Minecraft.getInstance().world;
-				if (world != null) {
-					TileEntity tileentity = world.getTileEntity(pos);
-					if (tileentity instanceof NoticeBoardBlock.CustomTileEntity) {
-						((NoticeBoardBlock.CustomTileEntity) tileentity).updateInventoryFromServer(this.stack);
-					}
-				}
-			});
-			ctx.get().setPacketHandled(true);
-		}
-	}
-
-
-
-	public static class PacketUpdatePedestal extends myMessage {
-		private BlockPos pos;
-		private ItemStack stack;
-		public PacketUpdatePedestal(PacketBuffer buf) {
-			this.pos = buf.readBlockPos();
-			this.stack = buf.readItemStack();
-		}
-		public PacketUpdatePedestal(BlockPos pos, ItemStack stack) {
-			this.pos = pos;
-			this.stack = stack;
-		}
-		public void toBytes(PacketBuffer buf) {
-			buf.writeBlockPos(this.pos);
-			buf.writeItemStack(this.stack);
-		}
-		public void handle(Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> {
-				World world = Minecraft.getInstance().world;
-				if (world != null) {
-					TileEntity tileentity = world.getTileEntity(pos);
-					if (tileentity instanceof PedestalBlock.CustomTileEntity) {
-						((PedestalBlock.CustomTileEntity) tileentity).updateInventoryFromServer(this.stack);
-					}
-				}
-			});
-			ctx.get().setPacketHandled(true);
-		}
-	}
-
-	public static class PacketUpdateJar extends myMessage {
-		private BlockPos pos;
-		private ItemStack stack;
-		public PacketUpdateJar(PacketBuffer buf) {
-			this.pos = buf.readBlockPos();
-			this.stack = buf.readItemStack();
-		}
-		public PacketUpdateJar(BlockPos pos, ItemStack stack) {
-			this.pos = pos;
-			this.stack = stack;
-		}
-		public void toBytes(PacketBuffer buf) {
-			buf.writeBlockPos(this.pos);
-			buf.writeItemStack(this.stack);
-		}
-		public void handle(Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> {
-				World world = Minecraft.getInstance().world;
-				if (world != null) {
-					TileEntity tileentity = world.getTileEntity(pos);
-					if (tileentity instanceof JarBlock.CustomTileEntity) {
-						((JarBlock.CustomTileEntity) tileentity).updateInventoryFromServer(this.stack);
-					}
-				}
-			});
-			ctx.get().setPacketHandled(true);
-		}
-	}	
-
-
-
-
-
-	
-
 	public static class Networking {
 		public static SimpleChannel INSTANCE;
 		private static int ID = 0;
@@ -262,21 +166,6 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 			() -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
 
 			//INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation("moddymcmodface:mychannel"), () -> "1.0", s -> true, s -> true);
-			INSTANCE.registerMessage(nextID(), 
-					PacketUpdateNoticeBoard.class, 
-					PacketUpdateNoticeBoard::toBytes, 
-					PacketUpdateNoticeBoard::new,
-					PacketUpdateNoticeBoard::handle);
-			INSTANCE.registerMessage(nextID(), 
-					PacketUpdatePedestal.class, 
-					PacketUpdatePedestal::toBytes, 
-					PacketUpdatePedestal::new,
-					PacketUpdatePedestal::handle);
-			INSTANCE.registerMessage(nextID(), 
-					PacketUpdateJar.class, 
-					PacketUpdateJar::toBytes, 
-					PacketUpdateJar::new,
-					PacketUpdateJar::handle);
 			INSTANCE.registerMessage(nextID(), 
 					PackedUpdateServerHangingSign.class, 
 					PackedUpdateServerHangingSign::toBytes, 
