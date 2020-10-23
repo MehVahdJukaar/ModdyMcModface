@@ -31,6 +31,7 @@ import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.block.BlockState;
 
+import net.mcreator.moddymcmodface.ModdymcmodfaceMod;
 import net.mcreator.moddymcmodface.block.HangingSignBlock;
 import net.mcreator.moddymcmodface.Network;
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
@@ -40,11 +41,21 @@ import java.util.List;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.network.PacketBuffer;
+import java.util.function.Supplier;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.World;
+import net.minecraft.tileentity.TileEntity;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class EditHangingSignGui extends ModdymcmodfaceModElements.ModElement {
 	public EditHangingSignGui(ModdymcmodfaceModElements instance) {
 		super(instance, 169);
+
+		elements.addNetworkMessage(PackedUpdateServerHangingSign.class, PackedUpdateServerHangingSign::buffer, PackedUpdateServerHangingSign::new,
+				PackedUpdateServerHangingSign::handler);
+
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 	}
 
@@ -56,7 +67,7 @@ public class EditHangingSignGui extends ModdymcmodfaceModElements.ModElement {
 	public static class GuiWindow extends Screen {
 		private PlayerEntity entity;
 		private TextInputUtil textInputUtil;
-		/** The index of the line that is being edited. */
+		// The index of the line that is being edited.
 		private int editLine = 0;
 		//for ticking cusros
 		private int updateCounter;
@@ -114,8 +125,9 @@ public class EditHangingSignGui extends ModdymcmodfaceModElements.ModElement {
 		public void removed() {
 			this.minecraft.keyboardListener.enableRepeatEvents(false);
 			// send new text to the server
-			Network.sendToServer(new Network.PackedUpdateServerHangingSign(this.tileSign.getPos(), this.tileSign.getText(0), this.tileSign.getText(1),
-					this.tileSign.getText(2), this.tileSign.getText(3), this.tileSign.getText(4)));
+			ModdymcmodfaceMod.PACKET_HANDLER.sendToServer(new PackedUpdateServerHangingSign(this.tileSign.getPos(), this.tileSign.getText(0), this.tileSign.getText(1),
+				this.tileSign.getText(2), this.tileSign.getText(3), this.tileSign.getText(4)));
+			
 			this.tileSign.setEditable(true);
 		}
 
@@ -238,4 +250,66 @@ public class EditHangingSignGui extends ModdymcmodfaceModElements.ModElement {
 			super.render(p_render_1_, p_render_2_, p_render_3_);
 		}
 	}
+
+
+	public static class PackedUpdateServerHangingSign{
+		private BlockPos pos;
+		private ITextComponent t0;
+		private ITextComponent t1;
+		private ITextComponent t2;
+		private ITextComponent t3;
+		private ITextComponent t4;
+		
+		public PackedUpdateServerHangingSign(PacketBuffer buf) {
+			
+			this.pos = buf.readBlockPos();
+			this.t0 = buf.readTextComponent();
+			this.t1 = buf.readTextComponent();
+			this.t2 = buf.readTextComponent();
+			this.t3 = buf.readTextComponent();
+			this.t4 = buf.readTextComponent();
+		}
+
+		public PackedUpdateServerHangingSign(BlockPos pos, ITextComponent t0, ITextComponent t1, ITextComponent t2, ITextComponent t3,
+				ITextComponent t4) {
+			this.pos = pos;
+			this.t0 = t0;
+			this.t1 = t1;
+			this.t2 = t2;
+			this.t3 = t3;
+			this.t4 = t4;
+		}
+
+		public static void buffer(PackedUpdateServerHangingSign message, PacketBuffer buf) {
+			
+			buf.writeBlockPos(message.pos);
+			buf.writeTextComponent(message.t0);
+			buf.writeTextComponent(message.t1);
+			buf.writeTextComponent(message.t2);
+			buf.writeTextComponent(message.t3);
+			buf.writeTextComponent(message.t4);		
+		}
+
+		public static void handler(PackedUpdateServerHangingSign message, Supplier<NetworkEvent.Context> ctx) {
+			// server world
+			World world = ctx.get().getSender().world;
+			
+			ctx.get().enqueueWork(() -> {
+				if (world != null) {
+					TileEntity tileentity = world.getTileEntity(message.pos);
+					if (tileentity instanceof HangingSignBlock.CustomTileEntity) {
+						HangingSignBlock.CustomTileEntity sign = (HangingSignBlock.CustomTileEntity) tileentity;
+						sign.setText(0, message.t0);
+						sign.setText(1, message.t1);
+						sign.setText(2, message.t2);
+						sign.setText(3, message.t3);
+						sign.setText(4, message.t4);
+					}
+				}
+			});
+			ctx.get().setPacketHandled(true);
+		}
+	}
+
+	
 }

@@ -465,6 +465,15 @@
       "locked_code": true,
       "ids": {},
       "registry_name": "speaker_block"
+    },
+    {
+      "name": "Mn",
+      "type": "gui",
+      "sortid": 176,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "mn"
     }
   ],
   "variable_elements": [],
@@ -518,7 +527,7 @@
   "workspaceSettings": {
     "modid": "moddymcmodface",
     "modName": "Supplementaries",
-    "version": "alpha 0.6.3 WIP",
+    "version": "alpha 0.6.4 WIP",
     "description": "Random blocks that I wanted to add to vanilla minecraft. Enjoy",
     "author": "Meh-Vah\u0027d Jukaar, MCreator",
     "websiteURL": "https://mcreator.net",

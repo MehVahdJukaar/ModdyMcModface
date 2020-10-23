@@ -26,38 +26,31 @@ import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
+import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.World;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 
-import net.mcreator.moddymcmodface.block.NoticeBoardBlock;
-import net.mcreator.moddymcmodface.block.PedestalBlock;
-import net.mcreator.moddymcmodface.block.JarBlock;
-import net.mcreator.moddymcmodface.block.HangingSignBlock;
+import net.mcreator.moddymcmodface.ModdymcmodfaceMod;
 import net.mcreator.moddymcmodface.block.SignPostBlock;
+import net.mcreator.moddymcmodface.block.HangingSignBlock;
 
 import java.util.function.Supplier;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.block.Blocks;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class Network extends ModdymcmodfaceModElements.ModElement {
-	/**
-	 * Do not remove this constructor
-	 */
+
 	public Network(ModdymcmodfaceModElements instance) {
 		super(instance, 124);
+
 	}
 
 	@Override
@@ -66,140 +59,19 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 
 	@Override
 	public void init(FMLCommonSetupEvent event) {
-		Networking.registerMessages();
+		// Networking.registerMessages();
 	}
 
 	@Override
 	public void serverLoad(FMLServerStartingEvent event) {
 	}
-
-
-
-
-	public abstract static class myMessage {}
-
-	
-	public static class PackedUpdateServerSignPost extends myMessage {
-		private BlockPos pos;
-		private ITextComponent t0;
-		private ITextComponent t1;
-		
-		public PackedUpdateServerSignPost(PacketBuffer buf) {
-			this.pos = buf.readBlockPos();
-
-			String s = buf.readString();
-			ITextComponent itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
-			this.t0 = itextcomponent;
-			s = buf.readString();
-			itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
-			this.t1 = itextcomponent;			
-		}
-		public PackedUpdateServerSignPost(BlockPos pos, ITextComponent t0, ITextComponent t1) {
-			this.pos = pos;
-			this.t0 = t0;
-			this.t1 = t1;
-		}
-		public void toBytes(PacketBuffer buf) {
-			buf.writeBlockPos(this.pos);
-
-			String s = ITextComponent.Serializer.toJson(this.t0);
-			buf.writeString(s);
-			s = ITextComponent.Serializer.toJson(this.t1);
-			buf.writeString(s);
-			
-		}
-		public void handle(Supplier<NetworkEvent.Context> ctx) {
-			//server world
-			World world = ctx.get().getSender().world;
-
-			ctx.get().enqueueWork(() -> {
-
-				if (world != null) {
-					TileEntity tileentity = world.getTileEntity(pos);
-					if (tileentity instanceof SignPostBlock.CustomTileEntity) {
-						SignPostBlock.CustomTileEntity sign = (SignPostBlock.CustomTileEntity) tileentity;
-						sign.setText(0, this.t0);
-						sign.setText(1, this.t1);
-					}
-				}
-			});
-			ctx.get().setPacketHandled(true);
-		}
-	}
-
-	public static class PackedUpdateServerHangingSign extends myMessage {
-		private BlockPos pos;
-		private ITextComponent t0;
-		private ITextComponent t1;
-		private ITextComponent t2;
-		private ITextComponent t3;
-		private ITextComponent t4;
-		public PackedUpdateServerHangingSign(PacketBuffer buf) {
-			this.pos = buf.readBlockPos();
-
-			String s = buf.readString();
-			ITextComponent itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
-			this.t0 = itextcomponent;
-			s = buf.readString();
-			itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
-			this.t1 = itextcomponent;
-			s = buf.readString();
-			itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
-			this.t2 = itextcomponent;
-			s = buf.readString();
-			itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
-			this.t3 = itextcomponent;
-			s = buf.readString();
-			itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
-			this.t4 = itextcomponent;			
-		}
-		public PackedUpdateServerHangingSign(BlockPos pos, ITextComponent t0, ITextComponent t1, ITextComponent t2, ITextComponent t3, ITextComponent t4) {
-			this.pos = pos;
-			this.t0 = t0;
-			this.t1 = t1;
-			this.t2 = t2;
-			this.t3 = t3;
-			this.t4 = t4;
-
-		}
-		public void toBytes(PacketBuffer buf) {
-			buf.writeBlockPos(this.pos);
-
-			String s = ITextComponent.Serializer.toJson(this.t0);
-			buf.writeString(s);
-			s = ITextComponent.Serializer.toJson(this.t1);
-			buf.writeString(s);
-			s = ITextComponent.Serializer.toJson(this.t2);
-			buf.writeString(s);
-			s = ITextComponent.Serializer.toJson(this.t3);
-			buf.writeString(s);
-			s = ITextComponent.Serializer.toJson(this.t4);
-			buf.writeString(s);
-			
-		}
-		public void handle(Supplier<NetworkEvent.Context> ctx) {
-			//server world
-			World world = ctx.get().getSender().world;
-
-			ctx.get().enqueueWork(() -> {
-
-				if (world != null) {
-					TileEntity tileentity = world.getTileEntity(pos);
-					if (tileentity instanceof HangingSignBlock.CustomTileEntity) {
-						HangingSignBlock.CustomTileEntity sign = (HangingSignBlock.CustomTileEntity) tileentity;
-						sign.setText(0, this.t0);
-						sign.setText(1, this.t1);
-						sign.setText(2, this.t2);
-						sign.setText(3, this.t3);
-						sign.setText(4, this.t4);
-					}
-				}
-			});
-			ctx.get().setPacketHandled(true);
-		}
+	public abstract static class myMessage {
 	}
 
 
+
+
+	/*
 	public static class Networking {
 		public static SimpleChannel INSTANCE;
 		private static int ID = 0;
@@ -209,47 +81,40 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 		}
 
 		public static void registerMessages() {
-			
-
-			INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation("moddymcmodface:mychannel"),
-			() -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
-
-			//INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation("moddymcmodface:mychannel"), () -> "1.0", s -> true, s -> true);
-			INSTANCE.registerMessage(nextID(), 
-					PackedUpdateServerHangingSign.class, 
-					PackedUpdateServerHangingSign::toBytes, 
-					PackedUpdateServerHangingSign::new,
-					PackedUpdateServerHangingSign::handle);
-			INSTANCE.registerMessage(nextID(), 
-					PackedUpdateServerSignPost.class, 
-					PackedUpdateServerSignPost::toBytes, 
-					PackedUpdateServerSignPost::new,
+			INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation("moddymcmodface:mychannel"), () -> PROTOCOL_VERSION,
+					PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
+			// INSTANCE = NetworkRegistry.newSimpleChannel(new
+			// ResourceLocation("moddymcmodface:mychannel"), () -> "1.0", s -> true, s ->
+			// true);
+			INSTANCE.registerMessage(nextID(), PackedUpdateServerHangingSign.class, PackedUpdateServerHangingSign::toBytes,
+					PackedUpdateServerHangingSign::new, PackedUpdateServerHangingSign::handle);
+			INSTANCE.registerMessage(nextID(), PackedUpdateServerSignPost.class, PackedUpdateServerSignPost::toBytes, PackedUpdateServerSignPost::new,
 					PackedUpdateServerSignPost::handle);
-
 		}
-	}
+	}*/
+/*
+	
 	// I'm so bad with this, I know. should work fine though.. I hope
-	//for te
+	// for te
 	public static void sendToAllNear(double x, double y, double z, double radius, DimensionType dimension, myMessage message) {
 		MinecraftServer mcserv = ServerLifecycleHooks.getCurrentServer();
 		if (mcserv != null && dimension != null) {
 			PlayerList players = mcserv.getPlayerList();
 			players.sendToAllNearExcept((PlayerEntity) null, x, y, z, radius, dimension,
-					Networking.INSTANCE.toVanillaPacket(message, NetworkDirection.PLAY_TO_CLIENT));
+					ModdymcmodfaceMod.PACKET_HANDLER.toVanillaPacket(message, NetworkDirection.PLAY_TO_CLIENT));
 		}
 	}
-	
-	//better method for entities
-	public static void sendToAllTracking(World world, Entity entityIn, myMessage message){
-		if (world instanceof ServerWorld){
-		((ServerWorld)world).getChunkProvider().sendToAllTracking(entityIn, Networking.INSTANCE.toVanillaPacket(message, NetworkDirection.PLAY_TO_CLIENT));
+
+	// better method for entities
+	public static void sendToAllTracking(World world, Entity entityIn, myMessage message) {
+		if (world instanceof ServerWorld) {
+			((ServerWorld) world).getChunkProvider().sendToAllTracking(entityIn,
+					ModdymcmodfaceMod.PACKET_HANDLER.toVanillaPacket(message, NetworkDirection.PLAY_TO_CLIENT));
 		}
-
 	}
 
-	public static void sendToServer(myMessage message){
-		Networking.INSTANCE.sendToServer(message);
+	public static void sendToServer(myMessage message) {
+		ModdymcmodfaceMod.PACKET_HANDLER.sendToServer(message);
 	}
-	
-	
+	*/
 }

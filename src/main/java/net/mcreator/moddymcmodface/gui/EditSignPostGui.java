@@ -43,6 +43,7 @@ import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.block.BlockState;
 
+import net.mcreator.moddymcmodface.ModdymcmodfaceMod;
 import net.mcreator.moddymcmodface.block.SignPostBlock;
 import net.mcreator.moddymcmodface.Network;
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
@@ -72,11 +73,16 @@ import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 import java.util.function.Supplier;
 import java.util.Map;
 import java.util.HashMap;
+import net.minecraft.tileentity.TileEntity;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class EditSignPostGui extends ModdymcmodfaceModElements.ModElement {
 	public EditSignPostGui(ModdymcmodfaceModElements instance) {
 		super(instance, 172);
+		
+		elements.addNetworkMessage(PackedUpdateServerSignPost.class, PackedUpdateServerSignPost::buffer, PackedUpdateServerSignPost::new,
+				PackedUpdateServerSignPost::handler);
+
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -146,7 +152,7 @@ public class EditSignPostGui extends ModdymcmodfaceModElements.ModElement {
 		public void removed() {
 			this.minecraft.keyboardListener.enableRepeatEvents(false);
 			// send new text to the server
-			Network.sendToServer(new Network.PackedUpdateServerSignPost(this.tileSign.getPos(), this.tileSign.getText(0), this.tileSign.getText(1)));
+			ModdymcmodfaceMod.PACKET_HANDLER.sendToServer(new PackedUpdateServerSignPost(this.tileSign.getPos(), this.tileSign.getText(0), this.tileSign.getText(1)));
 			this.tileSign.setEditable(true);
 		}
 
@@ -312,5 +318,52 @@ public class EditSignPostGui extends ModdymcmodfaceModElements.ModElement {
 			super.render(p_render_1_, p_render_2_, p_render_3_);
 		}
 	}
+
+
+
+
+
+	public static class PackedUpdateServerSignPost{
+		private BlockPos pos;
+		private ITextComponent t0;
+		private ITextComponent t1;
+		
+		public PackedUpdateServerSignPost(PacketBuffer buf) {
+			this.pos = buf.readBlockPos();
+			this.t0 = buf.readTextComponent();
+			this.t1 = buf.readTextComponent();
+		}
+
+		public PackedUpdateServerSignPost(BlockPos pos, ITextComponent t0, ITextComponent t1) {
+			this.pos = pos;
+			this.t0 = t0;
+			this.t1 = t1;
+		}
+
+		public static void buffer(PackedUpdateServerSignPost message, PacketBuffer buf) {
+			buf.writeBlockPos(message.pos);
+			buf.writeTextComponent(message.t0);
+			buf.writeTextComponent(message.t1);
+		}
+
+		public static void handler(PackedUpdateServerSignPost message, Supplier<NetworkEvent.Context> ctx) {
+			// server world
+			World world = ctx.get().getSender().world;
+			ctx.get().enqueueWork(() -> {
+				if (world != null) {
+					TileEntity tileentity = world.getTileEntity(message.pos);
+					if (tileentity instanceof SignPostBlock.CustomTileEntity) {
+						SignPostBlock.CustomTileEntity sign = (SignPostBlock.CustomTileEntity) tileentity;
+						sign.setText(0, message.t0);
+						sign.setText(1, message.t1);
+					}
+				}
+			});
+			ctx.get().setPacketHandled(true);
+		}
+	}
+
+
+
 
 }
