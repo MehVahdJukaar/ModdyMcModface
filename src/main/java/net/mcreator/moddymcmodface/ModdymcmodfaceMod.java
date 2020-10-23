@@ -52,7 +52,7 @@ public class ModdymcmodfaceMod {
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 		MinecraftForge.EVENT_BUS.register(this);
 
-		//Particles.ParticleList.PARTICLES.register(FMLJavaModLoadingContext.get().getModEventBus());
+		Particles.ParticleList.PARTICLES.register(FMLJavaModLoadingContext.get().getModEventBus());
 	}
 
 	private void init(FMLCommonSetupEvent event) {

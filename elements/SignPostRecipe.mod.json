@@ -10,37 +10,37 @@
     "recipeShapeless": false,
     "recipeSlots": [
       {
-        "value": "Items.IRON_NUGGET"
+        "value": "Blocks.PLANKS"
       },
       {
-        "value": "Items.STICK"
+        "value": "Blocks.PLANKS"
       },
       {
-        "value": "Items.IRON_NUGGET"
+        "value": "Blocks.PLANKS"
       },
       {
-        "value": "Blocks.PLANKS#1"
+        "value": ""
       },
       {
-        "value": "Blocks.PLANKS#1"
+        "value": ""
       },
       {
-        "value": "Blocks.PLANKS#1"
+        "value": ""
       },
       {
-        "value": "Blocks.PLANKS#1"
+        "value": ""
       },
       {
-        "value": "Blocks.PLANKS#1"
+        "value": ""
       },
       {
-        "value": "Blocks.PLANKS#1"
+        "value": ""
       }
     ],
     "recipeReturnStack": {
-      "value": "CUSTOM:HangingSign"
+      "value": "CUSTOM:SignPost"
     },
-    "name": "spruce_hanging_sign",
+    "name": "sign_post_recipe",
     "namespace": "mod"
   }
 }

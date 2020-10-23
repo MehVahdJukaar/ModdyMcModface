@@ -79,6 +79,8 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Block;
 import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
@@ -97,12 +99,9 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 		elements.items
 				.add(() -> new SpawnEggItem(entity, -4784384, -16777216, new Item.Properties().group(ItemGroup.MISC)).setRegistryName("firefly"));
 	}
-
+	
 	@Override
 	public void init(FMLCommonSetupEvent event) {
-		RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new CustomRender(renderManager));
-		
-
 		for (Biome biome : ForgeRegistries.BIOMES.getValues()) {
 			boolean biomeCriteria = false;
 			if (ForgeRegistries.BIOMES.getKey(biome).equals(new ResourceLocation("plains")))
@@ -124,6 +123,13 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 				Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, AnimalEntity::canAnimalSpawn);
 	
 	}
+	
+	@SubscribeEvent
+	@OnlyIn(Dist.CLIENT)
+	public void registerModels(ModelRegistryEvent event) {
+		RenderingRegistry.registerEntityRenderingHandler(entity, renderManager -> new CustomRender(renderManager));
+	}
+
 
 	public static class CustomEntity extends CreatureEntity implements IFlyingAnimal {
 		private int particleCooldown = 20;
@@ -342,24 +348,7 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 			this.setNoGravity(true);
 
 			this.particleCooldown--;
-			/*
-			double x = this.getPosX();
-			double y = this.getPosY();
-			double z = this.getPosZ();
-			Random random = this.rand;
-			Entity entity = this;
-			if (this.particleCooldown < 0 && random.nextInt(10) == 0 && false) {
-				this.particleCooldown = 35;
-				for (int l = 0; l < 1; ++l) {
-					double d0 = (x + (random.nextFloat() - 0.5D) * 0.5D);
-					double d1 = (y + (random.nextFloat() - 0.5D) * 0.5D);
-					double d2 = (z + (random.nextFloat() - 0.5D) * 0.5D);
-					double d3 = (random.nextFloat() - 0.5D) * 0.5D;
-					double d4 = (random.nextFloat() - 0.5D) * 0.5D;
-					double d5 = (random.nextFloat() - 0.5D) * 0.5D;
-					world.addParticle(ParticleList.ORANGE_PARTICLE.get(), x, y + 0.4, z, d3, d4, d5);
-				}
-			}*/
+
 		}
 		//bee code
 		class WanderGoal extends Goal {
@@ -367,24 +356,24 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 				this.setMutexFlags(EnumSet.of(Goal.Flag.MOVE));
 			}
 
-			/**
-			 * Returns whether execution should begin. You can also read and cache any state
-			 * necessary for execution in this method as well.
-			 */
+			
+			 //Returns whether execution should begin. You can also read and cache any state
+			 //necessary for execution in this method as well.
+			 
 			public boolean shouldExecute() {
 				return CustomEntity.this.navigator.noPath() && CustomEntity.this.rand.nextInt(10) == 0;
 			}
 
-			/**
-			 * Returns whether an in-progress EntityAIBase should continue executing
-			 */
+			
+			 //Returns whether an in-progress EntityAIBase should continue executing
+			 
 			public boolean shouldContinueExecuting() {
 				return CustomEntity.this.navigator.func_226337_n_();
 			}
 
-			/**
-			 * Execute a one shot task or start executing a continuous task
-			 */
+			
+			 //Execute a one shot task or start executing a continuous task
+			
 			public void startExecuting() {
 				Vec3d vec3d = this.getRandomLocation();
 				if (vec3d != null) {
@@ -405,7 +394,7 @@ public class FireflyEntity extends ModdymcmodfaceModElements.ModElement {
 		}
 	}
 
-
+	@OnlyIn(Dist.CLIENT)
 	public static class CustomRender extends EntityRenderer<CustomEntity> {
 		private static final ResourceLocation texture = new ResourceLocation("moddymcmodface:textures/firefly.png");
 		// private static final ResourceLocation texture = new

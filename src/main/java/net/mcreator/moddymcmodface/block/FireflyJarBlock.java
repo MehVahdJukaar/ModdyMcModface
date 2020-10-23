@@ -31,6 +31,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.RenderType;
@@ -44,7 +45,7 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Block;
 
-import net.mcreator.moddymcmodface.entity.FireflyEntity;
+import net.mcreator.moddymcmodface.CommonUtil;
 import net.mcreator.moddymcmodface.Particles;
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 
@@ -55,13 +56,6 @@ import java.util.Collections;
 
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraft.server.MinecraftServer;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class FireflyJarBlock extends ModdymcmodfaceModElements.ModElement {
@@ -194,13 +188,14 @@ public class FireflyJarBlock extends ModdymcmodfaceModElements.ModElement {
 						double d0 = (x + 0.5 + (this.rand.nextFloat() - 0.5) * (0.625D - pr));
 						double d1 = (y + 0.5 - 0.0625 + (this.rand.nextFloat() - 0.5) * (0.875D - pr));
 						double d2 = (z + 0.5 + (this.rand.nextFloat() - 0.5) * (0.625D - pr));
-						//world.addParticle(Particles.ParticleList.FIREFLY_GLOW.get(), d0, d1, d2, 0, 0, 0);
+						world.addParticle(Particles.ParticleList.FIREFLY_GLOW.get(), d0, d1, d2, 0, 0, 0);
 					}
 				}
 			}
 		}
 	}
-
+	
+	
 	public static class ISTERProvider {
 		public static Callable<ItemStackTileEntityRenderer> CustomISTER() {
 			return CustomItemRender::new;
@@ -210,62 +205,44 @@ public class FireflyJarBlock extends ModdymcmodfaceModElements.ModElement {
 	@OnlyIn(Dist.CLIENT)
 	public static class CustomItemRender extends ItemStackTileEntityRenderer {
 		private static final ResourceLocation texture = new ResourceLocation("moddymcmodface:textures/firefly.png");
-
-		//private static final ResourceLocation texture = new ResourceLocation("moddymcmodface:particles/firefly_glow");
+		// private static final ResourceLocation texture = new
+		// ResourceLocation("moddymcmodface:particles/firefly_glow");
 		@Override
 		public void render(ItemStack stack, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn) {
 			matrixStackIn.push();
 			BlockRendererDispatcher blockRenderer = Minecraft.getInstance().getBlockRendererDispatcher();
-			
 			BlockState state = FireflyJarBlock.block.getDefaultState();
 			blockRenderer.renderBlock(state, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);
-			
-			
-			int j = 255;
-			int k = 255;
-			int l = 255;
-			int a = 255;
+			float r = 1;
+			float g = 1;
+			float b = 1;
+			float a = 1;
 			EntityRendererManager renderManager = Minecraft.getInstance().getRenderManager();
-		
 			matrixStackIn.translate(0.5, 0.5, 0.5);
 			matrixStackIn.translate(0, -0.1, 0);
-			//matrixStackIn.rotate(renderManager.getCameraOrientation());
-
-			//renderManager.renderEntityStatic(new FireflyEntity.CustomEntity(FireflyEntity.entity, (World)Minecraft.getInstance().world), 0d, 0d, 0d, 0f, 1f, matrixStackIn, bufferIn, combinedLightIn);
-
-			//TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_PARTICLES_TEXTURE).apply(texture);
+			// matrixStackIn.rotate(renderManager.getCameraOrientation());
+			// renderManager.renderEntityStatic(new
+			// FireflyEntity.CustomEntity(FireflyEntity.entity,
+			// (World)Minecraft.getInstance().world), 0d, 0d, 0d, 0f, 1f, matrixStackIn,
+			// bufferIn, combinedLightIn);
+			// TextureAtlasSprite sprite =
+			// Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_PARTICLES_TEXTURE).apply(texture);
 			matrixStackIn.scale(0.6f, 0.6f, 0.6f);
-
-
-			//matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180.0F));
+			// matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180.0F));
 			float f9 = 0.32F;
-			//matrixStackIn.scale(0.3F, 0.3F, 0.3F);
+			// matrixStackIn.scale(0.3F, 0.3F, 0.3F);
+			float minu = 0;// sprite.getMinU();
+			float minv = 0;// sprite.getMinV();
+			float maxu = 1;// sprite.getMaxU();
+			float maxv = 1;// sprite.getMaxV();
 
-			float minu = 0;//sprite.getMinU();
-			float minv = 0;//sprite.getMinV();
-			float maxu = 1;//sprite.getMaxU();
-			float maxv = 1;//sprite.getMaxV();
-
-			//IVertexBuilder ivertexbuilder = bufferIn.getBuffer(RenderType.getCutout());
 			IVertexBuilder ivertexbuilder = bufferIn.getBuffer(RenderType.getEntityTranslucent(texture));
-			MatrixStack.Entry matrixstack$entry = matrixStackIn.getLast();
-			Matrix4f matrix4f = matrixstack$entry.getMatrix();
-			Matrix3f matrix3f = matrixstack$entry.getNormal();
-			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(45));
-			for (int i =0; i<4; i++){
-				vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, -0.5F, j, k, l, a, minu, minv, combinedLightIn);
-				vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, -0.5F, j, k, l, a, maxu, minv, combinedLightIn);
-				vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, 0.5F, j, k, l, a, maxu, maxv, combinedLightIn);
-				vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, 0.5F, j, k, l, a, minu, maxv, combinedLightIn);
-				matrixStackIn.rotate(Vector3f.YP.rotationDegrees(90));
-			}
-			matrixStackIn.pop();
-		}
 
-		private static void vertex(IVertexBuilder bufferIn, Matrix4f matrixIn, Matrix3f matrixNormalIn, float x, float y, int red, int green,
-				int blue, int alpha, float texU, float texV, int packedLight) {
-			bufferIn.pos(matrixIn, x, y, 0.0F).color(red, green, blue, alpha).tex(texU, texV).overlay(OverlayTexture.NO_OVERLAY).lightmap(240, 0)
-					.normal(matrixNormalIn, 0.0F, 1.0F, 0.0F).endVertex();
+			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-45));
+
+			CommonUtil.addQuadSide(ivertexbuilder, matrixStackIn, -0.5f, -0.5f, 0, 0.5f, 0.5f, 0, 0, 0, 1, 1,  r,  g, b, a, 240, 0);
+
+			matrixStackIn.pop();
 		}
 	}
 }

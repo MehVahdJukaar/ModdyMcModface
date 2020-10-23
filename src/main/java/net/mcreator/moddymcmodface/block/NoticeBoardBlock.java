@@ -638,10 +638,6 @@ public class NoticeBoardBlock extends ModdymcmodfaceModElements.ModElement {
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
 				
-
-
-
-				
 			if(entityIn.isTextVisible()){
 
 				int newl = entityIn.getFrontLight();

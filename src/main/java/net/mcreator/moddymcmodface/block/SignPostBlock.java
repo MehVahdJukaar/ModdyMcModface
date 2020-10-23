@@ -56,6 +56,7 @@ import net.minecraft.block.Block;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 import net.mcreator.moddymcmodface.CommonUtil;
+import net.mcreator.moddymcmodface.gui.EditSignPostGui;
 
 import javax.annotation.Nullable;
 
@@ -101,6 +102,11 @@ import net.minecraft.block.Blocks;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.nbt.NBTUtil;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.Hand;
+import net.minecraft.item.DyeItem;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.AxisAlignedBB;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
@@ -205,21 +211,9 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 				
 
 			}
-		
-
-
-
-
-
-
 			return ActionResultType.PASS;
 		}
-
-
 	}
-
-
-
 
 	
 	public static class CustomBlock extends Block {
@@ -228,6 +222,55 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 			super(Block.Properties.create(Material.WOOD).sound(SoundType.WOOD).hardnessAndResistance(2f, 3f).lightValue(0).notSolid());
 			this.setDefaultState(this.stateContainer.getBaseState().with(INVERTED, false));
 			setRegistryName("sign_post");
+		}
+
+
+		@Override
+		public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
+				BlockRayTraceResult hit) {
+			TileEntity tileentity = worldIn.getTileEntity(pos);
+			if (tileentity instanceof CustomTileEntity) {
+				CustomTileEntity te = (CustomTileEntity) tileentity;
+				ItemStack itemstack = player.getHeldItem(handIn);
+				boolean server = !worldIn.isRemote();
+				boolean emptyhand = itemstack.isEmpty();
+				boolean flag = itemstack.getItem() instanceof DyeItem && player.abilities.allowEdit;
+				boolean flag1 = player.isSneaking() && emptyhand;
+				boolean flag2 = itemstack.getItem() instanceof ItemCustom;
+				//color
+				if (flag){
+					if(te.setTextColor(((DyeItem) itemstack.getItem()).getDyeColor())){
+						if (!player.isCreative()) {
+							itemstack.shrink(1);
+						}
+						if(server){
+							te.markDirty();
+						}
+						return ActionResultType.SUCCESS;
+					}
+				}
+				//sneak right click rotates the sign on z axis
+				else if (flag1){
+					double y = hit.getHitVec().y;
+					boolean up = y%((int)y) > 0.5d;
+					if(up){
+						te.leftUp = !te.leftUp;
+					}
+					else{
+						te.leftDown = !te.leftDown;
+					}	
+					if(server){
+						te.markDirty();
+					}
+					return ActionResultType.SUCCESS;
+				}
+				// open gui (edit sign with empty hand)
+				else if (!flag2) {
+					if(player instanceof PlayerEntity && !server)EditSignPostGui.GuiWindow.open(te);
+					return ActionResultType.SUCCESS;
+				}
+			}
+			return ActionResultType.PASS;
 		}
 
 		@Override
@@ -254,13 +297,26 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 		protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
 			builder.add(INVERTED);
 		}
+		@Override
+		public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player) {
+			return new ItemStack(item);
+		}
 
 		@Override
 		public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
-			List<ItemStack> dropsOriginal = super.getDrops(state, builder);
-			if (!dropsOriginal.isEmpty())
-				return dropsOriginal; //TODO:add drops
-			return Collections.singletonList(new ItemStack(this, 1));
+			return Collections.singletonList(new ItemStack(item));
+		}
+
+		@Override
+		public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+			TileEntity tileentity = worldIn.getTileEntity(pos);
+			if(tileentity instanceof CustomTileEntity){
+				CustomTileEntity signtile = ((CustomTileEntity) tileentity);
+				if(signtile.up && signtile.down){
+					spawnDrops(state, worldIn, pos);
+				}
+				spawnDrops(signtile.fenceblock, worldIn, pos);
+			}
 		}
 
 		@Override
@@ -289,17 +345,17 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 	
 
 	public static class CustomTileEntity extends TileEntity {
-		public ITextComponent signText;
+		public final ITextComponent[] signText = new ITextComponent[]{new StringTextComponent(""), new StringTextComponent("")};
 		private boolean isEditable = true;
 		private PlayerEntity player;
-		private String renderText = null;
+		private final String[] renderText = new String[2];
 		private DyeColor textColor = DyeColor.BLACK;
 		
 		public BlockState fenceblock = Blocks.OAK_FENCE.getDefaultState();
 		public float yawUp = 0;
 		public float yawDown = 0;
 		public boolean leftUp = true;
-		public boolean leftDown = true;
+		public boolean leftDown = false;
 		public boolean up = false;
 		public boolean down = false;
 		
@@ -307,7 +363,11 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 			super(tileEntityType);
 		}
 		
-		
+		@Override
+		public AxisAlignedBB getRenderBoundingBox(){
+			return new AxisAlignedBB(this.getPos().add(-0.25,0,-0.25), this.getPos().add(1.25,1,1.25));
+		}
+			
 		@Override
 		public void read(CompoundNBT compound) {
 			super.read(compound);
@@ -315,19 +375,21 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 			this.isEditable = false;
 			this.textColor = DyeColor.byTranslationKey(compound.getString("Color"), DyeColor.BLACK);
 
-			String s = compound.getString("Text");
-			ITextComponent itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
-			if (this.world instanceof ServerWorld) {
-				try {
-					this.signText = TextComponentUtils.updateForEntity(this.getCommandSource((ServerPlayerEntity) null), itextcomponent,
-							(Entity) null, 0);
-				} catch (CommandSyntaxException var6) {
-					this.signText = itextcomponent;
+			for (int i = 0; i < 2; ++i) {
+				String s = compound.getString("Text" + (i + 1));
+				ITextComponent itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
+				if (this.world instanceof ServerWorld) {
+					try {
+						this.signText[i] = TextComponentUtils.updateForEntity(this.getCommandSource((ServerPlayerEntity) null), itextcomponent,
+								(Entity) null, 0);
+					} catch (CommandSyntaxException var6) {
+						this.signText[i] = itextcomponent;
+					}
+				} else {
+					this.signText[i] = itextcomponent;
 				}
-			} else {
-				this.signText = itextcomponent;
+				this.renderText[i] = null;
 			}
-			this.renderText = null;
 
 			this.fenceblock = NBTUtil.readBlockState(compound.getCompound("Fence"));
 			this.yawUp = compound.getFloat("Yaw_up");
@@ -343,8 +405,10 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 		public CompoundNBT write(CompoundNBT compound) {
 			super.write(compound);
 
-			String s = ITextComponent.Serializer.toJson(this.signText);
-			compound.putString("Text", s);
+			for (int i = 0; i < 2; ++i) {
+				String s = ITextComponent.Serializer.toJson(this.signText[i]);
+				compound.putString("Text" + (i + 1), s);
+			}
 			
 			compound.putString("Color", this.textColor.getTranslationKey());
 			compound.put("Fence", NBTUtil.writeBlockState(fenceblock));
@@ -359,23 +423,22 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 
 		// lots of sign code coming up
 		@OnlyIn(Dist.CLIENT)
-		public ITextComponent getText() {
-			return this.signText;
+		public ITextComponent getText(int line) {
+			return this.signText[line];
 		}
 
-		public void setText(ITextComponent p_212365_2_) {
-			this.signText = p_212365_2_;
-			this.renderText = null;
+		public void setText(int line, ITextComponent p_212365_2_) {
+			this.signText[line] = p_212365_2_;
+			this.renderText[line] = null;
 		}
 
 		@Nullable
 		@OnlyIn(Dist.CLIENT)
-		public String getRenderText(Function<ITextComponent, String> p_212364_2_) {
-			if (this.renderText == null && this.signText != null) {
-				this.renderText = p_212364_2_.apply(this.signText);
+		public String getRenderText(int line, Function<ITextComponent, String> p_212364_2_) {
+			if (this.renderText[line] == null && this.signText[line] != null) {
+				this.renderText[line] = p_212364_2_.apply(this.signText[line]);
 			}
-			//return this.renderText;
-			return "Supplementaries";
+			return this.renderText[line];
 		}
 
 		public boolean getIsEditable() {
@@ -402,13 +465,14 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 
 		public boolean executeCommand(PlayerEntity playerIn) {
-			ITextComponent itextcomponent = this.signText;
-			Style style = itextcomponent == null ? null : itextcomponent.getStyle();
-			if (style != null && style.getClickEvent() != null) {
-				ClickEvent clickevent = style.getClickEvent();
-				if (clickevent.getAction() == ClickEvent.Action.RUN_COMMAND) {
-					playerIn.getServer().getCommandManager().handleCommand(this.getCommandSource((ServerPlayerEntity) playerIn),
-							clickevent.getValue());
+			for (ITextComponent itextcomponent : this.signText) {
+				Style style = itextcomponent == null ? null : itextcomponent.getStyle();
+				if (style != null && style.getClickEvent() != null) {
+					ClickEvent clickevent = style.getClickEvent();
+					if (clickevent.getAction() == ClickEvent.Action.RUN_COMMAND) {
+						playerIn.getServer().getCommandManager().handleCommand(this.getCommandSource((ServerPlayerEntity) playerIn),
+								clickevent.getValue());
+					}
 				}
 			}
 			return true;
@@ -444,7 +508,6 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 
 		// end of sign code
 
-
 		@Override
 		public SUpdateTileEntityPacket getUpdatePacket() {
 			return new SUpdateTileEntityPacket(this.pos, 0, this.getUpdateTag());
@@ -458,12 +521,10 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
 			this.read(pkt.getNbtCompound());
-		}
-
-		
+		}	
 	}
 
-
+	@OnlyIn(Dist.CLIENT)
 	public static class CustomRender extends TileEntityRenderer<CustomTileEntity> {
 		public CustomRender(TileEntityRendererDispatcher rendererDispatcherIn) {
 			super(rendererDispatcherIn);
@@ -476,7 +537,7 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 			BlockRendererDispatcher blockRenderer = Minecraft.getInstance().getBlockRendererDispatcher();
 			
 			BlockState fence = entityIn.fenceblock;
-			blockRenderer.renderBlock(fence, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);	
+			if(fence !=null)blockRenderer.renderBlock(fence, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);	
 
 			boolean up = entityIn.up;
 			boolean down = entityIn.down;
@@ -496,50 +557,72 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 
 				matrixStackIn.push();
 				matrixStackIn.translate(0.5, 0.5, 0.5);
+				
 				if(up){
 					matrixStackIn.push();
-					
+
+					boolean left = entityIn.leftUp;
+					int o = left ? 1 : -1;
+	
 					matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entityIn.yawUp));
+					//sign block
+					matrixStackIn.push();
+					
+					if(!left){
+						matrixStackIn.translate(-0.15625, 0, 0);
+						matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180));
+						matrixStackIn.translate(0.15625, 0, 0);
+					}
 					matrixStackIn.translate(-0.5, -0.5, -0.5);
 					blockRenderer.renderBlock(state, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);
+					matrixStackIn.pop();
+					
 					
 					//text up
-					matrixStackIn.translate(0.5, 0.5, 0.5);
 					matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-90));
-					matrixStackIn.translate(-0.0625, 0.28125, 0.1875 + 0.005);
+					matrixStackIn.translate(-0.03125*o, 0.28125, 0.1875 + 0.005);
 					matrixStackIn.scale(0.010416667F, -0.010416667F, 0.010416667F);
 					matrixStackIn.translate(0, 1, 0);
 					
-					String s = entityIn.getRenderText((p_212491_1_) -> {
-						List<ITextComponent> list = RenderComponentsUtil.splitText(p_212491_1_, 75, fontrenderer, false, true);
+					String s = entityIn.getRenderText(0, (p_212491_1_) -> {
+						List<ITextComponent> list = RenderComponentsUtil.splitText(p_212491_1_, 90, fontrenderer, false, true);
 						return list.isEmpty() ? "" : list.get(0).getFormattedText();
 					});
 					if (s != null) {
 						float f3 = (float) (-fontrenderer.getStringWidth(s) / 2);
 						fontrenderer.renderString(s, f3, (float) (- 5), i1, false, matrixStackIn.getLast().getMatrix(), bufferIn, false, 0, combinedLightIn);
 					}
-					
-					
 					
 					matrixStackIn.pop();
 				}
 				if(down){
 					matrixStackIn.push();
+
+					boolean left = entityIn.leftDown;
+					int o = left ? 1 : -1;
 					
 					matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entityIn.yawDown));
+					//sign block
+					matrixStackIn.push();
+					
+					if(!left){
+						matrixStackIn.translate(-0.15625, 0, 0);
+						matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180));
+						matrixStackIn.translate(0.15625, 0, 0);
+					}
 					matrixStackIn.translate(-0.5, -1, -0.5);
 					blockRenderer.renderBlock(state, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);
-					
+					matrixStackIn.pop();
 					
 					//text down
-					matrixStackIn.translate(0.5, 0.5, 0.5);
+					matrixStackIn.translate(0, -0.5, 0);
 					matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-90));
-					matrixStackIn.translate(-0.0625, 0.28125, 0.1875 + 0.005);
+					matrixStackIn.translate(-0.03125*o, 0.28125, 0.1875 + 0.005);
 					matrixStackIn.scale(0.010416667F, -0.010416667F, 0.010416667F);
 					matrixStackIn.translate(0, 1, 0);
 					
-					String s = entityIn.getRenderText((p_212491_1_) -> {
-						List<ITextComponent> list = RenderComponentsUtil.splitText(p_212491_1_, 75, fontrenderer, false, true);
+					String s = entityIn.getRenderText(1, (p_212491_1_) -> {
+						List<ITextComponent> list = RenderComponentsUtil.splitText(p_212491_1_, 90, fontrenderer, false, true);
 						return list.isEmpty() ? "" : list.get(0).getFormattedText();
 					});
 					if (s != null) {
@@ -551,13 +634,9 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 					
 					matrixStackIn.pop();
 				}
-		
-
-					
+				matrixStackIn.pop();	
 			}
 			
-			
-			matrixStackIn.pop();
 		}
 	}
 

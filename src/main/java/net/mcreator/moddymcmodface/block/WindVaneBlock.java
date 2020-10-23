@@ -19,7 +19,6 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Direction;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.tileentity.TileEntity;
@@ -34,11 +33,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Item;
 import net.minecraft.item.BlockItem;
-import net.minecraft.entity.Entity;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.RenderType;
@@ -53,14 +49,7 @@ import net.minecraft.block.Block;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.color.IBlockColor;
-import javax.annotation.Nullable;
-import net.minecraft.world.ILightReader;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
@@ -99,7 +88,6 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 			setRegistryName("wind_vane");
 			this.setDefaultState(this.stateContainer.getBaseState().with(INVERTED, false).with(POWER, Integer.valueOf(0)));
 		}
-
 
 		public static void updatePower(BlockState bs, World world, BlockPos pos) {
 			int weather = 0;
@@ -225,29 +213,28 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 		public void tick() {
 			float currentyaw = this.yaw;
 			this.prevYaw = currentyaw;
-			if(!this.world.isRemote()){
+			if (!this.world.isRemote()) {
 				if (this.world != null && this.world.getGameTime() % 20L == 0L) {
 					BlockState blockstate = this.getBlockState();
 					Block block = blockstate.getBlock();
 					if (block instanceof WindVaneBlock.CustomBlock) {
 						CustomBlock.updatePower(blockstate, this.world, this.pos);
 					}
-				} 
-			}
-			else{
+				}
+			} else {
 				int power = this.getBlockState().get(CustomBlock.POWER);
-		
-				//TODO:cache some of this maybe?
-				float hightoffset = 0;//(this.pos.getY()-64)/192f;
-				float offset = 3f*(MathHelper.sin(this.pos.getX())+MathHelper.sin(this.pos.getZ())+MathHelper.sin(this.pos.getY()));
-				float i = this.getWorld().getDayTime() +offset;
-				float b = (power + hightoffset)* 2f;
-				float newyaw = 30f * MathHelper.sin(i * (1f + b) / 60f) + 10f * MathHelper.sin(i * (1f + b) / 20f);			
+				// TODO:cache some of this maybe?
+				float hightoffset = 0;// (this.pos.getY()-64)/192f;
+				float offset = 3f * (MathHelper.sin(this.pos.getX()) + MathHelper.sin(this.pos.getZ()) + MathHelper.sin(this.pos.getY()));
+				float i = this.getWorld().getDayTime() + offset;
+				float b = (power + hightoffset) * 2f;
+				float newyaw = 30f * MathHelper.sin(i * (1f + b) / 60f) + 10f * MathHelper.sin(i * (1f + b) / 20f);
 				this.yaw = MathHelper.clamp(newyaw, currentyaw - 8, currentyaw + 8);
 			}
 		}
 	}
 
+	@OnlyIn(Dist.CLIENT)
 	public static class CustomRender extends TileEntityRenderer<CustomTileEntity> {
 		public CustomRender(TileEntityRendererDispatcher rendererDispatcherIn) {
 			super(rendererDispatcherIn);
@@ -256,18 +243,14 @@ public class WindVaneBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
-
 			matrixStackIn.push();
 			matrixStackIn.translate(0.5, 0.5, 0.5);
-			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(90+MathHelper.lerp(partialTicks, entityIn.getPrevYaw(), entityIn.getYaw())));
+			matrixStackIn.rotate(Vector3f.YP.rotationDegrees(90 + MathHelper.lerp(partialTicks, entityIn.getPrevYaw(), entityIn.getYaw())));
 			matrixStackIn.translate(-0.5, -0.5, -0.5);
 			BlockRendererDispatcher blockRenderer = Minecraft.getInstance().getBlockRendererDispatcher();
-
 			BlockState state = WindVaneBlock.block.getDefaultState().with(BlockStateProperties.INVERTED, true);
 			blockRenderer.renderBlock(state, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);
 			matrixStackIn.pop();
 		}
-
-
 	}
 }

@@ -4,12 +4,14 @@ package net.mcreator.moddymcmodface.block;
 import net.minecraftforge.registries.ObjectHolder;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.api.distmarker.Dist;
 
 import net.minecraft.world.storage.loot.LootContext;
+import net.minecraft.world.biome.BiomeColors;
 import net.minecraft.world.World;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -18,9 +20,11 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Direction;
@@ -29,14 +33,18 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.HopperTileEntity;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.potion.Potions;
+import net.minecraft.potion.PotionUtils;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Item;
@@ -47,55 +55,38 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.IWaterLoggable;
 import net.minecraft.block.HorizontalBlock;
-import net.minecraft.block.Blocks;
+import net.minecraft.block.CauldronBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Block;
-import net.minecraft.block.CauldronBlock;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.block.BeehiveBlock;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
-import net.mcreator.moddymcmodface.block.JarBlock;
 import net.mcreator.moddymcmodface.CommonUtil;
 
 import java.util.stream.IntStream;
 import java.util.Random;
 import java.util.List;
 import java.util.Collections;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraft.client.renderer.Vector3f;
-import net.minecraft.world.biome.BiomeColors;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.block.BeehiveBlock;
-import net.minecraft.item.HoneyBottleItem;
-import net.minecraft.item.Items;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.potion.Potions;
+import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
+import net.minecraft.entity.ai.brain.task.UpdateActivityTask;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 	public static final ResourceLocation texture = new ResourceLocation("moddymcmodface:blocks/faucet_water");
-	
 	@ObjectHolder("moddymcmodface:faucet")
 	public static final Block block = null;
 	@ObjectHolder("moddymcmodface:faucet")
@@ -121,7 +112,6 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 	public void clientLoad(FMLClientSetupEvent event) {
 		RenderTypeLookup.setRenderLayer(block, RenderType.getCutoutMipped());
 		ClientRegistry.bindTileEntityRenderer(tileEntityType, CustomRender::new);
-
 	}
 	public static class CustomBlock extends Block {
 		public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
@@ -131,17 +121,14 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 		public static final BooleanProperty HAS_JAR = BooleanProperty.create("has_jar");
 		public CustomBlock() {
 			super(Block.Properties.create(Material.IRON).sound(SoundType.METAL).hardnessAndResistance(3f, 4.8f).lightValue(0).notSolid());
-			this.setDefaultState(this.stateContainer.getBaseState().with(HAS_JAR, false).with(FACING, Direction.NORTH).with(ENABLED, false).with(POWERED, false)
-					.with(HAS_WATER, false));
+			this.setDefaultState(this.stateContainer.getBaseState().with(HAS_JAR, false).with(FACING, Direction.NORTH).with(ENABLED, false)
+					.with(POWERED, false).with(HAS_WATER, false));
 			setRegistryName("faucet");
 		}
 
-
-
-
 		@Override
 		public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
-			if(state.get(HAS_JAR)){
+			if (state.get(HAS_JAR)) {
 				switch ((Direction) state.get(FACING)) {
 					case UP :
 					case DOWN :
@@ -155,8 +142,7 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 					case WEST :
 						return VoxelShapes.create(1D, 0, 0.3125D, 0.312D, 0.625D, 0.6875D);
 				}
-			}
-			else{
+			} else {
 				switch ((Direction) state.get(FACING)) {
 					case UP :
 					case DOWN :
@@ -170,14 +156,12 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 					case WEST :
 						return VoxelShapes.create(1D, 0.3125D, 0.3125D, 0.312D, 0.9375D, 0.6875D);
 				}
-
 			}
 		}
 
 		@Override
 		public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn,
-				BlockRayTraceResult hit) { 
-				
+				BlockRayTraceResult hit) {
 			float f = state.get(ENABLED) ? 0.6F : 0.5F;
 			worldIn.playSound((PlayerEntity) null, pos, SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.BLOCKS, 0.3F, f);
 			this.updateBlock(state, worldIn, pos, true);
@@ -198,38 +182,33 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 		public void updateBlock(BlockState state, World world, BlockPos pos, boolean toggle) {
 			BlockPos backpos = pos.offset(state.get(FACING), -1);
 			BlockState backblock = world.getBlockState(backpos);
-			//checks backblock
+			// checks backblock
 			boolean ispowered = world.getRedstonePowerFromNeighbors(pos) > 0;
-
-			boolean ishoney = backblock.getBlock() instanceof BeehiveBlock && backblock.get(BlockStateProperties.HONEY_LEVEL)>0;
-			
-			boolean isjarliquid = (backblock.getBlock() == JarBlock.block && ((JarBlock.CustomBlock)backblock.getBlock()).getBeaconColorMultiplier(backblock, world, backpos, backpos)!=null);
-
+			boolean ishoney = backblock.getBlock() instanceof BeehiveBlock && backblock.get(BlockStateProperties.HONEY_LEVEL) > 0;
+			boolean isjarliquid = (backblock.getBlock() == JarBlock.block
+					&& ((JarBlock.CustomBlock) backblock.getBlock()).getBeaconColorMultiplier(backblock, world, backpos, backpos) != null);
 			boolean iswater = (world.getFluidState(backpos).isTagged(FluidTags.WATER)
 					|| ((backblock.getBlock() instanceof CauldronBlock) && backblock.getComparatorInputOverride(world, backpos) > 0));
-
 			boolean hasjar = world.getBlockState(pos.down()).getBlock() == JarBlock.block;
-
 			boolean haswater = ishoney || iswater || isjarliquid;
-
-			if (ispowered != state.get(POWERED) || haswater != state.get(HAS_WATER) || hasjar !=state.get(HAS_JAR) || toggle) {
-				world.setBlockState(pos, state.with(POWERED, ispowered).with(HAS_WATER, haswater).with(HAS_JAR, hasjar).with(ENABLED, toggle ^ state.get(ENABLED)), 2);
+			if (ispowered != state.get(POWERED) || haswater != state.get(HAS_WATER) || hasjar != state.get(HAS_JAR) || toggle) {
+				world.setBlockState(pos,
+						state.with(POWERED, ispowered).with(HAS_WATER, haswater).with(HAS_JAR, hasjar).with(ENABLED, toggle ^ state.get(ENABLED)), 2);
 			}
-
-			int newcolor = -1;
-			if(ishoney) newcolor = JarBlock.JarContentType.HONEY.color;
-			else if(isjarliquid){
+			int newcolor = -2; //TODO:rewrite this
+			if (ishoney)
+				newcolor = JarBlock.JarContentType.HONEY.color;
+			else if (isjarliquid) {
 				TileEntity tileentity = world.getTileEntity(backpos);
-				if(tileentity instanceof JarBlock.CustomTileEntity){
-					newcolor = ((JarBlock.CustomTileEntity)tileentity).color;
+				if (tileentity instanceof JarBlock.CustomTileEntity) {
+					newcolor = ((JarBlock.CustomTileEntity) tileentity).color;
 				}
-			}
-			else if(iswater) newcolor = BiomeColors.getWaterColor(world, pos);
-
-			if(newcolor!=-1){
+			} else if (iswater)
+				newcolor = -1; 
+			if (newcolor != -2) {
 				TileEntity tileentity = world.getTileEntity(pos);
-				if(tileentity instanceof CustomTileEntity){
-					((CustomTileEntity)tileentity).watercolor = newcolor;
+				if (tileentity instanceof CustomTileEntity) {
+					((CustomTileEntity) tileentity).watercolor = newcolor;
 				}
 			}
 		}
@@ -286,9 +265,9 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 				int z = pos.getZ();
 				for (int l = 0; l < 4; ++l) {
 					double d0 = (x + 0.375 + 0.25 * random.nextFloat());
-					double d1 = (y + 0.25 + 0 * random.nextFloat());//0.3125
-					double d2 = (z + 0.375  + 0.25 * random.nextFloat());
-
+					double d1 = (y + 0.25 + 0 * random.nextFloat());
+					// 0.3125
+					double d2 = (z + 0.375 + 0.25 * random.nextFloat());
 					world.addParticle(ParticleTypes.FALLING_WATER, d0, d1, d2, 0, 0, 0);
 					world.addParticle(ParticleTypes.DRIPPING_WATER, x + 0.5, y + 0.25, z + 0.5, 0, 0, 0);
 				}
@@ -317,16 +296,13 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 		private int transferCooldown = 0;
 		protected final Random rand = new Random();
 		public int watercolor = 0x423cf7;
-
 		protected CustomTileEntity() {
 			super(tileEntityType);
-			
 		}
 
-
 		@Override
-		public AxisAlignedBB getRenderBoundingBox(){
-			return new AxisAlignedBB(getPos().add(0,-1,0), getPos().add(1,1,1));
+		public AxisAlignedBB getRenderBoundingBox() {
+			return new AxisAlignedBB(getPos().add(0, -1, 0), getPos().add(1, 1, 1));
 		}
 
 		private boolean isOnTransferCooldown() {
@@ -347,45 +323,43 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			}
 		}
 
-		private boolean tryExtract(){
+		private boolean tryExtract() {
 			BlockPos behind = this.pos.offset(this.getBlockState().get(CustomBlock.FACING), -1);
 			BlockState backstate = this.world.getBlockState(behind);
-			//empty beehive
-			if(backstate.getBlock() instanceof BeehiveBlock && backstate.get(BlockStateProperties.HONEY_LEVEL)>0){
-				if(this.hasJar()){
-					if(this.addItemToJar(new ItemStack(Items.HONEY_BOTTLE))){
-						this.world.setBlockState(behind, backstate.with(BlockStateProperties.HONEY_LEVEL, backstate.get(BlockStateProperties.HONEY_LEVEL) -1), 3);
+			// empty beehive
+			if (backstate.getBlock() instanceof BeehiveBlock && backstate.get(BlockStateProperties.HONEY_LEVEL) > 0) {
+				if (this.hasJar()) {
+					if (this.addItemToJar(new ItemStack(Items.HONEY_BOTTLE))) {
+						this.world.setBlockState(behind,
+								backstate.with(BlockStateProperties.HONEY_LEVEL, backstate.get(BlockStateProperties.HONEY_LEVEL) - 1), 3);
 						return true;
 					}
 				}
-				
 				return false;
 			}
-			//empty cauldron
-			else if(backstate.getBlock() instanceof CauldronBlock && backstate.get(BlockStateProperties.LEVEL_0_3)>0){
-				if(this.hasJar()){
-					if(this.addItemToJar(PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION), Potions.WATER))){
-						this.world.setBlockState(behind, backstate.with(BlockStateProperties.LEVEL_0_3, backstate.get(BlockStateProperties.LEVEL_0_3) -1), 3);
+			// empty cauldron
+			else if (backstate.getBlock() instanceof CauldronBlock && backstate.get(BlockStateProperties.LEVEL_0_3) > 0) {
+				if (this.hasJar()) {
+					if (this.addItemToJar(PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION), Potions.WATER))) {
+						this.world.setBlockState(behind,
+								backstate.with(BlockStateProperties.LEVEL_0_3, backstate.get(BlockStateProperties.LEVEL_0_3) - 1), 3);
 						return true;
 					}
 				}
-				
 				return false;
 			}
 			return this.pullItems();
-
-			
 		}
 
 		public boolean isOpen() {
 			return (this.getBlockState().get(BlockStateProperties.POWERED) ^ this.getBlockState().get(BlockStateProperties.ENABLED));
 		}
-		
-		public boolean hasWater(){
+
+		public boolean hasWater() {
 			return this.getBlockState().get(CustomBlock.HAS_WATER);
 		}
 
-		public boolean hasJar(){
+		public boolean hasJar() {
 			return this.getBlockState().get(CustomBlock.HAS_JAR);
 		}
 
@@ -394,15 +368,14 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 			return !(inventoryIn instanceof ISidedInventory) || ((ISidedInventory) inventoryIn).canExtractItem(index, stack, side);
 		}
 
-		private boolean addItemToJar(ItemStack itemstack){	
+		private boolean addItemToJar(ItemStack itemstack) {
 			TileEntity tileentity = world.getTileEntity(this.pos.down());
-			if(tileentity instanceof JarBlock.CustomTileEntity){
+			if (tileentity instanceof JarBlock.CustomTileEntity) {
 				JarBlock.CustomTileEntity jartileentity = (JarBlock.CustomTileEntity) tileentity;
-				if (jartileentity.isItemValidForSlot(0, itemstack)){
+				if (jartileentity.isItemValidForSlot(0, itemstack)) {
 					ItemStack it = (ItemStack) itemstack.copy();
 					itemstack.shrink(1);
-					
-					jartileentity.addItem(it,1);
+					jartileentity.addItem(it, 1);
 					jartileentity.markDirty();
 					return true;
 				}
@@ -412,35 +385,29 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 
 		private boolean pullItemFromSlot(IInventory inventoryIn, int index, Direction direction) {
 			ItemStack itemstack = inventoryIn.getStackInSlot(index);
-			BlockPos backpos =this.pos.offset(this.getBlockState().get(HorizontalBlock.HORIZONTAL_FACING), -1);
-
-			//special case for jars. has to be done to prevent other hoppers frominteracting with them cause canextractitems is always false
-			if(this.hasJar()){
-				//can only transfer from jar to jar
-				if(world.getBlockState(backpos).getBlock() == JarBlock.block&& ! itemstack.isEmpty()){
-					if(this.addItemToJar(itemstack)){
+			BlockPos backpos = this.pos.offset(this.getBlockState().get(HorizontalBlock.HORIZONTAL_FACING), -1);
+			// special case for jars. has to be done to prevent other hoppers
+			// frominteracting with them cause canextractitems is always false
+			if (this.hasJar()) {
+				// can only transfer from jar to jar
+				if (world.getBlockState(backpos).getBlock() == JarBlock.block && !itemstack.isEmpty()) {
+					if (this.addItemToJar(itemstack)) {
 						inventoryIn.markDirty();
 						return true;
 					}
 				}
 				return false;
-
-			}
-			else if (!itemstack.isEmpty() && canExtractItemFromSlot(inventoryIn, itemstack, index, direction)) {
-	
+			} else if (!itemstack.isEmpty() && canExtractItemFromSlot(inventoryIn, itemstack, index, direction)) {
 				ItemStack it = (ItemStack) itemstack.copy();
 				itemstack.shrink(1);
-
 				inventoryIn.markDirty();
 				it.setCount((int) 1);
 				ItemEntity drop = new ItemEntity(this.world, this.pos.getX() + 0.5, this.pos.getY(), this.pos.getZ() + 0.5, it);
 				drop.setMotion(new Vec3d(0, 0, 0));
 				this.world.addEntity(drop);
-				float f= (this.rand.nextFloat()-0.5f)/4f;
-				this.world.playSound((PlayerEntity) null, this.pos, SoundEvents.ENTITY_CHICKEN_EGG, SoundCategory.BLOCKS, 0.3F, 0.5f+f);
-	
+				float f = (this.rand.nextFloat() - 0.5f) / 4f;
+				this.world.playSound((PlayerEntity) null, this.pos, SoundEvents.ENTITY_CHICKEN_EGG, SoundCategory.BLOCKS, 0.3F, 0.5f + f);
 				return true;
-				
 			}
 			return false;
 		}
@@ -478,13 +445,13 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void read(CompoundNBT compound) {
 			super.read(compound);
-			this.watercolor=compound.getInt("watercolor");
+			this.watercolor = compound.getInt("watercolor");
 		}
 
 		@Override
 		public CompoundNBT write(CompoundNBT compound) {
 			super.write(compound);
-			compound.putInt("watercolor",this.watercolor);
+			compound.putInt("watercolor", this.watercolor);
 			return compound;
 		}
 
@@ -502,42 +469,40 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 		public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
 			this.read(pkt.getNbtCompound());
 		}
+		
+		@OnlyIn(Dist.CLIENT)
+		public int updateClientWaterColor(){
+			this.watercolor = BiomeColors.getWaterColor(this.world, this.pos);
+			return this.watercolor;			
+		}
+		
 	}
-
-
-
-
-
-
+	
 	@OnlyIn(Dist.CLIENT)
 	public static class CustomRender extends TileEntityRenderer<CustomTileEntity> {
 		public CustomRender(TileEntityRendererDispatcher rendererDispatcherIn) {
 			super(rendererDispatcherIn);
 		}
-
-		// shaded rectangle with wx = wz with texture flipped vertically. starts from
-		// block 0,0,0
-
+		
 		@Override
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
-			if(entityIn.hasWater() && entityIn.isOpen() && !entityIn.hasJar()){
-				 TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture);
-				//TODO:remove breaking animation
+			if (entityIn.hasWater() && entityIn.isOpen() && !entityIn.hasJar()) {
+				TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(texture);
+				// TODO:remove breaking animation
 				IVertexBuilder builder = bufferIn.getBuffer(RenderType.getTranslucent());
-				int color =entityIn.watercolor;
-				float opacity =0.75f;
+				int color = entityIn.watercolor;
+				if(color==-1)color = entityIn.updateClientWaterColor();
+				float opacity = 0.75f;
 				float height = 1;
 				matrixStackIn.push();
-				matrixStackIn.translate(0.5, -0.5 -0.1875, 0.5);
+				matrixStackIn.translate(0.5, -0.5 - 0.1875, 0.5);
 				if (height != 0) {
-					CommonUtil.addCube(builder, matrixStackIn, 0.25f, height, sprite, combinedLightIn, color, opacity, combinedOverlayIn, false, false, true, false);
+					CommonUtil.addCube(builder, matrixStackIn, 0.25f, height, sprite, combinedLightIn, color, opacity, combinedOverlayIn, false,
+							false, true, false);
 				}
 				matrixStackIn.pop();
 			}
 		}
 	}
-
-
-	
 }

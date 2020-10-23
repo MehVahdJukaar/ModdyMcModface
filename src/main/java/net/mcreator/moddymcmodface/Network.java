@@ -42,6 +42,7 @@ import net.mcreator.moddymcmodface.block.NoticeBoardBlock;
 import net.mcreator.moddymcmodface.block.PedestalBlock;
 import net.mcreator.moddymcmodface.block.JarBlock;
 import net.mcreator.moddymcmodface.block.HangingSignBlock;
+import net.mcreator.moddymcmodface.block.SignPostBlock;
 
 import java.util.function.Supplier;
 import net.minecraft.entity.Entity;
@@ -77,6 +78,54 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 
 	public abstract static class myMessage {}
 
+	
+	public static class PackedUpdateServerSignPost extends myMessage {
+		private BlockPos pos;
+		private ITextComponent t0;
+		private ITextComponent t1;
+		
+		public PackedUpdateServerSignPost(PacketBuffer buf) {
+			this.pos = buf.readBlockPos();
+
+			String s = buf.readString();
+			ITextComponent itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
+			this.t0 = itextcomponent;
+			s = buf.readString();
+			itextcomponent = ITextComponent.Serializer.fromJson(s.isEmpty() ? "\"\"" : s);
+			this.t1 = itextcomponent;			
+		}
+		public PackedUpdateServerSignPost(BlockPos pos, ITextComponent t0, ITextComponent t1) {
+			this.pos = pos;
+			this.t0 = t0;
+			this.t1 = t1;
+		}
+		public void toBytes(PacketBuffer buf) {
+			buf.writeBlockPos(this.pos);
+
+			String s = ITextComponent.Serializer.toJson(this.t0);
+			buf.writeString(s);
+			s = ITextComponent.Serializer.toJson(this.t1);
+			buf.writeString(s);
+			
+		}
+		public void handle(Supplier<NetworkEvent.Context> ctx) {
+			//server world
+			World world = ctx.get().getSender().world;
+
+			ctx.get().enqueueWork(() -> {
+
+				if (world != null) {
+					TileEntity tileentity = world.getTileEntity(pos);
+					if (tileentity instanceof SignPostBlock.CustomTileEntity) {
+						SignPostBlock.CustomTileEntity sign = (SignPostBlock.CustomTileEntity) tileentity;
+						sign.setText(0, this.t0);
+						sign.setText(1, this.t1);
+					}
+				}
+			});
+			ctx.get().setPacketHandled(true);
+		}
+	}
 
 	public static class PackedUpdateServerHangingSign extends myMessage {
 		private BlockPos pos;
@@ -171,6 +220,11 @@ public class Network extends ModdymcmodfaceModElements.ModElement {
 					PackedUpdateServerHangingSign::toBytes, 
 					PackedUpdateServerHangingSign::new,
 					PackedUpdateServerHangingSign::handle);
+			INSTANCE.registerMessage(nextID(), 
+					PackedUpdateServerSignPost.class, 
+					PackedUpdateServerSignPost::toBytes, 
+					PackedUpdateServerSignPost::new,
+					PackedUpdateServerSignPost::handle);
 
 		}
 	}

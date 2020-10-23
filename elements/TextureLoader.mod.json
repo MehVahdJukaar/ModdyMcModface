@@ -48,7 +48,7 @@
     "isReplaceable": false,
     "colorOnMap": "DEFAULT",
     "creativePickItem": {
-      "value": "Blocks.SANDSTONE#1"
+      "value": "Blocks.MAGENTA_BED"
     },
     "offsetType": "NONE",
     "aiPathNodeType": "BLOCKED",

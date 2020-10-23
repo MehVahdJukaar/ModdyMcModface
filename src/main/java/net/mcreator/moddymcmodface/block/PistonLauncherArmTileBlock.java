@@ -2,7 +2,6 @@
 package net.mcreator.moddymcmodface.block;
 
 import net.minecraftforge.registries.ObjectHolder;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -11,16 +10,14 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
+
 import net.minecraft.world.storage.loot.LootContext;
 import net.minecraft.world.World;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.MathHelper;
@@ -37,7 +34,6 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.BooleanProperty;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.network.NetworkManager;
@@ -52,8 +48,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.Vector3f;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.Minecraft;
@@ -75,8 +69,6 @@ import java.util.List;
 import java.util.Collections;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.util.math.Vec3i;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModElement {
@@ -104,7 +96,7 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void clientLoad(FMLClientSetupEvent event) {
-		//RenderTypeLookup.setRenderLayer(block, RenderType.getCutout());
+		// RenderTypeLookup.setRenderLayer(block, RenderType.getCutout());
 		ClientRegistry.bindTileEntityRenderer(tileEntityType, CustomRender::new);
 	}
 	public static class CustomBlock extends Block {
@@ -137,12 +129,11 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 			return PushReaction.BLOCK;
 		}
 
-		//for correct light rendering??
+		// for correct light rendering??
 		@Override
 		public VoxelShape getRenderShape(BlockState state, IBlockReader worldIn, BlockPos pos) {
 			return VoxelShapes.empty();
 		}
-
 
 		@Override
 		protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
@@ -210,7 +201,8 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 		protected CustomTileEntity() {
 			super(tileEntityType);
 		}
-		protected CustomTileEntity(boolean extending, Direction dir){
+
+		protected CustomTileEntity(boolean extending, Direction dir) {
 			this();
 			this.setParameters(extending, dir);
 		}
@@ -220,10 +212,7 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 		}
 
 		public void tick() {
-			
-			
-		
-			if(this.world.isRemote()){
+			if (this.world.isRemote()) {
 				if (this.getExtending()) {
 					double x = this.pos.getX() + 0.5 + this.dx * this.offset;
 					double y = this.pos.getY() + this.dy * this.offset;
@@ -236,23 +225,22 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 						double d3 = (random.nextFloat() - 0.5D) * 0.05D;
 						double d4 = (random.nextFloat() - 0.5D) * 0.05D;
 						double d5 = (random.nextFloat() - 0.5D) * 0.05D;
-						//world.addParticle(ParticleTypes.POOF, d0, d1, d2, d3, d4, d5);
+						// world.addParticle(ParticleTypes.POOF, d0, d1, d2, d3, d4, d5);
 						this.world.addParticle(ParticleTypes.CLOUD, d0, d1, d2, d3, d4, d5);
 					}
 				}
 			}
-
 			if (this.age > 1) {
 				this.prevOffset = this.offset;
-				if(!this.world.isRemote()){
+				if (!this.world.isRemote()) {
 					if (this.getExtending()) {
 						BlockState _bs = PistonLauncherHeadBlock.block.getDefaultState();
-						world.setBlockState(pos, _bs.with(CustomBlock.FACING, this.getDirection()), 3);
+						world.setBlockState(pos, _bs.with(CustomBlock.FACING, this.getDirection()), 3);
 					} else {
 						BlockState _bs = PistonLauncherBlock.block.getDefaultState();
 						BlockPos _bp = pos.offset(this.getDirection().getOpposite());
 						if (PistonLauncherBlock.block.getDefaultState().getBlock() == world.getBlockState(_bp).getBlock()) {
-							world.setBlockState(_bp, _bs.with(CustomBlock.FACING, this.getDirection()), 3);
+							world.setBlockState(_bp, _bs.with(CustomBlock.FACING, this.getDirection()), 3);
 						}
 						world.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
 					}
@@ -263,8 +251,7 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 				this.offset += this.increment;
 				if (this.getExtending()) {
 					AxisAlignedBB p_bb = this.getAdjustedBoundingBox();
-					
-					List<Entity> list1 = this.world.getEntitiesWithinAABBExcludingEntity(null,p_bb);
+					List<Entity> list1 = this.world.getEntitiesWithinAABBExcludingEntity(null, p_bb);
 					if (!list1.isEmpty()) {
 						for (Entity entity : list1) {
 							if (entity.getPushReaction() != PushReaction.IGNORE) {
@@ -282,15 +269,13 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 								if (dz != 0) {
 									d3 = this.dz * speed;
 								}
-								
 								entity.setMotion(d1, d2, d3);
-								entity.velocityChanged=true;
+								entity.velocityChanged = true;
 								moveCollidedEntity(entity, p_bb);
 							}
 						}
 					}
 				}
-				
 			}
 		}
 
@@ -336,19 +321,18 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 				this.offset = 0;
 				this.prevOffset = 0;
 			}
-			
 			Vec3i v = dir.getDirectionVec();
-			this.dx=v.getX();
-			this.dy=v.getY();
-			this.dz=v.getZ();
+			this.dx = v.getX();
+			this.dy = v.getY();
+			this.dz = v.getZ();
 		}
 
-		public Direction getDirection(){
+		public Direction getDirection() {
 			return this.getBlockState().get(CustomBlock.FACING);
 		}
-		
+
 		public boolean getExtending() {
-			return  this.getBlockState().get(CustomBlock.EXTENDING);
+			return this.getBlockState().get(CustomBlock.EXTENDING);
 		}
 
 		public int getAge() {
@@ -373,7 +357,6 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 			this.dx = compound.getInt("dx");
 			this.dy = compound.getInt("dy");
 			this.dz = compound.getInt("dz");
-			
 		}
 
 		@Override
@@ -385,10 +368,9 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 			compound.putDouble("prevOffset", this.prevOffset);
 			compound.putInt("dx", this.dx);
 			compound.putInt("dy", this.dy);
-			compound.putInt("dz", this.dz);	
+			compound.putInt("dz", this.dz);
 			return compound;
 		}
-		
 
 		@Override
 		public SUpdateTileEntityPacket getUpdatePacket() {
@@ -406,6 +388,7 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 		}
 	}
 
+	@OnlyIn(Dist.CLIENT)
 	public static class CustomRender extends TileEntityRenderer<CustomTileEntity> {
 		private static final ResourceLocation texture = new ResourceLocation("moddymcmodface:textures/piston_launcher_head.png");
 		public CustomRender(TileEntityRendererDispatcher rendererDispatcherIn) {
@@ -420,18 +403,14 @@ public class PistonLauncherArmTileBlock extends ModdymcmodfaceModElements.ModEle
 			matrixStackIn.rotate(entityIn.getDirection().getOpposite().getRotation());
 			matrixStackIn.rotate(Vector3f.XP.rotationDegrees(180.0F));
 			matrixStackIn.translate(-0.5, -0.5, -0.5);
-
 			matrixStackIn.translate(0, MathHelper.lerp(partialTicks, entityIn.getPrevOffset(), entityIn.getOffset()), 0);
 			BlockRendererDispatcher blockRenderer = Minecraft.getInstance().getBlockRendererDispatcher();
-
 			boolean flag1 = !(entityIn.getExtending() ^ entityIn.getAge() < 2);
-			
-			BlockState state = PistonLauncherHeadBlock.block.getDefaultState().with(CustomBlock.FACING, Direction.UP).with(BlockStateProperties.SHORT, flag1);
+			BlockState state = PistonLauncherHeadBlock.block.getDefaultState().with(CustomBlock.FACING, Direction.UP).with(BlockStateProperties.SHORT,
+					flag1);
 			blockRenderer.renderBlock(state, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, EmptyModelData.INSTANCE);
-      
 			matrixStackIn.pop();
 		}
-
 
 		public ResourceLocation getEntityTexture(CustomTileEntity entity) {
 			return texture;

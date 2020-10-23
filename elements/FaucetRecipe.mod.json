@@ -10,19 +10,13 @@
     "recipeShapeless": false,
     "recipeSlots": [
       {
-        "value": "Items.IRON_INGOT"
+        "value": ""
       },
       {
-        "value": "Blocks.SLIME_BLOCK"
+        "value": "Items.STICK"
       },
       {
-        "value": "Items.IRON_INGOT"
-      },
-      {
-        "value": "Items.IRON_INGOT"
-      },
-      {
-        "value": "Blocks.STICKY_PISTON"
+        "value": ""
       },
       {
         "value": "Items.IRON_INGOT"
@@ -31,16 +25,22 @@
         "value": "Items.IRON_INGOT"
       },
       {
-        "value": "Items.GUNPOWDER"
+        "value": "Items.IRON_INGOT"
+      },
+      {
+        "value": ""
+      },
+      {
+        "value": ""
       },
       {
         "value": "Items.IRON_INGOT"
       }
     ],
     "recipeReturnStack": {
-      "value": "CUSTOM:PistonLauncher"
+      "value": "CUSTOM:Faucet"
     },
-    "name": "piston_launcher_recipe",
+    "name": "faucet_recipe",
     "namespace": "mod"
   }
 }

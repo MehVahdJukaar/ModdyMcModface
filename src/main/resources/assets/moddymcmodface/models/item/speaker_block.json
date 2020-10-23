@@ -1,5 +1,5 @@
 {
-  "parent": "moddymcmodface:block/tiki",
+  "parent": "moddymcmodface:block/speaker_block",
   "display": {
     "thirdperson": {
       "rotation": [

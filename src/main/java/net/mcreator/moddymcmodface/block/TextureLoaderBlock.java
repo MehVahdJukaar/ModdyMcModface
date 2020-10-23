@@ -45,7 +45,7 @@ public class TextureLoaderBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player) {
-			return new ItemStack(Blocks.CHISELED_SANDSTONE, (int) (1));
+			return new ItemStack(Blocks.MAGENTA_BED, (int) (1));
 		}
 
 		@Override

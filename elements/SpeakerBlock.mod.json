@@ -2,33 +2,33 @@
   "_fv": 10,
   "_type": "block",
   "definition": {
-    "texture": "tiki",
-    "textureTop": "",
-    "textureLeft": "",
-    "textureFront": "",
-    "textureRight": "",
-    "textureBack": "",
-    "renderType": 2,
-    "customModelName": "tiki:default",
-    "rotationMode": 0,
+    "texture": "speaker_bottom",
+    "textureTop": "speaker_top",
+    "textureLeft": "speaker_side",
+    "textureFront": "speaker_side",
+    "textureRight": "speaker_side",
+    "textureBack": "speaker_side",
+    "renderType": 10,
+    "customModelName": "Normal",
+    "rotationMode": 2,
     "emissiveRendering": false,
     "itemTexture": "",
-    "hasTransparency": true,
+    "hasTransparency": false,
     "connectedSides": false,
-    "transparencyType": "CUTOUT",
+    "transparencyType": "SOLID",
     "mx": 0.0,
     "my": 0.0,
     "mz": 0.0,
     "Mx": 1.0,
     "My": 1.0,
     "Mz": 1.0,
-    "name": "Tiki",
+    "name": "Speaker Block",
     "specialInfo": [],
-    "hardness": 1.0,
-    "resistance": 10.0,
+    "hardness": 3.0,
+    "resistance": 3.0,
     "hasGravity": false,
     "creativeTab": {
-      "value": "DECORATIONS"
+      "value": "REDSTONE"
     },
     "destroyTool": "Not specified",
     "customDrop": {
@@ -39,9 +39,9 @@
     "enchantPowerBonus": 0.0,
     "plantsGrowOn": false,
     "canProvidePower": false,
-    "lightOpacity": 0,
+    "lightOpacity": 255,
     "material": {
-      "value": "WOOD"
+      "value": "IRON"
     },
     "tickRate": 10,
     "tickRandomly": false,
@@ -59,9 +59,9 @@
     "reactionToPushing": "NORMAL",
     "isNotColidable": false,
     "soundOnStep": {
-      "value": "WOOD"
+      "value": "METAL"
     },
-    "luminance": 1.0,
+    "luminance": 0.0,
     "unbreakable": false,
     "breakHarvestLevel": 1,
     "spawnParticles": false,

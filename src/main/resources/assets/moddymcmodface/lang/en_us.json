@@ -1,9 +1,7 @@
 {
   "block.lightupmyenvironment.texture_loader": "Texture Loader",
-  "block.lightupmyenvironment.faucet": "Faucet",
   "block.moddymcmodface.hanging_sign": "Hanging Sign",
-  "block.moddymcmodface.tiki": "Tiki",
-  "block.moddymcmodface.fancy_lamp": "Fancy Lamp",
+  "block.lightupmyenvironment.faucet": "Faucet",
   "block.lightupmyenvironment.planter": "Planter",
   "entity.lightupmyenvironment.firefly": "Firefly",
   "block.lightupmyenvironment.blaze_block": "Blaze Block",
@@ -23,14 +21,13 @@
   "block.lightupmyenvironment.pedestal": "Pedestal",
   "block.moddymcmodface.texture_loader": "Texture Loader",
   "item.lightupmyenvironment.firefly": "Firefly Spawn Egg",
-  "block.moddymcmodface.skull_lantern_down": "Skull Lantern Down",
   "block.lightupmyenvironment.laser": "Laser",
   "block.lightupmyenvironment.turn_table": "Turn Table",
   "block.lightupmyenvironment.redstone_illuminator": "Redstone Illuminator",
+  "block.moddymcmodface.speaker_block": "Speaker Block",
   "block.lightupmyenvironment.skull_lantern_down": "Skull Lantern Down",
   "block.moddymcmodface.sign_post": "Sign Post",
   "block.lightupmyenvironment.torch_2": "Torch 2",
   "block.moddymcmodface.wall_glass_pane": "Wall Glass Pane",
-  "block.lightupmyenvironment.notice_board": "Notice Board",
-  "block.moddymcmodface.torch_2": "Torch 2"
+  "block.lightupmyenvironment.notice_board": "Notice Board"
 }

@@ -3,8 +3,8 @@
   "textures": {
     "all": "moddymcmodface:blocks/laser_side",
     "particle": "moddymcmodface:blocks/laser_side",
-    "0": "moddymcmodface:blocks/turn_table_top",
-    "1": "moddymcmodface:blocks/turn_table_side_left",
-    "2": "moddymcmodface:blocks/turb_table_bottom"
+    "0": "moddymcmodface:blocks/laser_top",
+    "1": "moddymcmodface:blocks/laser_side",
+    "2": "moddymcmodface:blocks/turn_table_bottom"
   }
 }

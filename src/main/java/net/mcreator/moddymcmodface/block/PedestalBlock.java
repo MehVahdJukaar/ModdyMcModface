@@ -518,6 +518,7 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 		
 	}
 
+	@OnlyIn(Dist.CLIENT)
 	public static class CustomRender extends TileEntityRenderer<CustomTileEntity> {
 		public CustomRender(TileEntityRendererDispatcher rendererDispatcherIn) {
 			super(rendererDispatcherIn);

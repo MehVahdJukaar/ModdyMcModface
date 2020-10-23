@@ -593,6 +593,7 @@ public class HangingSignBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 	}
 
+	@OnlyIn(Dist.CLIENT)
 	public static class CustomRender extends TileEntityRenderer<CustomTileEntity> {
 		public CustomRender(TileEntityRendererDispatcher rendererDispatcherIn) {
 			super(rendererDispatcherIn);
@@ -601,6 +602,7 @@ public class HangingSignBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
+
 			matrixStackIn.push();
 			//rotate towards direction
 			matrixStackIn.translate(0.5, 0.875, 0.5);
