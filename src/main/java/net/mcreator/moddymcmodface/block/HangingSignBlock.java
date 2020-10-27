@@ -91,6 +91,7 @@ import net.minecraft.block.Block;
 import net.mcreator.moddymcmodface.gui.EditHangingSignGui;
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 import net.mcreator.moddymcmodface.CommonUtil;
+import net.mcreator.moddymcmodface.block.SignPostBlock;
 
 import javax.annotation.Nullable;
 
@@ -287,7 +288,7 @@ public class HangingSignBlock extends ModdymcmodfaceModElements.ModElement {
   			Block block = world.getBlockState(blockpos.offset(context.getFace().getOpposite())).getBlock();
 
   			int flag = 0;
-  			if(block instanceof FenceBlock) flag = 1;
+  			if(block instanceof FenceBlock || block instanceof SignPostBlock.CustomBlock) flag = 1;
   			else if(block instanceof WallBlock) flag = 2;
 			return this.getDefaultState().with(FACING, context.getFace()).with(EXTENSION, flag);
 		}

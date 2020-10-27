@@ -2,21 +2,18 @@
   "group": "moddymcmodface",
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "012"
+    "01"
   ],
   "key": {
     "0": {
-      "tag": "minecraft:planks"
+      "tag": "minecraft:wooden_slabs"
     },
     "1": {
-      "tag": "minecraft:planks"
-    },
-    "2": {
-      "tag": "minecraft:planks"
+      "tag": "minecraft:wooden_slabs"
     }
   },
   "result": {
     "item": "moddymcmodface:sign_post",
-    "count": 2
+    "count": 1
   }
 }

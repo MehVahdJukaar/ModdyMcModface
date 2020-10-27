@@ -91,6 +91,9 @@ import net.minecraft.state.StateContainer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraftforge.common.util.Constants;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.Matrix4f;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
@@ -524,6 +527,40 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 			super(rendererDispatcherIn);
 		}
 
+		protected boolean canRenderName(CustomTileEntity entity) {
+			if (Minecraft.isGuiEnabled() && entity.getStackInSlot(0).hasDisplayName()) {
+				double d0 = Minecraft.getInstance().getRenderManager().getDistanceToCamera(entity.getPos().getX() + 0.5 ,entity.getPos().getY() + 0.5 ,entity.getPos().getZ() + 0.5);
+				return d0 < 16*16;
+			} 
+			return false;
+		}
+
+		protected void renderName(CustomTileEntity entityIn, String displayNameIn, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
+
+
+			double f = 1.75; //height
+			boolean flag = false; //sneaking
+			int i = 0;
+			
+			FontRenderer fontrenderer = this.renderDispatcher.getFontRenderer();
+			EntityRendererManager renderManager = Minecraft.getInstance().getRenderManager();
+			
+			matrixStackIn.push();
+
+			matrixStackIn.translate(0.5D, f, 0.5D);
+			matrixStackIn.rotate(renderManager.getCameraOrientation());
+			matrixStackIn.scale(-0.025F, -0.025F, 0.025F);
+			Matrix4f matrix4f = matrixStackIn.getLast().getMatrix();
+			float f1 = Minecraft.getInstance().gameSettings.getTextBackgroundOpacity(0.25F);
+			int j = (int)(f1 * 255.0F) << 24;
+			
+			float f2 = (float)(-fontrenderer.getStringWidth(displayNameIn) / 2);
+			fontrenderer.renderString(displayNameIn, f2, (float)i, -1, false, matrix4f, bufferIn, flag, j, packedLightIn);
+			matrixStackIn.pop();
+			
+		}
+		
+
 		@Override
 		public void render(CustomTileEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn,
 				int combinedOverlayIn) {
@@ -568,7 +605,10 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 			}*/
 
 			if(!entityIn.isEmpty()){
-				
+
+				if(this.canRenderName(entityIn)){
+					this.renderName(entityIn, entityIn.getStackInSlot(0).getDisplayName().getFormattedText(), matrixStackIn, bufferIn, combinedLightIn);
+				}
 				matrixStackIn.push();
 				
 				matrixStackIn.translate(0.5, 1.125, 0.5);

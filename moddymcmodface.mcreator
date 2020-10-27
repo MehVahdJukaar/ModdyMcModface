@@ -465,15 +465,6 @@
       "locked_code": true,
       "ids": {},
       "registry_name": "speaker_block"
-    },
-    {
-      "name": "Mn",
-      "type": "gui",
-      "sortid": 176,
-      "compiles": true,
-      "locked_code": false,
-      "ids": {},
-      "registry_name": "mn"
     }
   ],
   "variable_elements": [],
@@ -492,8 +483,8 @@
   "language_map": {
     "en_us": {
       "block.lightupmyenvironment.texture_loader": "Texture Loader",
-      "block.moddymcmodface.hanging_sign": "Hanging Sign",
       "block.lightupmyenvironment.faucet": "Faucet",
+      "block.moddymcmodface.hanging_sign": "Hanging Sign",
       "block.lightupmyenvironment.planter": "Planter",
       "entity.lightupmyenvironment.firefly": "Firefly",
       "block.lightupmyenvironment.blaze_block": "Blaze Block",
@@ -527,7 +518,7 @@
   "workspaceSettings": {
     "modid": "moddymcmodface",
     "modName": "Supplementaries",
-    "version": "alpha 0.6.4 WIP",
+    "version": "alpha 0.6.5 WIP",
     "description": "Random blocks that I wanted to add to vanilla minecraft. Enjoy",
     "author": "Meh-Vah\u0027d Jukaar, MCreator",
     "websiteURL": "https://mcreator.net",

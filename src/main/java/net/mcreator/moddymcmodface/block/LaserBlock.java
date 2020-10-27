@@ -332,6 +332,7 @@ public class LaserBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
 			this.read(pkt.getNbtCompound());
+			this.updateBeam();
 		}
 
 		@Override

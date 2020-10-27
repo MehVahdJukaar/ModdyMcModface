@@ -72,4 +72,5 @@ public class SpeakerBlockBlock extends ModdymcmodfaceModElements.ModElement {
 			return Collections.singletonList(new ItemStack(this, 1));
 		}
 	}
-}*/
+}
+*/
