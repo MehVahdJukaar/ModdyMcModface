@@ -285,7 +285,7 @@ public class SignPostBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
-			return VoxelShapes.create(0.625D, 0D, 0.625D, 0.365D, 1D, 0.375D);			
+			return VoxelShapes.create(0.625D, 0D, 0.625D, 0.375D, 1D, 0.375D);			
 		}
 
 		@Override

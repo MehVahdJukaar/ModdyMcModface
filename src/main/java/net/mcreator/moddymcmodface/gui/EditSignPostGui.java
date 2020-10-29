@@ -85,9 +85,6 @@ public class EditSignPostGui extends ModdymcmodfaceModElements.ModElement {
 
 	}
 
-	@OnlyIn(Dist.CLIENT)
-	public void initElements() {
-	}
 
 	@OnlyIn(Dist.CLIENT)
 	public static class GuiWindow extends Screen {

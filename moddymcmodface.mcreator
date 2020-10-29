@@ -465,6 +465,24 @@
       "locked_code": true,
       "ids": {},
       "registry_name": "speaker_block"
+    },
+    {
+      "name": "EditSpeakerBlock",
+      "type": "gui",
+      "sortid": 178,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "edit_speaker_block"
+    },
+    {
+      "name": "SpeakerBlockRecipe",
+      "type": "recipe",
+      "sortid": 179,
+      "compiles": true,
+      "locked_code": false,
+      "ids": {},
+      "registry_name": "speaker_block_recipe"
     }
   ],
   "variable_elements": [],
@@ -483,8 +501,8 @@
   "language_map": {
     "en_us": {
       "block.lightupmyenvironment.texture_loader": "Texture Loader",
-      "block.lightupmyenvironment.faucet": "Faucet",
       "block.moddymcmodface.hanging_sign": "Hanging Sign",
+      "block.lightupmyenvironment.faucet": "Faucet",
       "block.lightupmyenvironment.planter": "Planter",
       "entity.lightupmyenvironment.firefly": "Firefly",
       "block.lightupmyenvironment.blaze_block": "Blaze Block",
@@ -518,10 +536,10 @@
   "workspaceSettings": {
     "modid": "moddymcmodface",
     "modName": "Supplementaries",
-    "version": "alpha 0.6.5 WIP",
+    "version": "alpha 0.7.0",
     "description": "Random blocks that I wanted to add to vanilla minecraft. Enjoy",
-    "author": "Meh-Vah\u0027d Jukaar, MCreator",
-    "websiteURL": "https://mcreator.net",
+    "author": "Meh-Vah\u0027d Jukaar",
+    "websiteURL": "https://mcreator.net, https://www.curseforge.com/minecraft/mc-mods/supplementaries?page\u003d2#c38",
     "disableForgeVersionCheck": true,
     "serverSideOnly": false,
     "modPicture": "logo",

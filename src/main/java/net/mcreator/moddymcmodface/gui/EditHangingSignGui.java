@@ -141,7 +141,7 @@ public class EditHangingSignGui extends ModdymcmodfaceModElements.ModElement {
 			this.minecraft.keyboardListener.enableRepeatEvents(true);
 			this.addButton(new Button(this.width / 2 - 100, this.height / 4 + 120, 200, 20, I18n.format("gui.done"), (p_214266_1_) -> {
 				this.close();
-			}));
+			}));			
 			this.tileSign.setEditable(false);
 			this.textInputUtil = new TextInputUtil(this.minecraft, () -> {
 				return this.tileSign.getText(this.editLine).getString();

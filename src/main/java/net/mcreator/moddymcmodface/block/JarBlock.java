@@ -705,7 +705,9 @@ public class JarBlock extends ModdymcmodfaceModElements.ModElement {
 
 		@Override
 		public boolean canInsertItem(int index, ItemStack stack, @Nullable Direction direction) {
-			return this.isItemValidForSlot(index, stack) && (this.liquidType == JarContentType.COOKIES || this.liquidType == JarContentType.EMPTY);
+			//can only insert cookies
+			return stack.getItem() == Items.COOKIE;
+			//return this.isItemValidForSlot(index, stack) && (this.liquidType == JarContentType.COOKIES || this.liquidType == JarContentType.EMPTY);
 		}
 
 		@Override

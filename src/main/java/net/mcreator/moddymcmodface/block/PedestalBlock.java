@@ -357,7 +357,7 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 
 				}
 				if(up!=state.get(CustomBlock.UP)){
-					world.setBlockState(pos, state.with(CustomBlock.UP,up), 2);
+					world.setBlockState(pos, state.with(CustomBlock.UP,up), 3);
 				}
 			}
 			else if(fromPos.equals(pos.down())){
@@ -370,7 +370,7 @@ public class PedestalBlock extends ModdymcmodfaceModElements.ModElement {
 					}
 				}
 				if(down!=state.get(CustomBlock.DOWN)){
-					world.setBlockState(pos, state.with(CustomBlock.DOWN,down), 2);
+					world.setBlockState(pos, state.with(CustomBlock.DOWN,down), 3);
 				}
 			}
 		}

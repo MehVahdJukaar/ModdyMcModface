@@ -2,11 +2,11 @@
   "parent": "block/cube",
   "textures": {
     "down": "moddymcmodface:blocks/speaker_bottom",
-    "up": "moddymcmodface:blocks/speaker_top",
-    "north": "moddymcmodface:blocks/speaker_side",
+    "up": "moddymcmodface:blocks/speaker_bottom",
+    "north": "moddymcmodface:blocks/speaker_front",
     "east": "moddymcmodface:blocks/speaker_side",
     "south": "moddymcmodface:blocks/speaker_side",
     "west": "moddymcmodface:blocks/speaker_side",
-    "particle": "moddymcmodface:blocks/speaker_bottom"
+    "particle": "moddymcmodface:blocks/speaker_front"
   }
 }

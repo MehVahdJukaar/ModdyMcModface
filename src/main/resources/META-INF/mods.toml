@@ -3,12 +3,12 @@ loaderVersion="[31,)"
 
 [[mods]]
 modId="moddymcmodface"
-version="alpha 0.6.5 WIP"
+version="alpha 0.7.0"
 displayName="Supplementaries"
 credits="Created using mod maker MCreator - https://mcreator.net/about"
-displayURL="https://mcreator.net"
+displayURL="https://mcreator.net, https://www.curseforge.com/minecraft/mc-mods/supplementaries?page=2#c38"
 logoFile="logo.png"
-authors="Meh-Vah'd Jukaar, MCreator"
+authors="Meh-Vah'd Jukaar"
 description='''
 Random blocks that I wanted to add to vanilla minecraft. Enjoy
 '''

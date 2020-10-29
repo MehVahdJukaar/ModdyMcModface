@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=north": {
       "model": "moddymcmodface:block/texture_loader"
+    },
+    "facing=east": {
+      "model": "moddymcmodface:block/texture_loader",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "moddymcmodface:block/texture_loader",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "moddymcmodface:block/texture_loader",
+      "y": 270
     }
   }
 }
