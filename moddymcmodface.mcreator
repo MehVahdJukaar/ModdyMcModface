@@ -483,6 +483,27 @@
       "locked_code": false,
       "ids": {},
       "registry_name": "speaker_block_recipe"
+    },
+    {
+      "name": "WallLantern",
+      "type": "block",
+      "sortid": 181,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "wall_lantern"
+    },
+    {
+      "name": "PlaceWallLantern",
+      "type": "procedure",
+      "sortid": 182,
+      "compiles": true,
+      "locked_code": true,
+      "ids": {},
+      "registry_name": "place_wall_lantern",
+      "metadata": {
+        "dependencies": []
+      }
     }
   ],
   "variable_elements": [],
@@ -501,8 +522,9 @@
   "language_map": {
     "en_us": {
       "block.lightupmyenvironment.texture_loader": "Texture Loader",
-      "block.moddymcmodface.hanging_sign": "Hanging Sign",
       "block.lightupmyenvironment.faucet": "Faucet",
+      "block.moddymcmodface.hanging_sign": "Hanging Sign",
+      "block.moddymcmodface.wall_lantern": "Wall Lantern",
       "block.lightupmyenvironment.planter": "Planter",
       "entity.lightupmyenvironment.firefly": "Firefly",
       "block.lightupmyenvironment.blaze_block": "Blaze Block",

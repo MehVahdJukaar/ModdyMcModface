@@ -134,13 +134,13 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 					case DOWN :
 					case NORTH :
 					default :
-						return VoxelShapes.create(0.6875D, 0, 1D, 0.3125D, 0.625D, 0.312D);
+						return VoxelShapes.create(0.6875D, 0, 1D, 0.3125D, 0.625D, 0.3125D);
 					case SOUTH :
-						return VoxelShapes.create(0.3125D, 0, 0D, 0.6875D, 0.625D, 0.688D);
+						return VoxelShapes.create(0.3125D, 0, 0D, 0.6875D, 0.625D, 0.6875D);
 					case EAST :
-						return VoxelShapes.create(0D, 0, 0.6875D, 0.688D, 0.625D, 0.3125D);
+						return VoxelShapes.create(0D, 0, 0.6875D, 0.6875D, 0.625D, 0.3125D);
 					case WEST :
-						return VoxelShapes.create(1D, 0, 0.3125D, 0.312D, 0.625D, 0.6875D);
+						return VoxelShapes.create(1D, 0, 0.3125D, 0.3125D, 0.625D, 0.6875D);
 				}
 			} else {
 				switch ((Direction) state.get(FACING)) {
@@ -148,13 +148,13 @@ public class FaucetBlock extends ModdymcmodfaceModElements.ModElement {
 					case DOWN :
 					case NORTH :
 					default :
-						return VoxelShapes.create(0.6875D, 0.3125D, 1D, 0.3125D, 0.9375D, 0.312D);
+						return VoxelShapes.create(0.6875D, 0.3125D, 1D, 0.3125D, 0.9375D, 0.3125D);
 					case SOUTH :
-						return VoxelShapes.create(0.3125D, 0.3125D, 0D, 0.6875D, 0.9375D, 0.688D);
+						return VoxelShapes.create(0.3125D, 0.3125D, 0D, 0.6875D, 0.9375D, 0.6875D);
 					case EAST :
-						return VoxelShapes.create(0D, 0.3125D, 0.6875D, 0.688D, 0.9375D, 0.3125D);
+						return VoxelShapes.create(0D, 0.3125D, 0.6875D, 0.6875D, 0.9375D, 0.3125D);
 					case WEST :
-						return VoxelShapes.create(1D, 0.3125D, 0.3125D, 0.312D, 0.9375D, 0.6875D);
+						return VoxelShapes.create(1D, 0.3125D, 0.3125D, 0.3125D, 0.9375D, 0.6875D);
 				}
 			}
 		}

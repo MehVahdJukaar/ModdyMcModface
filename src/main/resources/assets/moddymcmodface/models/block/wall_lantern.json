@@ -1,0 +1,8 @@
+{
+  "parent": "moddymcmodface:custom/wall_lantern",
+  "textures": {
+    "all": "moddymcmodface:blocks/t2",
+    "particle": "minecraft:block/lantern",
+    "1": "moddymcmodface:blocks/wall_lantern"
+  }
+}
