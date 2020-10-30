@@ -2,28 +2,38 @@
 package net.mcreator.moddymcmodface.block;
 
 import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.event.RegistryEvent;
 
 import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.INameable;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.server.management.PlayerList;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.item.ItemStack;
@@ -31,44 +41,26 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Item;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.BlockItem;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.command.ICommandSource;
-import net.minecraft.command.CommandSource;
+import net.minecraft.client.Minecraft;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.DirectionalBlock;
+import net.minecraft.block.HorizontalBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Block;
 
+import net.mcreator.moddymcmodface.Particles;
 import net.mcreator.moddymcmodface.gui.EditSpeakerBlockGui;
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
 import net.mcreator.moddymcmodface.ModdymcmodfaceMod;
 
+import java.util.function.Supplier;
 import java.util.List;
 import java.util.Collections;
 
 import com.mojang.text2speech.Narrator;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLanguageProvider;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.fml.network.NetworkEvent;
-import java.util.function.Supplier;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraft.server.management.PlayerList;
-import net.minecraft.client.Minecraft;
-import net.minecraft.block.HorizontalBlock;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.particles.ParticleTypes;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class SpeakerBlockBlock extends ModdymcmodfaceModElements.ModElement {
@@ -78,11 +70,8 @@ public class SpeakerBlockBlock extends ModdymcmodfaceModElements.ModElement {
 	public static final TileEntityType<CustomTileEntity> tileEntityType = null;
 	public SpeakerBlockBlock(ModdymcmodfaceModElements instance) {
 		super(instance, 175);
-
 		elements.addNetworkMessage(packetSendSpeakerBlockMessage.class, packetSendSpeakerBlockMessage::buffer, packetSendSpeakerBlockMessage::new,
 				packetSendSpeakerBlockMessage::handler);
-
-		
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 	}
 
@@ -96,7 +85,6 @@ public class SpeakerBlockBlock extends ModdymcmodfaceModElements.ModElement {
 	public void registerTileEntity(RegistryEvent.Register<TileEntityType<?>> event) {
 		event.getRegistry().register(TileEntityType.Builder.create(CustomTileEntity::new, block).build(null).setRegistryName("speaker_block"));
 	}
-	
 	public static class CustomBlock extends Block {
 		public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
 		public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -124,7 +112,6 @@ public class SpeakerBlockBlock extends ModdymcmodfaceModElements.ModElement {
 			return this.getDefaultState().with(FACING, context.getPlacementHorizontalFacing().getOpposite());
 		}
 
-
 		@Override
 		public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
 			List<ItemStack> dropsOriginal = super.getDrops(state, builder);
@@ -136,6 +123,12 @@ public class SpeakerBlockBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
 			this.updatePower(state, worldIn, pos);
+			if (stack.hasDisplayName()) {
+				TileEntity tileentity = worldIn.getTileEntity(pos);
+				if (tileentity instanceof CustomTileEntity) {
+					((CustomTileEntity) tileentity).setCustomName(stack.getDisplayName());
+				}
+			}
 		}
 
 		@Override
@@ -145,49 +138,43 @@ public class SpeakerBlockBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 
 		public void updatePower(BlockState state, World world, BlockPos pos) {
-		
-			if(!world.isRemote()){
-
+			if (!world.isRemote()) {
 				boolean pow = world.isBlockPowered(pos);
-				//state changed
+				// state changed
 				if (pow != state.get(POWERED)) {
 					world.setBlockState(pos, state.with(POWERED, Boolean.valueOf(pow)), 3);
-					//can I emit sound?
-					Direction facing  = state.get(FACING);
-					if (pow && world.isAirBlock(pos.offset(facing))){
-						
+					// can I emit sound?
+					Direction facing = state.get(FACING);
+					if (pow && world.isAirBlock(pos.offset(facing))) {
 						TileEntity tileentity = world.getTileEntity(pos);
-						if(tileentity instanceof CustomTileEntity){
+						if (tileentity instanceof CustomTileEntity) {
 							CustomTileEntity speaker = (CustomTileEntity) tileentity;
-		
 							MinecraftServer mcserv = ServerLifecycleHooks.getCurrentServer();
 							DimensionType dimension = world.getDimension().getType();
-							if (mcserv != null && dimension != null && speaker.message != ""){
-
-								//particle
+							if (mcserv != null && dimension != null && speaker.message != "") {
+								// particle
 								world.addBlockEvent(pos, this, 0, 0);
-								
 								PlayerList players = mcserv.getPlayerList();
-								players.sendToAllNearExcept((PlayerEntity) null, pos.getX(), pos.getY(), pos.getZ(),
-									64, dimension, ModdymcmodfaceMod.PACKET_HANDLER.toVanillaPacket(
-									new packetSendSpeakerBlockMessage(speaker.message, speaker.narrator), NetworkDirection.PLAY_TO_CLIENT));
-		
+								players.sendToAllNearExcept((PlayerEntity) null, pos.getX(), pos.getY(), pos.getZ(), 64, dimension,
+										ModdymcmodfaceMod.PACKET_HANDLER.toVanillaPacket(
+												new packetSendSpeakerBlockMessage(speaker.getName().getString() + ": " + speaker.message,
+														speaker.narrator),
+												NetworkDirection.PLAY_TO_CLIENT));
 							}
 						}
 					}
 				}
-			
 			}
 		}
-
 
 		@Override
 		public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity entity, Hand hand,
 				BlockRayTraceResult hit) {
 			TileEntity tileentity = world.getTileEntity(pos);
-			if (tileentity instanceof CustomTileEntity  && entity instanceof PlayerEntity) {
-				//client
-				if(world.isRemote) EditSpeakerBlockGui.GuiWindow.open((CustomTileEntity)tileentity);
+			if (tileentity instanceof CustomTileEntity && entity instanceof PlayerEntity) {
+				// client
+				if (world.isRemote)
+					EditSpeakerBlockGui.GuiWindow.open((CustomTileEntity) tileentity);
 				return ActionResultType.SUCCESS;
 			}
 			return ActionResultType.PASS;
@@ -212,26 +199,43 @@ public class SpeakerBlockBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public boolean eventReceived(BlockState state, World world, BlockPos pos, int eventID, int eventParam) {
 			super.eventReceived(state, world, pos, eventID, eventParam);
-
 			Direction facing = state.get(FACING);
-
-			world.addParticle(ParticleTypes.NOTE, pos.getX() + 0.5 + facing.getXOffset()*0.575,
-				pos.getY() + 0.5, pos.getZ() + 0.5 + facing.getZOffset()*0.575,
-				(double)world.rand.nextInt(24)/ 24.0D, 0.0D, 0.0D);
+			world.addParticle(Particles.ParticleList.SPEAKER_SOUND.get(), pos.getX() + 0.5 + facing.getXOffset() * 0.725, pos.getY() + 0.5,
+					pos.getZ() + 0.5 + facing.getZOffset() * 0.725, (double) world.rand.nextInt(24) / 24.0D, 0.0D, 0.0D);
 			return true;
 		}
 	}
 
-	public static class CustomTileEntity extends TileEntity {
+	public static class CustomTileEntity extends TileEntity implements INameable {
 		public String message = "";
 		public boolean narrator = false;
+		private ITextComponent customName;
 		protected CustomTileEntity() {
 			super(tileEntityType);
+		}
+
+		public void setCustomName(ITextComponent name) {
+			this.customName = name;
+		}
+
+		public ITextComponent getName() {
+			return this.customName != null ? this.customName : this.getDefaultName();
+		}
+
+		public ITextComponent getCustomName() {
+			return this.customName;
+		}
+
+		public ITextComponent getDefaultName() {
+			return new StringTextComponent("Speaker Block");
 		}
 
 		@Override
 		public void read(CompoundNBT compound) {
 			super.read(compound);
+			if (compound.contains("CustomName", 8)) {
+				this.customName = ITextComponent.Serializer.fromJson(compound.getString("CustomName"));
+			}
 			this.message = compound.getString("Message");
 			this.narrator = compound.getBoolean("Narrator");
 		}
@@ -239,6 +243,9 @@ public class SpeakerBlockBlock extends ModdymcmodfaceModElements.ModElement {
 		@Override
 		public CompoundNBT write(CompoundNBT compound) {
 			super.write(compound);
+			if (this.customName != null) {
+				compound.putString("CustomName", ITextComponent.Serializer.toJson(this.customName));
+			}
 			compound.putString("Message", this.message);
 			compound.putBoolean("Narrator", this.narrator);
 			return compound;
@@ -260,11 +267,9 @@ public class SpeakerBlockBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 	}
 
-
-	public static class packetSendSpeakerBlockMessage{
+	public static class packetSendSpeakerBlockMessage {
 		private ITextComponent str;
 		private boolean narrator;
-		
 		public packetSendSpeakerBlockMessage(PacketBuffer buf) {
 			this.str = buf.readTextComponent();
 			this.narrator = buf.readBoolean();
@@ -276,27 +281,21 @@ public class SpeakerBlockBlock extends ModdymcmodfaceModElements.ModElement {
 		}
 
 		public static void buffer(packetSendSpeakerBlockMessage message, PacketBuffer buf) {
-
 			buf.writeTextComponent(message.str);
 			buf.writeBoolean(message.narrator);
 		}
-		
+
 		public static void handler(packetSendSpeakerBlockMessage message, Supplier<NetworkEvent.Context> ctx) {
 			// client world
-
 			ctx.get().enqueueWork(() -> {
-
-				//PlayerEntity player = ctx.get().getSender();
-				if(message.narrator){
+				// PlayerEntity player = ctx.get().getSender();
+				if (message.narrator) {
 					Narrator.getNarrator().say(message.str.getString(), true);
+				} else {
+					Minecraft.getInstance().player.sendMessage(new StringTextComponent(message.str.getString()));
 				}
-				else{
-					Minecraft.getInstance().player.sendMessage(new StringTextComponent("[Speaker Block] "+message.str.getString()));
-				}
-				
 			});
 			ctx.get().setPacketHandled(true);
 		}
 	}
-	
 }

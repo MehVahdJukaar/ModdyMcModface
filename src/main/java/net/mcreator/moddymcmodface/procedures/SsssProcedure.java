@@ -7,9 +7,12 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraft.world.IWorld;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.Hand;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.block.Blocks;
 
 import net.mcreator.moddymcmodface.ModdymcmodfaceModElements;
@@ -23,6 +26,10 @@ public class SsssProcedure extends ModdymcmodfaceModElements.ModElement {
 	}
 
 	public static void executeProcedure(Map<String, Object> dependencies) {
+		if (dependencies.get("entity") == null) {
+			System.err.println("Failed to load dependency entity for procedure Ssss!");
+			return;
+		}
 		if (dependencies.get("itemstack") == null) {
 			System.err.println("Failed to load dependency itemstack for procedure Ssss!");
 			return;
@@ -43,6 +50,7 @@ public class SsssProcedure extends ModdymcmodfaceModElements.ModElement {
 			System.err.println("Failed to load dependency world for procedure Ssss!");
 			return;
 		}
+		Entity entity = (Entity) dependencies.get("entity");
 		ItemStack itemstack = (ItemStack) dependencies.get("itemstack");
 		double x = dependencies.get("x") instanceof Integer ? (int) dependencies.get("x") : (double) dependencies.get("x");
 		double y = dependencies.get("y") instanceof Integer ? (int) dependencies.get("y") : (double) dependencies.get("y");
@@ -64,6 +72,9 @@ public class SsssProcedure extends ModdymcmodfaceModElements.ModElement {
 					((IItemHandlerModifiable) capability).setStackInSlot(_sltid, _setstack);
 				}
 			});
+		}
+		if (entity instanceof LivingEntity) {
+			((LivingEntity) entity).swing(Hand.MAIN_HAND, true);
 		}
 	}
 }

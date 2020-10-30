@@ -33,6 +33,11 @@ import net.minecraft.item.BlockItem;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.LanternBlock;
+import net.minecraft.block.Blocks;
 
 @ModdymcmodfaceModElements.ModElement.Tag
 public class PlaceWallLanternProcedure extends ModdymcmodfaceModElements.ModElement {
@@ -56,6 +61,7 @@ public class PlaceWallLanternProcedure extends ModdymcmodfaceModElements.ModElem
 				BlockPos pos = event.getPos();
 				World world = event.getWorld();
 
+			
 				Item item = WallLanternBlock.block.asItem();
 
 				BlockItemUseContext ctx = new BlockItemUseContext(
@@ -66,6 +72,12 @@ public class PlaceWallLanternProcedure extends ModdymcmodfaceModElements.ModElem
 
 				if(result.isSuccessOrConsume()){
 					if(player.isCreative()) stack.grow(1);
+					
+					player.swing(hand, true);
+					BlockState state = Blocks.LANTERN.getDefaultState();
+		            SoundType soundtype = state.getSoundType(world, pos, player);
+		            world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+
 					//event.setCancellationResult(result);
 					//event.setCanceled(true);
 				}

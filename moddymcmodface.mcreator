@@ -363,6 +363,10 @@
       "metadata": {
         "dependencies": [
           {
+            "name": "entity",
+            "type": "entity"
+          },
+          {
             "name": "itemstack",
             "type": "itemstack"
           },
@@ -522,9 +526,9 @@
   "language_map": {
     "en_us": {
       "block.lightupmyenvironment.texture_loader": "Texture Loader",
-      "block.lightupmyenvironment.faucet": "Faucet",
-      "block.moddymcmodface.hanging_sign": "Hanging Sign",
       "block.moddymcmodface.wall_lantern": "Wall Lantern",
+      "block.moddymcmodface.hanging_sign": "Hanging Sign",
+      "block.lightupmyenvironment.faucet": "Faucet",
       "block.lightupmyenvironment.planter": "Planter",
       "entity.lightupmyenvironment.firefly": "Firefly",
       "block.lightupmyenvironment.blaze_block": "Blaze Block",
